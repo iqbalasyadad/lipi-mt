@@ -1,0 +1,50 @@
+####################################################################
+                       MT DATA PREPROCESSING                        
+                             DATA FILE                              
+####################################################################
+TAB              : autocomplete file or folder name
+DOUBLE TAB       : list of all file and folder in the directory
+CTRL+C or 'exit' : close the program
+BASE PATH        : /home/iqbal/Documents/LIPI/program/datafile
+####################################################################
+
+.pt1 directory
+>> data
+
+Input files (./*.pt1)
+>> .
+
+Number of responses (4/8)
+>> 8
+
+Select periods
+>> 1e-4 1e-3 1e-2 1e-1 1e0
+
+Imaginary impedance tensor error (=real/0/nan)
+>> NaN
+
+Coordinate file (.txt)
+>> example_coordinate.txt
+
+Output file
+>> example_output.data
+File already exist. Replace file? (y/n)
+>> y
+success..
+
+####################################################################
+                             RESULT                                 
+
+Selected periods:
+1.0000E-04 1.0000E-03 1.0000E-02 1.0000E-01 1.0000E+00 
+
+Nearest periods:
+9.6154E-05 9.0909E-04 1.0309E-02 1.0638E-01 9.8039E-01 (AMT22.pt1)
+9.6154E-05 1.1111E-03 1.0309E-02 1.0638E-01 9.8039E-01 (AMT23.pt1)
+9.6154E-05 9.0909E-04 1.0309E-02 1.0638E-01 9.8039E-01 (AMT24.pt1)
+9.6154E-05 9.0909E-04 1.0309E-02 1.0638E-01 9.8039E-01 (AMT25.pt1)
+
+Coordinate header: DD
+
+Output file: example_output.data
+####################################################################
