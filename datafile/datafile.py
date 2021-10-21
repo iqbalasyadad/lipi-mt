@@ -235,14 +235,12 @@ class CreateDataFile:
                 if self.impedanceTensorErrorHeaders[i] == '-' :
                     impedanceTensorErrorValue = np.zeros(len(self.usedPeriods), dtype=float)
                     try:
-                        impedanceTensorErrorImagfloat = float (self.impedanceTensorErrorImag)
+                        impedanceTensorErrorValue[:] = float (self.impedanceTensorErrorImag)
                     except:
                         if self.impedanceTensorErrorImag.lower() == "=real":
                             impedanceTensorErrorValue = lastImpedanceTensorError
                         else:
                             impedanceTensorErrorValue[:] = np.nan
-                    else:
-                        impedanceTensorErrorValue[:] = impedanceTensorErrorImagfloat
                 else:
                     impedanceTensorErrorValue = self.__getDataOnPeriods(self.impedanceTensorErrorHeaders[i], fileHeaders, fileData, nearestPeriodsIndex)
                     impedanceTensorErrorValue = self.__vartoerr(impedanceTensorErrorValue)
