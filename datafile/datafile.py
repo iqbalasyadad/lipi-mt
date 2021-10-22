@@ -108,16 +108,16 @@ class CreateDataFile:
         self.headerZyxVar = "Zyx VAR (Rot)"
         self.headerZyyVar = "Zyy VAR (Rot)"
         self.outputStr = ''
-        self.basepath = os.getcwd()
+        self.basePath = os.getcwd()
     
     def setInputDirectory(self, directory=None):
         if directory:
             if os.path.isdir(directory):
-                self.inputDirectory = directory
+                self.pt1FolderPath = os.path.join(self.basePath, directory)
             else:
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), directory)
         else:
-            self.inputDirectory = ''
+            self.pt1FolderPath = self.basePath
                 
     def setInputFiles(self, files='*'):
         if not files or files=='.' or files=='*':
@@ -131,7 +131,7 @@ class CreateDataFile:
                 if os.path.isfile(file):
                     inputFiles.append(file)
                 else:
-                    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), '/'+file)
+                    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
         self.inputFiles = inputFiles
     
     def getInputFiles(self):
@@ -208,13 +208,13 @@ class CreateDataFile:
         self.errorMapValue = errorMapValue
     
     def __getAllData(self):
-        os.chdir("{}/{}".format(self.basepath, self.inputDirectory)) # change working path to input directory
         self.impedanceTensorHeaderDatasAll = []
         self.impedanceTensorHeaderErrorDatasAll = []
         self.nearestPeriodsAll = np.zeros([len(self.inputFiles),len(self.usedPeriods)], dtype=float)
         
         for fIndex, f in enumerate (self.inputFiles):
-            fileHeaders, fileData = self.__parse(f)
+            pt1FilePath = os.path.join(self.pt1FolderPath, f)
+            fileHeaders, fileData = self.__parse(pt1FilePath)
             
             # get nearest periods
             fileFrequencyIndex = self.__getHeaderIndex(self.headerFreq, fileHeaders)
@@ -247,7 +247,6 @@ class CreateDataFile:
                     lastImpedanceTensorError = impedanceTensorErrorValue
                 impedanceTensorHeaderErrorDatas[i] = impedanceTensorErrorValue
             self.impedanceTensorHeaderErrorDatasAll.append(impedanceTensorHeaderErrorDatas)
-        os.chdir("{}".format(self.basepath)) # change working path to base path
     
     def __createDataOnP(self, data, headers):
         dataOnPeriods =  np.zeros([len(self.usedPeriods), len(self.inputFiles), len(headers)])
@@ -338,7 +337,7 @@ class CommandLine:
             os.system("clear")
         elif platform=="windows":
             os.system("cls")    
-        self.basepath = os.getcwd()
+        self.basePath = os.getcwd()
         readline.parse_and_bind("tab:complete")
 
     def displayHeader(self):
@@ -349,7 +348,7 @@ class CommandLine:
         print ("{0:17s}: {1}".format("TAB", "autocomplete file or folder name"))
         print ("{0:17s}: {1}".format("DOUBLE TAB", "list of all file and folder in the directory"))
         print ("{0:17s}: {1}".format("CTRL+C or \'exit\'", "close the program"))
-        print ("{0:17s}: {1}".format("BASE PATH", self.basepath))
+        print ("{0:17s}: {1}".format("BASE PATH", self.basePath))
         print ("####################################################################")
 
     
@@ -508,7 +507,7 @@ def main():
     userCLI.getpt1Directory()
     userCLI.chdir(userCLI.pt1directory)
     userCLI.getInputFiles()
-    userCLI.chdir(userCLI.basepath)
+    userCLI.chdir(userCLI.basePath)
     userCLI.getNumberResponses()
     userCLI.getSelectedPeriods()
     userCLI.getITImaginaryError()
