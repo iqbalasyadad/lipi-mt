@@ -10,7 +10,9 @@ import numpy as np
 class Coordinate:
     
     def __init__(self, file):
-        self.inputType, self.inputStations, self.inputDatas = self.__parse(file)
+        self.basePath = os.getcwd()
+        coordinateFilePath = os.path.join(self.basePath, file)
+        self.inputType, self.inputStations, self.inputDatas = self.__parse(coordinateFilePath)
         self.usedCoordinates = self.inputDatas
 
     def getInputType(self):
@@ -497,6 +499,7 @@ class CommandLine:
             for period in self.newFile.nearestPeriodsAll[i]:
                 print ("{:.4E}".format(period), end=' ')
             print ("({})".format(self.newFile.inputFiles[i]))
+        print ("\nImpedance Tensor Error (Im): {}".format(self.newFile.impedanceTensorErrorImag))
         print ("\nCoordinate header: {}".format(self.coordinateHeader))
         print ("\nOutput file: {}".format(self.newFile.getOutName()))
         print ("####################################################################")
