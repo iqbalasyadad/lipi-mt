@@ -331,7 +331,7 @@ class CreateDataFile:
     def getOutName(self):
         return self.outName
 
-class CommandLine:
+class DataFileCLI:
 
     def __init__(self):
         self.newFile = CreateDataFile()
@@ -505,7 +505,7 @@ class CommandLine:
         print ("####################################################################")
 
 def main():
-    userCLI = CommandLine()
+    userCLI = DataFileCLI()
     userCLI.displayHeader()
     userCLI.getpt1Directory()
     userCLI.chdir(userCLI.pt1directory)
