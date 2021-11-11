@@ -390,7 +390,7 @@ class InitialModelCLI():
         resistivityValueTemp = []
         
         while(True):
-            inputResistivityValue = self.getInput().split()
+            inputResistivityValue = self.getInput().lower().split()
             
             for resistivity in inputResistivityValue:
                 if resistivity == "end":
@@ -416,17 +416,24 @@ class InitialModelCLI():
         resistivityIndex = []
           
         while(True):
-            print("layer: {}".format(layerStart), end=' ')
             layerRangeTemp = [layerStart]
             
             if layerStart == self.myInitialModel.nz:
+                print("Layer range: {}".format(layerStart))
                 layerEndFlag = False
-            
+            else:
+                print("Layer range: {}".format(layerStart), end=' ')
+                
             if layerEndFlag:
                 print("to layer:")
                 while(True):
+                    inputLayerEnd = self.getInput().lower()
+                    if inputLayerEnd == "last":
+                        inputLayerEnd = self.myInitialModel.nz
+                    elif inputLayerEnd == '':
+                        inputLayerEnd = layerStart
                     try:
-                        layerEnd = int(self.getInput())
+                        layerEnd = int(inputLayerEnd)
                     except:
                         print("invalid input")
                     else:
@@ -540,9 +547,37 @@ class InitialModelCLI():
         print("Number of resistivity index: {}".format(self.myInitialModel.nr))
         print("Resistivity value: {}".format(self.myInitialModel.resistivityValue))
         print()
+        maxCharL = 0
+        for layerRange in self.myInitialModel.resistivityIndexLayer:
+            maxCharLayerRange = 0
+            for layer in layerRange:
+                nStrLayer = len(str(layer))
+                maxCharLayerRange += nStrLayer
+            if maxCharLayerRange > maxCharL:
+                maxCharL = maxCharLayerRange
+        maxCharL += 3
+        maxCharI = 0
+        for indexVal in self.myInitialModel.resistivityIndex:
+            nStrIndex = len(str(indexVal))
+            if nStrIndex > maxCharI:
+                maxCharI = nStrIndex
+        strHeaderLayer = "Layer"
+        strRI = "Resistivity index"
+        if maxCharL < len(strHeaderLayer)+1:
+            maxCharL = len(strHeaderLayer)+1
+        print("{:{}s}".format(strHeaderLayer, maxCharL), end=' ')
+        print("{:{}s}".format(strRI, maxCharI))
+        for iLayerRange, layerRange in enumerate(self.myInitialModel.resistivityIndexLayer):
+            if len(layerRange)==1:
+                strLayerRange = "{}".format(layerRange[0])
+            elif len(layerRange)==2:
+                strLayerRange = "{}-{}".format(layerRange[0], layerRange[1])
+            strIndexVal = str(self.myInitialModel.resistivityIndex[iLayerRange])
+            print("{:{}s}".format(strLayerRange, maxCharL), end=' ')
+            print("{:{}s}".format(strIndexVal, maxCharI))
+        print()
         print("Output file: {}".format(self.myInitialModel.outFileName))
-        print("####################################################################")  
-
+        print("####################################################################")
 
 def main():
     myInitialModelCLI = InitialModelCLI()
