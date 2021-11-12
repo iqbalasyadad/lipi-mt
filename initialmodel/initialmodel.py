@@ -265,7 +265,6 @@ class CreateInitialModel:
             f.write(self.strOutput)
         f.close()
 
-# Class for CLI
 class InitialModelCLI():
     
     def __init__(self):
@@ -282,16 +281,18 @@ class InitialModelCLI():
         print("                       MT DATA PREPROCESSING                        ")
         print("                           INITIAL MODEL                            ")
         print("####################################################################")
-        print("{0:17s}: {1}".format("CTRL+C or \'exit\'", "close the program"))
         print("{0:17s}: {1}".format("BASE PATH", self.basePath))
+        print("{0:17s}: {1}".format("CTRL+C or \'exit\'", "close the program"))
         print("####################################################################")
     
     def getInput(self):
-        userInput = input (">> ")
-        if userInput=="exit":
+        userInput = input(">> ")
+        userInputLower = userInput.lower()
+        if userInputLower == "exit":
             print("Program closed")
             exit()
-        return userInput
+        else:
+            return userInput
     
     def getTitle(self):
         print()
@@ -320,8 +321,10 @@ class InitialModelCLI():
         
     def getBlockX(self):
         print()
-        print("Block x")
-        print("Use the same block size in opposite direction? (y/n)")
+        print("Block in x direction")
+        print("Block size from center to south")
+        blockSide1 = self.getBlockSide()
+        print("Do you want to use the same block size for center to north? (y/n)")
         while(True):
             mirrorBlockMode = self.getInput().lower()
             if mirrorBlockMode=='y' or mirrorBlockMode=='n':
@@ -329,10 +332,8 @@ class InitialModelCLI():
             else:
                 print("invalid input")
         
-        print("Input block size (center to south)")
-        blockSide1 = self.getBlockSide()
         if mirrorBlockMode == 'n':
-            print("Input block size (center to north)")
+            print("Block size from center to north")
             blockSide2 = self.getBlockSide()
             self.myInitialModel.blockSizeX = self.myInitialModel.createBlockXY('manual', blockSide1, blockSide2)
         elif mirrorBlockMode == 'y':
@@ -340,8 +341,10 @@ class InitialModelCLI():
     
     def getBlockY(self):
         print()
-        print("Block y")
-        print("Use the same block size in opposite direction? (y/n)")
+        print("Block in y direction")
+        print("Block size from center to west")
+        blockSide1 = self.getBlockSide()
+        print("Do you want to use the same block size for center to east? (y/n)")
         while(True):
             mirrorBlockMode = self.getInput().lower()
             if mirrorBlockMode=='y' or mirrorBlockMode=='n':
@@ -349,10 +352,8 @@ class InitialModelCLI():
             else:
                 print("invalid input")
         
-        print("Input block size (center to west)")
-        blockSide1 = self.getBlockSide()
         if mirrorBlockMode == 'n':
-            print("Input block size (center to east)")
+            print("Block size from center to east")
             blockSide2 = self.getBlockSide()
             self.myInitialModel.blockSizeY = self.myInitialModel.createBlockXY('manual', blockSide1, blockSide2)
         elif mirrorBlockMode == 'y':
@@ -360,8 +361,8 @@ class InitialModelCLI():
     
     def getBlockZ(self):
         print()
-        print("Block z")
-        print("Input block size (surface to bottom)")
+        print("Block in z direction")
+        print("Block size from surface to bottom")
         blockSide = self.getBlockSide()
         self.myInitialModel.blockSizeZ = blockSide
     
@@ -370,7 +371,6 @@ class InitialModelCLI():
         print("Number of resistivity index")
         
         while(True):
-            
             try:
                 self.myInitialModel.nr = int(self.getInput())
             except:
@@ -386,12 +386,10 @@ class InitialModelCLI():
         
         print()
         print("Resistivity value")
-        
         resistivityValueTemp = []
         
         while(True):
             inputResistivityValue = self.getInput().lower().split()
-            
             for resistivity in inputResistivityValue:
                 if resistivity == "end":
                     self.myInitialModel.resistivityValue = resistivityValueTemp
@@ -409,21 +407,19 @@ class InitialModelCLI():
     def getRIndex(self):
         print()
         print("Resistivity index (layer 1 - {})".format(self.myInitialModel.nz))
-        
         layerStart = 1
         layerEndFlag = True
         layerRange = []
         resistivityIndex = []
-          
+        
         while(True):
             layerRangeTemp = [layerStart]
-            
             if layerStart == self.myInitialModel.nz:
                 print("Layer range: {}".format(layerStart))
                 layerEndFlag = False
             else:
                 print("Layer range: {}".format(layerStart), end=' ')
-                
+            
             if layerEndFlag:
                 print("to layer:")
                 while(True):
@@ -486,14 +482,11 @@ class InitialModelCLI():
     
     def formatBlock(self):
         print()
-        print("Output format ('src-x'/'src-y'/'src-z'/'inf'/integer)")
-        
+        print("Column format ('src-x'/'src-y'/'src-z'/'inf'/integer)")
         print("Block X column")
         self.myInitialModel.blockColX = self.getFormatBlock()
-        
         print("Block Y column")
         self.myInitialModel.blockColY = self.getFormatBlock()
-        
         print("Block Z column")
         self.myInitialModel.blockColZ = self.getFormatBlock()
     
@@ -545,6 +538,7 @@ class InitialModelCLI():
         print(self.myInitialModel.blockSizeZ)
         print()
         print("Number of resistivity index: {}".format(self.myInitialModel.nr))
+        print()
         print("Resistivity value: {}".format(self.myInitialModel.resistivityValue))
         print()
         maxCharL = 0
@@ -577,7 +571,7 @@ class InitialModelCLI():
             print("{:{}s}".format(strIndexVal, maxCharI))
         print()
         print("Output file: {}".format(self.myInitialModel.outFileName))
-        print("####################################################################")
+        print("####################################################################")  
 
 def main():
     myInitialModelCLI = InitialModelCLI()
