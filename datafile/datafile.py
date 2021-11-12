@@ -355,10 +355,13 @@ class DataFileCLI:
 
     
     def getInput(self):
-        userInput = input (">> ")
-        if userInput=="exit":
+        userInput = input(">> ")
+        userInputLower = userInput.lower()
+        if userInputLower == "exit":
+            print("Program closed")
             exit()
-        return userInput
+        else:
+            return userInput
     
     def chdir(self, directory):
         os.chdir(directory)
