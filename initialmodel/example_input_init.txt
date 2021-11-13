@@ -9,21 +9,21 @@ CTRL+C or 'exit' : close the program
 Model title
 >> INITIAL MODEL FOR BLK3D
 
-Block x
+Block in x direction
 Block size from center to south
 >> 2000 2000 2000 2000 3000 5000 5000 7000 8000 10000 10000 15000 20000 20000
 >> end
-Do you want to use the same block size from center to north? (y/n)
+Do you want to use the same block size for center to north? (y/n)
 >> y
 
-Block y
+Block in y direction
 Block size from center to west
 >> 2000 2000 2000 2000 3000 5000 5000 7000 8000 10000 10000 15000 20000 20000
 >> end
-Do you want to use the same block size from center to east? (y/n)
+Do you want to use the same block size for center to east? (y/n)
 >> y
 
-Block z
+Block in z direction
 Block size from surface to bottom
 >> 30 30 40 100 100 200 300 300 500 700 800 1000 1000 2000 2000 3000 5000 8000 10000 15000 20000
 >> end
@@ -50,7 +50,7 @@ Layer range: 14 to layer:
 Resistivity index:
 >> 1
 
-Output format ('src-x'/'src-y'/'src-z'/'inf'/integer)
+Column format ('src-x'/'src-y'/'src-z'/'inf'/integer)
 Block X column
 >> src-x
 Block Y column
