@@ -5,22 +5,17 @@ import errno
 import glob
 import utm
 import numpy as np
+from tabulate import tabulate
 
 
-class Coordinate:
+class StationCoordinate:
     
     def __init__(self, file):
         self.basePath = os.getcwd()
         coordinateFilePath = os.path.join(self.basePath, file)
-        self.inputType, self.inputStations, self.inputDatas = self.__parse(coordinateFilePath)
-        self.usedCoordinates = self.inputDatas
-
-    def getInputType(self):
-        return self.inputType
-
-    def getInputStations(self):
-        return self.inputStations
-
+        self.inputType, self.inputStations, self.inputCoordinates = self.__parse(coordinateFilePath)
+        self.usedCoordinates = self.inputCoordinates
+        
     def __parse(self, file):
         with open(file, 'r') as f:
             rows = f.readlines()
@@ -44,48 +39,39 @@ class Coordinate:
                         data.append([latitude, longitude])
         return header, np.array(stations), np.array(data)
     
-    def __createUTM(self):
-        if self.inputType == "DD":
-            convertedUTM = self.__toUTM()
-            return convertedUTM
-        elif self.inputType == "UTM":
-            return self.usedCoordinates
-    
-    def __toUTM(self):    
-        nCoordinate = len(self.usedCoordinates)
-        utmCoordinate = np.zeros([nCoordinate, 2], dtype=float)
-        for i in range (nCoordinate):
-            easting, northing, zone_num, zone_c =  utm.from_latlon(self.usedCoordinates[i][0], self.usedCoordinates[i][1])
-            utmCoordinate[i][0] = easting
-            utmCoordinate[i][1] = northing
-        return utmCoordinate
-    
     def getStationCoordinate(self, station):
         found=False
         for index, inputStation in enumerate (self.inputStations):
             if inputStation==station:
                 found=True
-                return self.inputDatas[index]
+                return self.inputCoordinates[index]
         if not found:
             raise CoordinateFileError ("[Error] station coordinate not found: \'{}\'".format(station))
                 
-    def setUsed(self, usedStations):
+    def setUsedStation(self, usedStations):
         usedCoordinates = np.zeros([len(usedStations),2], dtype=float)
         for index, station in enumerate (usedStations):
             usedCoordinates[index] = self.getStationCoordinate(station)
-        self.usedCoordinates = usedCoordinates
-    
-    def process(self):
-        self.utm = self.__createUTM()
+        self.usedCoordinates = usedCoordinates    
         
-    def getUTM(self):
-        return self.utm
+    def createCoordinateUTM(self):
+        if self.inputType=="DD":
+            self.easting, self.northing, zone_num, zone_c = utm.from_latlon(self.usedCoordinates[:,0], self.usedCoordinates[:,1])
+            self.utm = np.array([[el_e, el_n] for el_e, el_n in zip(self.easting, self.northing)])
+        elif self.inputType=="UTM":
+            self.easting = self.usedCoordinates[:,0]
+            self.northing = self.usedCoordinates[:,1]
+            self.utm = self.usedCoordinates
     
-    def getEasting(self):
-        return self.utm[:,0]
-    
-    def getNorthing(self):
-        return self.utm[:,1]
+    def recenterCoordinate(self, eastingCenter=None, northingCenter=None,  mode=None):
+        if mode=="auto":
+            self.eastingCenter = (max(self.easting) - min(self.easting))/2 + min(self.easting)
+            self.northingCenter = (max(self.northing) - min(self.northing))/2 + min(self.northing)
+        else:
+            self.eastingCenter = eastingCenter
+            self.northingCenter = northingCenter
+        self.easting0 = self.easting - self.eastingCenter
+        self.northing0 = self.northing - self.northingCenter
 
 class CoordinateFileError(Exception):
     pass
@@ -343,15 +329,15 @@ class DataFileCLI:
         readline.parse_and_bind("tab:complete")
 
     def displayHeader(self):
-        print ("####################################################################")
-        print ("                       MT DATA PREPROCESSING                        ")
-        print ("                             DATA FILE                              ")
-        print ("####################################################################")
-        print ("{0:17s}: {1}".format("TAB", "autocomplete file or folder name"))
-        print ("{0:17s}: {1}".format("DOUBLE TAB", "list of all file and folder in the directory"))
-        print ("{0:17s}: {1}".format("CTRL+C or \'exit\'", "close the program"))
-        print ("{0:17s}: {1}".format("BASE PATH", self.basePath))
-        print ("####################################################################")
+        print("####################################################################")
+        print("                       MT DATA PREPROCESSING                        ")
+        print("                             DATA FILE                              ")
+        print("####################################################################")
+        print("{0:17s}: {1}".format("TAB", "autocomplete file or folder name"))
+        print("{0:17s}: {1}".format("DOUBLE TAB", "list of all file and folder in the directory"))
+        print("{0:17s}: {1}".format("CTRL+C or \'exit\'", "close the program"))
+        print("{0:17s}: {1}".format("BASE PATH", self.basePath))
+        print("####################################################################")
 
     
     def getInput(self):
@@ -367,69 +353,69 @@ class DataFileCLI:
         os.chdir(directory)
     
     def getpt1Directory(self):
-        print ()
-        print (".pt1 directory")
+        print()
+        print(".pt1 directory")
         while True:
             self.pt1directory = self.getInput()
             try:
                 self.newFile.setInputDirectory(self.pt1directory)
             except OSError as err:
-                print (err)
+                print(err)
                 continue
             else:
                 break
 
     def getInputFiles(self):
-        print ()
-        print ("Input files (./*.pt1)")
+        print()
+        print("Input files (./*.pt1)")
         while True:
             inputFile = self.getInput()
             try:
                 self.newFile.setInputFiles(inputFile)
             except FileNotFoundError as err:
-                print (err)
+                print(err)
                 continue
             else:
                 break
 
     def getNumberResponses(self):
-        print ()
-        print ("Number of responses (4/8)")
+        print()
+        print("Number of responses (4/8)")
         while True:
             nResponses = self.getInput()
             try:
                 nResponses = int (nResponses)
                 assert nResponses==4 or nResponses==8
             except:
-                print ("Invalid number of responses")
+                print("Invalid number of responses")
                 continue
             else:
                 break
         self.newFile.setResponses(nResponses)
     
     def getSelectedPeriods(self):
-        print ()
-        print ("Select periods")
+        print()
+        print("Select periods")
         while True:
             selectedPeriods = self.getInput().split()
             try:
                 selectedPeriods = [float (period) for period in selectedPeriods]
             except ValueError:
-                print ("Invalid input")
+                print("Invalid input")
                 continue
             else:
                 break
         self.newFile.setUsedPeriods(selectedPeriods)
     
     def getITImaginaryError(self):
-        print ()
-        print ("Imaginary impedance tensor error (=real/0/nan)")
+        print()
+        print("Imaginary impedance tensor error (=real/0/nan)")
         while True:
             impedanceTensorErrorImag = self.getInput()
             try:
                 self.newFile.setImpedanceTensorErrorImag(impedanceTensorErrorImag)
             except:
-                print ("Invalid input")
+                print("Invalid input")
                 continue
             else:
                 break
@@ -438,38 +424,66 @@ class DataFileCLI:
         self.newFile.setErrorMap(1)
     
     def getCoordinate(self):
-        print ()
-        print ("Coordinate file (.txt)")
+        print()
+        print("Coordinate file (.txt)")
         while True:
             coordinateFile = self.getInput()
             try:
-                staCoordinate = Coordinate(coordinateFile)
-                staCoordinate.setUsed(self.newFile.getInputFiles())
-                staCoordinate.process()
-                self.newFile.setCoordinate(staCoordinate.getEasting(), staCoordinate.getNorthing())
+                staCoordinate = StationCoordinate(coordinateFile)
+                staCoordinate.setUsedStation(self.newFile.getInputFiles())
+                staCoordinate.createCoordinateUTM()
             except OSError as err:
-                print (err)
+                print(err)
                 continue
             except CoordinateFileError as err:
-                print (err)
+                print(err)
                 continue
             else:
                 break
-        self.coordinateHeader = staCoordinate.getInputType()
+        
+        print()
+        print("Automatic easting and northing for  station center? (y/n)" )
+        while(True):
+            autoStationCenter = self.getInput().lower()
+            if autoStationCenter=='y':
+                staCoordinate.recenterCoordinate(mode='auto')
+                break
+            elif autoStationCenter=='n':
+                print("Input station center coordinate (easting and northing)")
+                while(True):
+                    staCenters = self.getInput().split()
+                    try:
+                        staCenterEasting = float (staCenters[0])
+                        staCenterNorthing = float (staCenters[1])
+                    except:
+                        print("Invalid input")
+                    else:
+                        staCoordinate.recenterCoordinate(staCenterEasting, staCenterNorthing)
+                        break
+                break
+            else:
+                print("Invalid input")
+                continue
+
+        self.newFile.setCoordinate(staCoordinate.easting0, staCoordinate.northing0)
+
+        self.staCoordinates = [staCoordinate.easting, staCoordinate.northing]
+        self.staCenter = [staCoordinate.eastingCenter, staCoordinate.northingCenter]
+        self.coordinateHeader = staCoordinate.inputType
 
     def fileProcess(self):
         self.newFile.process()
     
     def getFileSave(self):
-        print ()
+        print()
         while True:
-            print ("Output file")
+            print("Output file")
             outputFile = self.getInput()
             forceSave = False
             if os.path.isfile(outputFile) and not forceSave:
                 validChoice = False
                 while not validChoice:
-                    print ("File already exist. Replace file? (y/n)")
+                    print("File already exist. Replace file? (y/n)")
                     replaceChosen = self.getInput().lower()
                     if replaceChosen == 'y':
                         validChoice = True
@@ -477,35 +491,43 @@ class DataFileCLI:
                     elif replaceChosen == 'n':
                         validChoice = True
                     else:
-                        print ("Invalid input")
+                        print("Invalid input")
                         continue
             if not os.path.isfile(outputFile) or forceSave:
                 try:
                     self.newFile.save(outputFile)
-                    print ("success..")
+                    print("success..")
                 except OSError as err:
-                    print (err)
+                    print(err)
                     continue
                 else:
                     break
     
     def displayResult(self):
-        print ()
-        print ("####################################################################")
-        print ("                             RESULT                                 ")
-        print ("\nSelected periods:")
+        print()
+        print("####################################################################")
+        print("                             RESULT                                 ")
+        print("\nSelected periods:")
         for period in self.newFile.usedPeriods:
-            print ("{:.4E}".format(period), end=' ')
-        print ()
-        print ("\nNearest periods:")
+            print("{:.4E}".format(period), end=' ')
+        print()
+        print("\nNearest periods:")
         for i in range (len(self.newFile.inputFiles)):
             for period in self.newFile.nearestPeriodsAll[i]:
-                print ("{:.4E}".format(period), end=' ')
-            print ("({})".format(self.newFile.inputFiles[i]))
-        print ("\nImpedance Tensor Error (Im): {}".format(self.newFile.impedanceTensorErrorImag))
-        print ("\nCoordinate header: {}".format(self.coordinateHeader))
-        print ("\nOutput file: {}".format(self.newFile.getOutName()))
-        print ("####################################################################")
+                print("{:.4E}".format(period), end=' ')
+            print("({})".format(self.newFile.inputFiles[i]))
+        print("\nImpedance Tensor Error (Im): {}".format(self.newFile.impedanceTensorErrorImag))
+        print("\nCoordinate header: {}".format(self.coordinateHeader))
+        print("\nStation coordinate (UTM):")
+        staCoordTableList = []
+        for i in range(len(self.newFile.inputFiles)):
+            staCoordTableList.append([self.newFile.inputFiles[i], self.staCoordinates[0][i], self.staCoordinates[1][i]])
+        print(tabulate(staCoordTableList, headers=['Name', 'Easting', 'Northing'], floatfmt=".2f"))
+        print("\nCenter of station:")
+        print("Easting: {}".format(self.staCenter[0]))
+        print("Northing: {}".format(self.staCenter[1]))
+        print("\nOutput file: {}".format(self.newFile.getOutName()))
+        print("####################################################################")
 
 def main():
     userCLI = DataFileCLI()
