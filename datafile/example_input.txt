@@ -21,15 +21,16 @@ Select periods
 >> 1e-4 1e-3 1e-2 1e-1 1e0
 
 Imaginary impedance tensor error (=real/0/nan)
->> NaN
+>> =real
 
 Coordinate file (.txt)
 >> example_coordinate.txt
 
+Automatic easting and northing for  station center? (y/n)
+>> y
+
 Output file
 >> example_output.data
-File already exist. Replace file? (y/n)
->> y
 success..
 
 ####################################################################
@@ -44,7 +45,21 @@ Nearest periods:
 9.6154E-05 9.0909E-04 1.0309E-02 1.0638E-01 9.8039E-01 (AMT24.pt1)
 9.6154E-05 9.0909E-04 1.0309E-02 1.0638E-01 9.8039E-01 (AMT25.pt1)
 
+Impedance Tensor Error (Im): =real
+
 Coordinate header: DD
+
+Station coordinate (UTM):
+Name         Easting    Northing
+---------  ---------  ----------
+AMT22.pt1  247111.29  9678085.98
+AMT23.pt1  248816.48  9679606.56
+AMT24.pt1  250876.39  9681355.42
+AMT25.pt1  248902.78  9676724.10
+
+Center of station:
+Easting: 248993.84109040396
+Northing: 9679039.759402987
 
 Output file: example_output.data
 ####################################################################
