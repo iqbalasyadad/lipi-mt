@@ -7,6 +7,7 @@ class CreateControlModelIndex:
     
     def __init__(self):
         self.strOutput = ''
+        self.IFLValues = []
     
     @property
     def nx(self):
@@ -56,6 +57,41 @@ class CreateControlModelIndex:
     @indexFormatList.setter
     def indexFormatList(self, value):
         self._indexFormatList = value
+        
+    
+    def createIFLVal(self, lRanges, lValue, nEW, nSE):
+        nLR = len(lRanges) 
+        nLV = len(lValue)
+        if nLR != nLV:
+            raise ValueError("nz != vals")
+        lriArr = np.zeros([nLR, nSE*nEW], dtype=int)
+        for i in range(nLV):
+            lriArr[i] = lValue[i]
+        return lriArr
+    
+    def createIFStr(self, lRanges, lValues, nWE, nSE):
+        outStr = ''
+        nLR = len(lRanges)
+        nLV = len(lValues)
+        for i in range(nLR):
+            nLRi = len(lRanges[i])
+            if nLRi == 1:
+                outStr += "{}".format(lRanges[i][0])
+            elif nLRi == 2:
+                outStr += "{} {}".format(lRanges[i][0], lRanges[i][1])
+            outStr += '\n'
+
+            # add layer value
+            nLVi = len(lValues[i])
+            for iVal in range(nLVi):
+                outStr += "{}".format(lValues[i][iVal])
+                if (i+1)==nLR and (iVal+1)==nSE*nWE:
+                    continue
+                if (iVal+1)%nWE == 0:
+                    outStr += "\n"
+                else:
+                    outStr += " "
+        return outStr
     
     def createIndexFormatLayerStr(self):
         outStr = ''
@@ -89,7 +125,10 @@ class CreateControlModelIndex:
     
     def createOutputStr(self):
         self.strOutput += "{} {} {}\n".format(self.nx, self.ny, self.nz)
-        self.strOutput += self.createIndexFormatLayerStr()
+        
+        # add Index Format
+        self.strOutput += self.createIFStr(self.layerRangeList, self.IFLValues, self.ny, self.nx)
+#         self.strOutput += self.createIndexFormatLayerStr()
         
     def save(self, outputFile):
         self.outFileName = outputFile
@@ -205,6 +244,11 @@ class controlModelIndexCLI():
                 break
         self.myCMI.layerRangeList = layerRange
         self.myCMI.indexFormatList = indexFormatList
+        
+        print(self.myCMI.indexFormatList)
+        self.myCMI.IFLValues = self.myCMI.createIFLVal(self.myCMI.layerRangeList,
+                                                       self.myCMI.indexFormatList,
+                                                       self.myCMI.ny, self.myCMI.nx)
     
     def fileProcess(self):
         self.myCMI.createOutputStr()
