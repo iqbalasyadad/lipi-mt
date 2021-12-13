@@ -7,9 +7,7 @@ import utm
 import numpy as np
 from tabulate import tabulate
 
-
-class StationCoordinate:
-    
+class StationCoordinate:    
     def __init__(self, file):
         self.basePath = os.getcwd()
         coordinateFilePath = os.path.join(self.basePath, file)
@@ -72,10 +70,15 @@ class StationCoordinate:
             self.northingCenter = northingCenter
         self.easting0 = self.easting - self.eastingCenter
         self.northing0 = self.northing - self.northingCenter
-
+    
+    def latLngToUTM(self, lat, lng):
+        easting, northing, zone_num, zone_c = utm.from_latlon(lat, lng)
+        return easting, northing
+        
 class CoordinateFileError(Exception):
     pass
     
+
 class CreateDataFile:
     
     def __vartoerr(self, data):
@@ -110,7 +113,7 @@ class CreateDataFile:
     def setInputFiles(self, files='*'):
         if not files or files=='.' or files=='*':
             inputFiles = [os.path.basename(x) for x in glob.glob('*.pt1')]
-            inputFiles = np.sort(inputFiles)
+            inputFiles = np.sort(inputFiles)            
         else:
             if isinstance(files, str):
                 files = files.split()
@@ -192,9 +195,6 @@ class CreateDataFile:
     def setImpedanceTensorErrorImag(self, errorValue):
         self.impedanceTensorErrorImag = errorValue
     
-    def setErrorMap(self, errorMapValue):
-        self.errorMapValue = errorMapValue
-    
     def __getAllData(self):
         self.impedanceTensorHeaderDatasAll = []
         self.impedanceTensorHeaderErrorDatasAll = []
@@ -243,11 +243,27 @@ class CreateDataFile:
                 for k in range (len(headers)):
                     dataOnPeriods[i][j][k] = data[j][k][i]
         return dataOnPeriods
+        
+    def initErrMapVal(self):
+        nPeriod = len(self.usedPeriods)
+        nFile =  len(self.inputFiles)
+        nITHeader = len(self.impedanceTensorHeaders)
+        self.errMapVal = np.ones([nPeriod, nFile, nITHeader])
     
-    def __createErrorMapOnP(self):
-        if self.errorMapValue == 1:
-            return np.ones([len(self.usedPeriods), len(self.inputFiles), len(self.impedanceTensorHeaders)])
-    
+    def changeErrMapVal(self, changeLists):
+        for changeList in changeLists:
+            period = changeList[0]
+            stationList = changeList[1]
+            responseList = changeList[2]
+            value = changeList[3]
+            if (stationList=="all"):
+                stationList = np.arange(len(self.errMapVal[0]))
+            if (responseList=="all"):
+                responseList = np.arange(len(self.errMapVal[0][0]))
+            for station in stationList:
+                for response in responseList:
+                    self.errMapVal[period-1][station-1][response-1] = value        
+        
     def __addFirstLinestr(self):
         self.outputStr += ' {} {} {}'.format(len(self.inputFiles), len(self.usedPeriods),
                                              len(self.impedanceTensorHeaders))
@@ -299,14 +315,13 @@ class CreateDataFile:
         self.__getAllData()
         impedanceTensorOnP = self.__createDataOnP(self.impedanceTensorHeaderDatasAll, self.impedanceTensorHeaders)
         impedanceTensorErrorOnP = self.__createDataOnP(self.impedanceTensorHeaderErrorDatasAll, self.impedanceTensorErrorHeaders)
-        impedanceTensorErrorMapOnP = self.__createErrorMapOnP()
         
         self.__addFirstLinestr()
         self.__addCoordinatestr("Station_Location: N-S", self.northing)
         self.__addCoordinatestr("Station_Location: E-W", self.easting)
         self.__addDataOnPstr("DATA_Period:", impedanceTensorOnP)
         self.__addDataOnPstr("ERROR_Period:", impedanceTensorErrorOnP)
-        self.__addDataOnPstr("ERMAP_Period:", impedanceTensorErrorMapOnP)
+        self.__addDataOnPstr("ERMAP_Period:", self.errMapVal)
         
     def save(self, outputFile):
         self.outName = outputFile
@@ -368,15 +383,30 @@ class DataFileCLI:
     def getInputFiles(self):
         print()
         print("Input files (./*.pt1)")
+        filesF = []
         while True:
-            inputFile = self.getInput()
-            try:
-                self.newFile.setInputFiles(inputFile)
-            except FileNotFoundError as err:
-                print(err)
-                continue
-            else:
+            inputFiles = self.getInput()
+            if len(filesF)==0 and inputFiles=="" or inputFiles.lower()=="." or inputFiles.lower()=="*":
+                self.newFile.setInputFiles(inputFiles)
                 break
+            else:
+                inputFiles = inputFiles.split()
+                for file in inputFiles:
+                    if file.lower()=="end":
+                        try:
+                            self.newFile.setInputFiles(filesF)
+                        except FileNotFoundError as err:
+                            print(err)
+                            filesF = []
+                            print("Input files cleared")
+                            continue
+                        else:
+                            return
+                    elif file.lower()=="reset":
+                        filesF = []
+                        print("Input files cleared")
+                    else:
+                        filesF.append(file)
 
     def getNumberResponses(self):
         print()
@@ -396,16 +426,29 @@ class DataFileCLI:
     def getSelectedPeriods(self):
         print()
         print("Select periods")
+        selectedPeriods = []
         while True:
-            selectedPeriods = self.getInput().split()
-            try:
-                selectedPeriods = [float (period) for period in selectedPeriods]
-            except ValueError:
-                print("Invalid input")
-                continue
-            else:
-                break
-        self.newFile.setUsedPeriods(selectedPeriods)
+            inputPeriods = self.getInput().split()
+            for period in inputPeriods:
+                if period.lower()=="end":    
+                    if len(selectedPeriods)==0:
+                        print("period length must be greater than 0")
+                        continue
+                    else:
+                        self.newFile.setUsedPeriods(selectedPeriods)
+                        return
+                elif period.lower()=="reset":
+                    selectedPeriods = []
+                    print("Input periods cleared")
+                else:
+                    try:
+                        period = float(period)
+                    except:
+                        print("Invalid value")
+                        selectedPeriods = []
+                        print("Input periods cleared")
+                    else:
+                        selectedPeriods.append(period)
     
     def getITImaginaryError(self):
         print()
@@ -419,9 +462,80 @@ class DataFileCLI:
                 continue
             else:
                 break
+    def showErrMapParamTable(self, datas, name):
+        tableHeader = ["Id"]
+        for i in range(len(datas)):
+            tableHeader.append(i+1)
+        tableData = [name]
+        for data in datas:
+            try:
+                float(data)
+            except:
+                data = data.replace(" (Rot)", "")
+                data = data.replace(".pt1", "")
+            tableData.append(data)
+        print(tabulate([tableData], headers=tableHeader))   
+        
+    def breakErrMapStr(self, inputStr): #(break "1_1-2_All_999")
+        inputStr = inputStr.split("_")
+        changeLists = []
+        for lists in inputStr:
+            if lists != '':
+                strList = lists.split("-")
+                tempList = []
+                for el in strList:
+                    try:
+                        el = int(el)
+                    except:
+                        tempList.append(el.lower())
+                    else:
+                        tempList.append(el)
+                if len(tempList)==1:
+                    changeLists.append(tempList[0])
+                else:
+                    changeLists.append(tempList)
+        return changeLists
+    
+    def getErrMapChangesVal(self):
+        changeListsF = []
+        while True:
+            rawInputsStr = self.getInput().lower()
+            rawInputsStr = rawInputsStr.split()
+            for rawInputStr in rawInputsStr:
+                if rawInputStr=="end":
+                    return changeListsF
+                    break
+                elif rawInputStr=="reset":
+                    changeListsF = []
+                else:
+                    changeListsF.append(self.breakErrMapStr(rawInputStr))
     
     def getErrorMap(self):
-        self.newFile.setErrorMap(1)
+        self.newFile.initErrMapVal()
+        print()
+        print("Change Error Map Period? (y/n)")
+        while True:
+            changeErrMap = self.getInput().lower()
+            if changeErrMap=="y":
+                print()
+                self.showErrMapParamTable(self.newFile.usedPeriods, "Period")
+                print()
+                self.showErrMapParamTable(self.newFile.getInputFiles(), "File")
+                print()
+                self.showErrMapParamTable(self.newFile.impedanceTensorHeaders, "Response")
+                print()
+                print("Input format: period_file-list_response-list_value")
+                errMapChanges = self.getErrMapChangesVal()
+                try:
+                    self.newFile.changeErrMapVal(errMapChanges)
+                except:
+                    print("Invalid input")
+                break
+            elif changeErrMap=="n":
+                break
+            else:
+                print("Invalid input")
+                continue
     
     def getCoordinate(self):
         print()
@@ -442,23 +556,32 @@ class DataFileCLI:
                 break
         
         print()
-        print("Automatic easting and northing for  station center? (y/n)" )
+        print("Automatic model center (using station center)? (y/n)")
+        
         while(True):
-            autoStationCenter = self.getInput().lower()
-            if autoStationCenter=='y':
+            autoModelCenter = self.getInput().lower()
+            if autoModelCenter=='y':
                 staCoordinate.recenterCoordinate(mode='auto')
                 break
-            elif autoStationCenter=='n':
-                print("Input station center coordinate (easting and northing)")
+            elif autoModelCenter=='n':
+                print("Input model center coordinate (DD/UTM lat/northing lng/easting)")
                 while(True):
-                    staCenters = self.getInput().split()
+                    staCenters = self.getInput().lower().split()
                     try:
-                        staCenterEasting = float (staCenters[0])
-                        staCenterNorthing = float (staCenters[1])
+                        staCenters1 = float(staCenters[1])
+                        staCenters2 = float(staCenters[2])
                     except:
                         print("Invalid input")
-                    else:
+                    if staCenters[0]=="utm":
+                        staCenterEasting = staCenters2
+                        staCenterNorthing = staCenters1
+                    elif staCenters[0]=="dd":
+                        staCenterEasting, staCenterNorthing = staCoordinate.latLngToUTM(staCenters1, staCenters2)
+                    try:
                         staCoordinate.recenterCoordinate(staCenterEasting, staCenterNorthing)
+                    except:
+                        print("Error")
+                    else:
                         break
                 break
             else:

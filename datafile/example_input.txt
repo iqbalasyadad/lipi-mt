@@ -18,16 +18,38 @@ Number of responses (4/8)
 >> 8
 
 Select periods
->> 1e-4 1e-3 1e-2 1e-1 1e0
+>> 1e-4 1e-3 1e-2 1e-1 1e0 end
 
 Imaginary impedance tensor error (=real/0/nan)
 >> =real
 
+Change Error Map Period? (y/n)
+>> y
+
+Id           1      2     3    4    5
+------  ------  -----  ----  ---  ---
+Period  0.0001  0.001  0.01  0.1    1
+
+Id    1      2      3      4
+----  -----  -----  -----  -----
+File  AMT22  AMT23  AMT24  AMT25
+
+Id        1       2       3       4       5       6       7       8
+--------  ------  ------  ------  ------  ------  ------  ------  ------
+Response  Zxx Re  Zxx Im  Zxy Re  Zxy Im  Zyx Re  Zyx Im  Zyy Re  Zyy Im
+
+Input format: period_file-list_response-list_value
+>> 1_1-2-3_all_999
+>> 2_all_1-2_999
+>> end
+
 Coordinate file (.txt)
 >> example_coordinate.txt
 
-Automatic easting and northing for  station center? (y/n)
->> y
+Automatic model center (using station center)? (y/n)
+>> n
+Input model center coordinate (DD/UTM lat/northing lng/easting)
+>> DD -2.880637 102.758948
 
 Output file
 >> example_output.data
@@ -58,8 +80,8 @@ AMT24.pt1  250876.39  9681355.42
 AMT25.pt1  248902.78  9676724.10
 
 Center of station:
-Easting: 248993.84109040396
-Northing: 9679039.759402987
+Easting: 250876.3894049448
+Northing: 9681355.423667463
 
 Output file: example_output.data
 ####################################################################
