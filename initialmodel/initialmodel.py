@@ -6,6 +6,7 @@ import readline
 class CreateInitialModel:
     
     def __init__(self):
+        self.lriLValues = []
         self.blockColX = "src-x"
         self.blockColY = "src-y"
         self.blockColZ = "src-z"
@@ -209,38 +210,39 @@ class CreateInitialModel:
             if trueIndexVal != len(self.resistivityValue):
                 strOut += ' '
         return strOut
+
+    def createLRILVal(self, lRanges, lValue, nEW, nSE):
+        nLR = len(lRanges) 
+        nLV = len(lValue)
+        if nLR != nLV:
+            raise ValueError("nz != vals")
+        lriArr = np.zeros([nLR, nSE*nEW], dtype=int)
+        for i in range(nLV):
+            lriArr[i] = lValue[i]
+        return lriArr
     
-    def createResistivityIndexStr(self):
+    def createLRIStr(self, lRanges, lValues, nWE, nSE):
         outStr = ''
-        for iLayerList, layerList in enumerate (self.resistivityIndexLayer):
-            for iValLayer, valLayer in  enumerate (layerList):
-                trueiLayerList = iLayerList+1
-                trueiValLayer = iValLayer+1
-                outStr += str(valLayer)
-                if trueiValLayer == len(layerList):
-                    outStr += '\n'
+        nLR = len(lRanges)
+        nLV = len(lValues)
+        for i in range(nLR):
+            nLRi = len(lRanges[i])
+            if nLRi == 1:
+                outStr += "{}".format(lRanges[i][0])
+            elif nLRi == 2:
+                outStr += "{} {}".format(lRanges[i][0], lRanges[i][1])
+            outStr += '\n'
+
+            # add layer value
+            nLVi = len(lValues[i])
+            for iVal in range(nLVi):
+                outStr += "{}".format(lValues[i][iVal])
+                if (i+1)==nLR and (iVal+1)==nSE*nWE:
+                    continue
+                if (iVal+1)%nWE == 0:
+                    outStr += "\n"
                 else:
-                    outStr += ' '
-            
-            # data in layer
-            resistivityIndexForLayerArr = np.zeros([self.nx, self.ny], dtype=int)
-            resistivityIndexForLayerArr[:] = self.resistivityIndex[iLayerList]
-                        
-            for irow, row in enumerate(resistivityIndexForLayerArr):
-                for iVal, val in enumerate (row):
-                    strVal = str(val)
-                    outStr += strVal
-                    trueirow = irow+1
-                    trueiVal = iVal+1
-                    
-                    if trueiLayerList==len(self.resistivityIndexLayer) and \
-                       trueirow==len(resistivityIndexForLayerArr) and \
-                       trueiVal == len(row):
-                        pass
-                    elif trueiVal == len(row):
-                        outStr += '\n'
-                    else:
-                        outStr += ' '
+                    outStr += " "
         return outStr
     
     def createOutput(self):
@@ -257,7 +259,8 @@ class CreateInitialModel:
         self.strOutput += self.createResistivityValStr() + '\n'
         
         # add resistivity index
-        self.strOutput += self.createResistivityIndexStr()
+        self.strOutput += self.createLRIStr(self.resistivityIndexLayer, self.lriLValues, 
+                                            self.ny, self.nx)
 
     def save(self, outputFile):
         self.outFileName = outputFile
@@ -268,7 +271,7 @@ class CreateInitialModel:
 class InitialModelCLI():
     
     def __init__(self):
-        self.myInitialModel = CreateInitialModel()
+        self.myIM = CreateInitialModel()
         if platform in ["linux", "linux2", "darwin"]:
             os.system("clear")
         elif platform=="windows":
@@ -297,7 +300,7 @@ class InitialModelCLI():
     def getTitle(self):
         print()
         print("Model title")
-        self.myInitialModel.title = self.getInput()
+        self.myIM.title = self.getInput()
         
     def getBlockSide(self):
         blockSide = []
@@ -335,9 +338,9 @@ class InitialModelCLI():
         if mirrorBlockMode == 'n':
             print("Block size from center to north")
             blockSide2 = self.getBlockSide()
-            self.myInitialModel.blockSizeX = self.myInitialModel.createBlockXY('manual', blockSide1, blockSide2)
+            self.myIM.blockSizeX = self.myIM.createBlockXY('manual', blockSide1, blockSide2)
         elif mirrorBlockMode == 'y':
-            self.myInitialModel.blockSizeX = self.myInitialModel.createBlockXY(mode='auto', side1=blockSide1)
+            self.myIM.blockSizeX = self.myIM.createBlockXY(mode='auto', side1=blockSide1)
     
     def getBlockY(self):
         print()
@@ -355,16 +358,16 @@ class InitialModelCLI():
         if mirrorBlockMode == 'n':
             print("Block size from center to east")
             blockSide2 = self.getBlockSide()
-            self.myInitialModel.blockSizeY = self.myInitialModel.createBlockXY('manual', blockSide1, blockSide2)
+            self.myIM.blockSizeY = self.myIM.createBlockXY('manual', blockSide1, blockSide2)
         elif mirrorBlockMode == 'y':
-            self.myInitialModel.blockSizeY = self.myInitialModel.createBlockXY(mode='auto', side1=blockSide1)
+            self.myIM.blockSizeY = self.myIM.createBlockXY(mode='auto', side1=blockSide1)
     
     def getBlockZ(self):
         print()
         print("Block in z direction")
         print("Block size from surface to bottom")
         blockSide = self.getBlockSide()
-        self.myInitialModel.blockSizeZ = blockSide
+        self.myIM.blockSizeZ = blockSide
     
     def getRVal(self):
         print()
@@ -372,15 +375,15 @@ class InitialModelCLI():
         
         while(True):
             try:
-                self.myInitialModel.nr = int(self.getInput())
+                self.myIM.nr = int(self.getInput())
             except:
                 print ("invalid input")
             else:
-                if self.myInitialModel.nr == 0:
+                if self.myIM.nr == 0:
                     print("input resistivity model is in real format")
-                elif self.myInitialModel.nr == 1:
+                elif self.myIM.nr == 1:
                     print("input resistivity is in half-space format")
-                elif self.myInitialModel.nr > 1:
+                elif self.myIM.nr > 1:
                     print("input resistivity is in index format")
                 break
         
@@ -392,7 +395,7 @@ class InitialModelCLI():
             inputResistivityValue = self.getInput().lower().split()
             for resistivity in inputResistivityValue:
                 if resistivity == "end":
-                    self.myInitialModel.resistivityValue = resistivityValueTemp
+                    self.myIM.resistivityValue = resistivityValueTemp
                     return
                 elif resistivity == "reset":
                     resistivityValueTemp = []
@@ -406,7 +409,7 @@ class InitialModelCLI():
         
     def getRIndex(self):
         print()
-        print("Resistivity index (layer 1 - {})".format(self.myInitialModel.nz))
+        print("Resistivity index (layer 1 - {})".format(self.myIM.nz))
         layerStart = 1
         layerEndFlag = True
         layerRange = []
@@ -414,7 +417,7 @@ class InitialModelCLI():
         
         while(True):
             layerRangeTemp = [layerStart]
-            if layerStart == self.myInitialModel.nz:
+            if layerStart == self.myIM.nz:
                 print("Layer range: {}".format(layerStart))
                 layerEndFlag = False
             else:
@@ -425,7 +428,7 @@ class InitialModelCLI():
                 while(True):
                     inputLayerEnd = self.getInput().lower()
                     if inputLayerEnd == "last":
-                        inputLayerEnd = self.myInitialModel.nz
+                        inputLayerEnd = self.myIM.nz
                     elif inputLayerEnd == '':
                         inputLayerEnd = layerStart
                     try:
@@ -433,12 +436,12 @@ class InitialModelCLI():
                     except:
                         print("invalid input")
                     else:
-                        if layerEnd > self.myInitialModel.nz:
-                            print("invalid input: layer cannot greater than {}".format(self.myInitialModel.nz))
+                        if layerEnd > self.myIM.nz:
+                            print("invalid input: layer cannot greater than {}".format(self.myIM.nz))
                         elif layerEnd < layerStart:
                             print("invalid input: layer cannot less than {}".format(layerStart))
                         else:       
-                            if layerEnd == self.myInitialModel.nz:
+                            if layerEnd == self.myIM.nz:
                                 layerRangeTemp.append(layerEnd)
                                 layerEndFlag = False
                             elif layerEnd == layerStart:
@@ -462,8 +465,15 @@ class InitialModelCLI():
             if not layerEndFlag:
                 break
                 
-        self.myInitialModel.resistivityIndexLayer = layerRange
-        self.myInitialModel.resistivityIndex = resistivityIndex
+        self.myIM.resistivityIndexLayer = layerRange
+        self.myIM.resistivityIndex = resistivityIndex
+        
+        self.myIM.lriLValues = self.myIM.createLRILVal(self.myIM.resistivityIndexLayer, 
+                                                       self.myIM.resistivityIndex,
+                                                       self.myIM.ny, self.myIM.nx)
+        
+        print(self.myIM.lriLValues)
+        
     
     def getFormatBlock(self):
         while(True):
@@ -484,14 +494,14 @@ class InitialModelCLI():
         print()
         print("Column format ('src-x'/'src-y'/'src-z'/'inf'/integer)")
         print("Block X column")
-        self.myInitialModel.blockColX = self.getFormatBlock()
+        self.myIM.blockColX = self.getFormatBlock()
         print("Block Y column")
-        self.myInitialModel.blockColY = self.getFormatBlock()
+        self.myIM.blockColY = self.getFormatBlock()
         print("Block Z column")
-        self.myInitialModel.blockColZ = self.getFormatBlock()
+        self.myIM.blockColZ = self.getFormatBlock()
     
     def fileProcess(self):
-        self.myInitialModel.createOutput()
+        self.myIM.createOutput()
     
     def fileSave(self):
         print ()
@@ -514,7 +524,7 @@ class InitialModelCLI():
                         continue
             if not os.path.isfile(outputFile) or forceSave:
                 try:
-                    self.myInitialModel.save(outputFile)
+                    self.myIM.save(outputFile)
                     print ("success..")
                 except OSError as err:
                     print (err)
@@ -528,21 +538,21 @@ class InitialModelCLI():
         print("                             RESULT                                 ")
         print("####################################################################")
         print()
-        print("Block x ({}) south-north:".format(self.myInitialModel.nx))
-        print(self.myInitialModel.blockSizeX)
+        print("Block x ({}) south-north:".format(self.myIM.nx))
+        print(self.myIM.blockSizeX)
         print()
-        print("Block y ({}) west-east:".format(self.myInitialModel.ny))
-        print(self.myInitialModel.blockSizeY)
+        print("Block y ({}) west-east:".format(self.myIM.ny))
+        print(self.myIM.blockSizeY)
         print()
-        print("Block z ({}) surface-bottom:".format(self.myInitialModel.nz))
-        print(self.myInitialModel.blockSizeZ)
+        print("Block z ({}) surface-bottom:".format(self.myIM.nz))
+        print(self.myIM.blockSizeZ)
         print()
-        print("Number of resistivity index: {}".format(self.myInitialModel.nr))
+        print("Number of resistivity index: {}".format(self.myIM.nr))
         print()
-        print("Resistivity value: {}".format(self.myInitialModel.resistivityValue))
+        print("Resistivity value: {}".format(self.myIM.resistivityValue))
         print()
         maxCharL = 0
-        for layerRange in self.myInitialModel.resistivityIndexLayer:
+        for layerRange in self.myIM.resistivityIndexLayer:
             maxCharLayerRange = 0
             for layer in layerRange:
                 nStrLayer = len(str(layer))
@@ -551,7 +561,7 @@ class InitialModelCLI():
                 maxCharL = maxCharLayerRange
         maxCharL += 3
         maxCharI = 0
-        for indexVal in self.myInitialModel.resistivityIndex:
+        for indexVal in self.myIM.resistivityIndex:
             nStrIndex = len(str(indexVal))
             if nStrIndex > maxCharI:
                 maxCharI = nStrIndex
@@ -561,31 +571,31 @@ class InitialModelCLI():
             maxCharL = len(strHeaderLayer)+1
         print("{:{}s}".format(strHeaderLayer, maxCharL), end=' ')
         print("{:{}s}".format(strRI, maxCharI))
-        for iLayerRange, layerRange in enumerate(self.myInitialModel.resistivityIndexLayer):
+        for iLayerRange, layerRange in enumerate(self.myIM.resistivityIndexLayer):
             if len(layerRange)==1:
                 strLayerRange = "{}".format(layerRange[0])
             elif len(layerRange)==2:
                 strLayerRange = "{}-{}".format(layerRange[0], layerRange[1])
-            strIndexVal = str(self.myInitialModel.resistivityIndex[iLayerRange])
+            strIndexVal = str(self.myIM.resistivityIndex[iLayerRange])
             print("{:{}s}".format(strLayerRange, maxCharL), end=' ')
             print("{:{}s}".format(strIndexVal, maxCharI))
         print()
-        print("Output file: {}".format(self.myInitialModel.outFileName))
+        print("Output file: {}".format(self.myIM.outFileName))
         print("####################################################################")  
 
 def main():
-    myInitialModelCLI = InitialModelCLI()
-    myInitialModelCLI.displayHeader()
-    myInitialModelCLI.getTitle()
-    myInitialModelCLI.getBlockX()
-    myInitialModelCLI.getBlockY()
-    myInitialModelCLI.getBlockZ()
-    myInitialModelCLI.getRVal()
-    myInitialModelCLI.getRIndex()
-    myInitialModelCLI.formatBlock()
-    myInitialModelCLI.fileProcess()
-    myInitialModelCLI.fileSave()
-    myInitialModelCLI.displayResult()
+    myIMCLI = InitialModelCLI()
+    myIMCLI.displayHeader()
+    myIMCLI.getTitle()
+    myIMCLI.getBlockX()
+    myIMCLI.getBlockY()
+    myIMCLI.getBlockZ()
+    myIMCLI.getRVal()
+    myIMCLI.getRIndex()
+    myIMCLI.formatBlock()
+    myIMCLI.fileProcess()
+    myIMCLI.fileSave()
+    myIMCLI.displayResult()
 
 if __name__ == "__main__":
     main()
