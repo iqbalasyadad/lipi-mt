@@ -7,9 +7,9 @@ class CreateInitialModel:
     
     def __init__(self):
         self.lriLValues = []
-        self.blockColX = "src-x"
-        self.blockColY = "src-y"
-        self.blockColZ = "src-z"
+        self.blockColX = 8 #"src-x"
+        self.blockColY = 8 #"src-y"
+        self.blockColZ = 8 #"src-z"
         self.strOutput = ''
     
     @property
@@ -129,13 +129,16 @@ class CreateInitialModel:
     @resistivityIndexLayer.setter
     def resistivityIndexLayer(self, value):
         self._resistivityIndexLayer = value
-    
+
     def createOutputBlock(self, blockVal, col="inf"):
         nBlockVal = len(blockVal)
+        for i in range(nBlockVal):
+            if not isinstance(blockVal[i], int):
+                blockVal[i] = int(blockVal[i])
         strBlock = ''
         if col == "inf":
             for iVal,val in enumerate(blockVal):
-                strBlock += ("{:.0f}".format(val))
+                strBlock += ("{}".format(val))
                 if iVal < nBlockVal-1:
                     strBlock += ' '
         else:
@@ -143,7 +146,6 @@ class CreateInitialModel:
             maxChar = 0
             for val in blockVal:
                 strVal = str(val)
-                strVal = strVal.split('.')[0]+'.'
                 nCharVal = len(strVal)
                 if nCharVal > maxChar:
                     maxChar = nCharVal
@@ -157,8 +159,7 @@ class CreateInitialModel:
 
                 for iVal, val in enumerate(blockVal):
                     trueIndex = iVal+1
-                    strVal = "{:{}.1f}".format(val, valSpacing)
-                    strVal = strVal.split('.')[0]+'.'
+                    strVal = "{:{}d}".format(val, valSpacing)
                     strBlock += strVal
 
                     if trueIndex == rangeEnd and trueIndex != nBlockVal:
@@ -176,8 +177,7 @@ class CreateInitialModel:
 
                     for trueIndex in trueIndexList:
                         val = self.blockSizeZ[trueIndex-1]
-                        strVal = "{:{}.1f}".format(val, valSpacing)
-                        strVal = strVal.split('.')[0]+'.'
+                        strVal = "{:{}d}".format(val, valSpacing)
                         strBlock += strVal 
                         trueiEl = iEl+1
                         if trueiEl == len(self.resistivityIndexLayer) and trueIndex == el[-1]:
@@ -189,8 +189,7 @@ class CreateInitialModel:
             else:
                 for iVal, val in enumerate(blockVal):
                     trueIndexVal = iVal+1
-                    strVal = "{:{}.1f}".format(val, valSpacing)
-                    strVal = strVal.split('.')[0]+'.'
+                    strVal = "{:{}d}".format(val, valSpacing)
                     strBlock += strVal
 
                     if trueIndexVal%col==0 and trueIndexVal != nBlockVal:
@@ -198,17 +197,13 @@ class CreateInitialModel:
                     else:
                         strBlock += ' '
         return strBlock
-    
+
     def createResistivityValStr(self):
         strOut = ''
-        for iVal, val in enumerate (self.resistivityValue):
-            strVal = str(val)
-            strVal = strVal.split('.')[0]+'.'
-            strOut += strVal
-            trueIndexVal = iVal + 1
-            
-            if trueIndexVal != len(self.resistivityValue):
-                strOut += ' '
+        for iVal, val in enumerate(self.resistivityValue):
+            strOut += str(val)
+            if iVal < len(self.resistivityValue)-1:
+                strOut += " "
         return strOut
 
     def createLRILVal(self, lRanges, lValue, nEW, nSE):
@@ -228,7 +223,7 @@ class CreateInitialModel:
         for i in range(nLR):
             nLRi = len(lRanges[i])
             if nLRi == 1:
-                outStr += "{}".format(lRanges[i][0])
+                outStr += "{} {}".format(lRanges[i][0], lRanges[i][0])
             elif nLRi == 2:
                 outStr += "{} {}".format(lRanges[i][0], lRanges[i][1])
             outStr += '\n'
@@ -316,7 +311,7 @@ class InitialModelCLI():
                     print("block size deleted")
                 else:
                     try:
-                        blockSize = float(blockSize)
+                        blockSize = int(blockSize)
                     except:
                         print("invalid input")
                     else:
@@ -471,9 +466,7 @@ class InitialModelCLI():
         self.myIM.lriLValues = self.myIM.createLRILVal(self.myIM.resistivityIndexLayer, 
                                                        self.myIM.resistivityIndex,
                                                        self.myIM.ny, self.myIM.nx)
-        
-        print(self.myIM.lriLValues)
-        
+                
     
     def getFormatBlock(self):
         while(True):

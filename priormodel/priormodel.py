@@ -76,7 +76,7 @@ class CreateControlModelIndex:
         for i in range(nLR):
             nLRi = len(lRanges[i])
             if nLRi == 1:
-                outStr += "{}".format(lRanges[i][0])
+                outStr += "{} {}".format(lRanges[i][0], lRanges[i][0])
             elif nLRi == 2:
                 outStr += "{} {}".format(lRanges[i][0], lRanges[i][1])
             outStr += '\n'
