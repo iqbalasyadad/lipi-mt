@@ -49,10 +49,12 @@ Coordinate file (.txt)
 Automatic model center (using station center)? (y/n)
 >> n
 Input model center coordinate (DD/UTM lat/northing lng/easting)
->> DD -2.880637 102.758948
+>> DD -9.54182698 124.93927002
 
 Output file
 >> example_output.data
+File already exist. Replace file? (y/n)
+>> Y
 success..
 
 ####################################################################
@@ -74,14 +76,14 @@ Coordinate header: DD
 Station coordinate (UTM):
 Name         Easting    Northing
 ---------  ---------  ----------
-AMT22.pt1  247111.29  9678085.98
-AMT23.pt1  248816.48  9679606.56
-AMT24.pt1  250876.39  9681355.42
-AMT25.pt1  248902.78  9676724.10
+AMT22.pt1  710511.61  8969240.54
+AMT23.pt1  733727.88  8965434.21
+AMT24.pt1  712864.93  8944646.72
+AMT25.pt1  733002.16  8945352.55
 
 Center of station:
-Easting: 250876.3894049448
-Northing: 9681355.423667463
+Easting: 712864.9298172158
+Northing: 8944646.717311213
 
 Output file: example_output.data
 ####################################################################

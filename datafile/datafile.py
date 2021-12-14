@@ -74,11 +74,23 @@ class StationCoordinate:
     def latLngToUTM(self, lat, lng):
         easting, northing, zone_num, zone_c = utm.from_latlon(lat, lng)
         return easting, northing
+    
+    def getStationInput(self):
+        stations = {}
+        if self.inputType == "DD":
+            key1 = 'lat'
+            key2 = 'lng'
+        elif self.inputType == "UTM":
+            key1 = 'easting'
+            key2 = 'northing'
+        for i in range(len(self.inputStations)):
+            stations[self.inputStations[i]] = {key1: self.inputCoordinates[i][0], key2: self.inputCoordinates[i][1]}
+        return stations
+
         
 class CoordinateFileError(Exception):
     pass
     
-
 class CreateDataFile:
     
     def __vartoerr(self, data):
@@ -250,19 +262,19 @@ class CreateDataFile:
         nITHeader = len(self.impedanceTensorHeaders)
         self.errMapVal = np.ones([nPeriod, nFile, nITHeader])
     
-    def changeErrMapVal(self, changeLists):
-        for changeList in changeLists:
-            period = changeList[0]
-            stationList = changeList[1]
-            responseList = changeList[2]
-            value = changeList[3]
-            if (stationList=="all"):
-                stationList = np.arange(len(self.errMapVal[0]))
-            if (responseList=="all"):
-                responseList = np.arange(len(self.errMapVal[0][0]))
-            for station in stationList:
-                for response in responseList:
-                    self.errMapVal[period-1][station-1][response-1] = value        
+    def changeErrMapVal(self, changeDict):
+        for ID in changeDict:
+            period = changeDict[ID]["period"]
+            stations = changeDict[ID]["station"]
+            responses = changeDict[ID]["response"]
+            value = changeDict[ID]["value"]
+            if (stations=="all"):
+                stations = np.arange(len(self.errMapVal[0]))
+            if (responses=="all"):
+                responses = np.arange(len(self.errMapVal[0][0]))
+            for station in stations:
+                for response in responses:
+                    self.errMapVal[period-1][station-1][response-1] = value
         
     def __addFirstLinestr(self):
         self.outputStr += ' {} {} {}'.format(len(self.inputFiles), len(self.usedPeriods),
@@ -494,21 +506,30 @@ class DataFileCLI:
                     changeLists.append(tempList[0])
                 else:
                     changeLists.append(tempList)
-        return changeLists
+        changeErrMap = {
+            "period": changeLists[0], "station": changeLists[1],
+            "response": changeLists[2], "value": changeLists[3]
+        }
+        return changeErrMap
     
     def getErrMapChangesVal(self):
-        changeListsF = []
+        changeErrMaps = {}
+        changeID = 1
         while True:
             rawInputsStr = self.getInput().lower()
             rawInputsStr = rawInputsStr.split()
             for rawInputStr in rawInputsStr:
                 if rawInputStr=="end":
-                    return changeListsF
-                    break
+                    return changeErrMaps
                 elif rawInputStr=="reset":
-                    changeListsF = []
+                    changeErrMaps = {}
                 else:
-                    changeListsF.append(self.breakErrMapStr(rawInputStr))
+                    try:
+                        changeErrMaps[changeID] = self.breakErrMapStr(rawInputStr)
+                    except:
+                        print("invalid value")
+                    else:
+                        changeID += 1
     
     def getErrorMap(self):
         self.newFile.initErrMapVal()
