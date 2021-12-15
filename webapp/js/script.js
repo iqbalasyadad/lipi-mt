@@ -11,8 +11,8 @@ doTest = function() {
     document.getElementById("CE-textarea").value = "1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100";
     document.getElementById("CW-textarea").value = "1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100";
     document.getElementById("block-z-textarea").value = "100 100 100 100";
-    document.getElementById("btn-plot-boundaries").click();
-    document.getElementById("btn-plot-model-center").click();
+    document.getElementById("boundary-plot-btn").click();
+    document.getElementById("model-center-plot-btn").click();
     document.getElementById("block-xy-ok-btn").click();
     document.getElementById("block-z-ok-btn").click();
     document.getElementById('datafile-tab-btn').click();
@@ -54,16 +54,37 @@ window.onload = function() {
         if (rightPanelStyle.display === 'block') {rightPanel.style.display = 'none';} 
         else {rightPanel.style.display = 'block';}
     };
-    document.getElementById("btn-plot-boundaries").onclick = function() {
+    document.getElementById("boundary-plot-btn").onclick = function() {
         myParam.getBundaries();
         myModel.boundary.sw = myParam.boundaries.point1;
         myModel.boundary.ne = myParam.boundaries.point2;
         myMap.plotModelBoundary(myModel.boundary.sw, myModel.boundary.ne);
     };
-    document.getElementById("btn-plot-model-center").onclick = function() {
+    document.getElementById("boundary-delete-btn").onclick = function() {
+        if (myMap.resetOverlay(myMap.modelBoundaryOverlay, "Boundary")) {
+            myMap.modelBoundaryOverlay = null
+        }
+    };
+    document.getElementById("model-center-plot-btn").onclick = function() {
         myParam.getModelCenter();
         let mode = myParam.modelCenter.mode;
         myMap.plotModelCenter(mode, myParam.modelCenter.latManual, myParam.modelCenter.lngManual);
+    };
+    document.getElementById("model-center-delete-btn").onclick = function() {
+        if (myMap.resetOverlay(myMap.centerAxisOverlay, "Model Center")) {
+            myMap.centerAxisOverlay = null;
+        }
+    };
+    document.getElementById("block-xy-delete-btn").onclick = function() {
+        if (myMap.resetOverlay(myMap.blockLineOverlay, "Block Line")) {
+            myMap.blockLineOverlay = null;
+        }
+        if (myMap.resetOverlay(myMap.imBlockCellsOverlay, "Initial Model")) {
+            myMap.imBlockCellsOverlay = null;
+        }
+        if (myMap.resetOverlay(myMap.pmBlockCellsOverlay, "Prior Model")) {
+            myMap.pmBlockCellsOverlay = null;
+        }
     };
     document.getElementById("block-xy-ok-btn").onclick = function() {
         myParam.getBlockXY();
@@ -73,31 +94,14 @@ window.onload = function() {
         // create block line
         myModel.blockLatLngList = myParam.getBlockXYLatLng(myModel.blockXY.distance, myMap.modelBoundLatLng, myMap.modelCenter);
         myMap.plotBlockLine(myModel.blockLatLngList);
-
-        // create block cell
-        if (myMap.showedBlockCells == null) {
-            myMap.imBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
-            myMap.pmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
-        } else {
-            if (myMap.showedBlockCells==="im") {
-                myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
-                myMap.imBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
-                myMap.addOverlayToMap(myMap.imBlockCellsOverlay, myMap.bcName.init);
-            } else if (myMap.showedBlockCells==="pm") {
-                myMap.removeOverlay(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
-                myMap.pmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
-                myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
-            }
+        if (myMap.imBlockCellsOverlay != null) {
+            myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
+            myMap.imBlockCellsOverlay = null;
         }
-        // add cell event (click)
-        // initial model
-        var imLRICLValSelect = document.getElementById("im-lri-cl-value-select");
-        var imrtColorEls = document.getElementsByClassName("imrt-color-input");
-        myMap.addBlockCellEvt(myMap.imBlockCellsOverlay, imLRICLValSelect, 1, imrtColorEls);
-        //prior model
-        var pmCMICLValSelect = document.getElementById("pm-cmi-cl-value-select");
-        var pmitColorEls = document.getElementsByClassName("pmit-color-input");
-        myMap.addBlockCellEvt(myMap.pmBlockCellsOverlay, pmCMICLValSelect, 0, pmitColorEls);
+        if (myMap.pmBlockCellsOverlay != null) {
+            myMap.removeOverlay(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
+            myMap.pmBlockCellsOverlay = null;
+        }
     };
 
     // OK BUTTON BLOCK Z //
@@ -141,23 +145,36 @@ window.onload = function() {
         myWindow.updateOptions(imLRICLValSelect, "id", imRes.ids, imRes.ids)
     };
     document.getElementById("im-lri-si-ok-btn").onclick = function() {
+        if (myMap.imBlockCellsOverlay===null) {
+            myMap.imBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
+            myMap.addOverlayToMap(myMap.imBlockCellsOverlay, myMap.bcName.init);
+            myMap.showedBlockCells = "im";
+            var imLRICLValSelect = document.getElementById("im-lri-cl-value-select");
+            var imrtColorEls = document.getElementsByClassName("imrt-color-input");
+            myMap.addBlockCellEvt(myMap.imBlockCellsOverlay, imLRICLValSelect, 1, imrtColorEls);
+        }
+
         var siParam = myParam.getimInitialCells();
         var nCell = myMap.imBlockCellsOverlay.getLayers().length;
         if (siParam.layer==="design") {
             myParam.imCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
+        } else if (siParam.layer==="all"){
+            myParam.imCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.imCellsVal);
+            myParam.imCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
         } else {
             myParam.imCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.imCellsVal);
         }
-        console.log(myParam.imCellsVal);
-        // console.log(myParam.imCellsValDesign);
+        imShowLayer()
     };
     document.getElementById("im-lri-al-ok-btn").onclick = function() {
         var layerSelectedidx = myParam.getimChangeL();
         var cellsValue = myMap.getBlockCellVal(myMap.imBlockCellsOverlay);
         myParam.imCellsVal = myParam.setCellVal(layerSelectedidx, cellsValue, myParam.imCellsVal);
-        console.log(myParam.imCellsVal);
     };
     document.getElementById("im-showlayer-ok-btn").onclick = function() {
+        imShowLayer()
+    };
+    function imShowLayer() {
         var layer = myParam.getimShowLayer();
         var imrtColorEls = document.getElementsByClassName("imrt-color-input");
         if (layer === "design") {
@@ -166,47 +183,59 @@ window.onload = function() {
             myMap.setBlockCellVal(myMap.imBlockCellsOverlay, myParam.imCellsVal[layer-1]);
         }
         myMap.setBlockCellColor(myMap.imBlockCellsOverlay, 1, imrtColorEls);
-    };
+    }
     // event tab
     document.getElementById("initialmodel-tab-btn").onclick = function() {
-        if (myMap.showedBlockCells == null) {
-            myMap.addOverlayToMap(myMap.imBlockCellsOverlay, myMap.bcName.init);
-        } else {
+        if (myMap.blockLineOverlay == null) {return}
+        if (myMap.showedBlockCells != null) {
             if (myMap.showedBlockCells=="pm") {
                 myMap.removeOverlay(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
             } else if (myMap.showedBlockCells=="im") {
                 myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
             }
-            myMap.addOverlayToMap(myMap.imBlockCellsOverlay, myMap.bcName.init);
+            if (myMap.imBlockCellsOverlay != null) {
+                myMap.addOverlayToMap(myMap.imBlockCellsOverlay, myMap.bcName.init);
+                myMap.showedBlockCells = "im";
+            }
         }
-        myMap.showedBlockCells = "im";
     };
     document.getElementById("priormodel-tab-btn").onclick = function() {
-        if (myMap.showedBlockCells == null) {
-            myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
-        } else {
+        if (myMap.blockLineOverlay == null) {return}
+        if (myMap.showedBlockCells != null) {
             if (myMap.showedBlockCells=="pm") {
                 myMap.removeOverlay(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
             } else if (myMap.showedBlockCells=="im") {
                 myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
             }
-            myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
+            if (myMap.pmBlockCellsOverlay != null) {
+                myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
+                myMap.showedBlockCells = "pm";
+            }
         }
-        myMap.showedBlockCells = "pm";
     };
 
     // PRIOR MODEL SECTION //
-    document.getElementById("pm-i-ok-btn").onclick = function() {
-        console.log("clicked");
-    };
     document.getElementById("pm-cmi-si-ok-btn").onclick = function() {
+        if (myMap.pmBlockCellsOverlay===null) {
+            myMap.pmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
+            myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
+            myMap.showedBlockCells = "pm";
+            var pmCMICLValSelect = document.getElementById("pm-cmi-cl-value-select");
+            var pmitColorEls = document.getElementsByClassName("pmit-color-input");
+            myMap.addBlockCellEvt(myMap.pmBlockCellsOverlay, pmCMICLValSelect, 0, pmitColorEls);
+        }
         var siParam = myParam.getpmInitialCells();
         var nCell = myMap.pmBlockCellsOverlay.getLayers().length;
         if (siParam.layer==="design") {
             myParam.pmCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
-        } else {
+        } else if (siParam.layer==="all") {
+            myParam.pmCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
             myParam.pmCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.pmCellsVal);
         }
+        else {
+            myParam.pmCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.pmCellsVal);
+        }
+        pmShowLayer();
     };
     document.getElementById("pm-cmi-cl-ok-btn").onclick = function() {
         var layerSelectedidx = myParam.getpmChangeL();
@@ -214,6 +243,9 @@ window.onload = function() {
         myParam.pmCellsVal = myParam.setCellVal(layerSelectedidx, cellsValue, myParam.pmCellsVal);
     };
     document.getElementById("pm-showlayer-ok-btn").onclick = function() {
+        pmShowLayer();
+    };
+    function pmShowLayer() {
         var layer = myParam.getpmShowLayer();
         var pmitColorEls = document.getElementsByClassName("pmit-color-input");
         if (layer === "design") {
@@ -222,7 +254,7 @@ window.onload = function() {
             myMap.setBlockCellVal(myMap.pmBlockCellsOverlay, myParam.pmCellsVal[layer-1]);
         }
         myMap.setBlockCellColor(myMap.pmBlockCellsOverlay, 0, pmitColorEls);
-    };
+    }
 
     doTest();
 
@@ -335,7 +367,6 @@ window.onload = function() {
     // DATAFILE ERROR MAP PERIOD //
     document.getElementById("df-empt-ok-btn").onclick = function() {
         var errMap = myParam.getErrMapParam();
-        console.log(errMap);
     };
     // END DATAFILE ERROR MAP PERIOD //
 

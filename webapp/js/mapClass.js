@@ -4,8 +4,11 @@ class Map {
         let basicLayer = new L.TileLayer("https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=kC7gdFCvOXPQM2jFMSUM", {
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
         });
-        let satelliteLayer = new L.TileLayer("https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=kC7gdFCvOXPQM2jFMSUM", {
-            attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
+        // let satelliteLayer = new L.TileLayer("https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=kC7gdFCvOXPQM2jFMSUM", {
+        //     attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
+        // });
+        let stamenLayer = new L.TileLayer("https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg", {
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
         });
         this.map = L.map('map', {
             center: [-9.463708, 125.931099],
@@ -17,7 +20,8 @@ class Map {
         this.baseMaps = {
             "Empty": nullLayer,
             "Basic": basicLayer,
-            "Satellite": satelliteLayer
+            // "Satellite": satelliteLayer,
+            "Terrain": stamenLayer
         };
         this.overlayMaps = {};
         this.controlLayer = L.control.layers(this.baseMaps, this.overlayMaps).addTo(this.map);
@@ -114,7 +118,7 @@ class Map {
         this.blockLineOverlay = L.layerGroup([]);
         this.blockLine = L.polyline(latlngs, {weight: 1, color: "black", interactive: false}).addTo(this.blockLineOverlay);
         this.map.addLayer(this.blockLineOverlay)
-        this.controlLayer.addOverlay(this.blockLineOverlay, "Block line");
+        this.controlLayer.addOverlay(this.blockLineOverlay, "Block Line");
     }
     plotBlockLine(latlngs) {
         if (this.blockLineOverlay==null) {
@@ -155,6 +159,12 @@ class Map {
                this.controlLayer.removeLayer(layerGroup, name);     
             }
         }
+    }
+    resetOverlay(layerGroup, name) {
+        if (layerGroup != null) {
+            this.removeOverlay(layerGroup, name);
+            return true;
+        } else { return false; }
     }
     getBlockCellVal(layerGroup) {
         var cellVals = [];

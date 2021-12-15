@@ -1,4 +1,5 @@
 import os
+import shutil
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
@@ -19,6 +20,11 @@ class Parameter:
         self.staPath = ""
     def createFolder(self):
         self.uploadFolder = "uploads"
+        if (os.path.isdir(self.uploadFolder)):
+            try:
+                shutil.rmtree(self.uploadFolder)
+            except OSError as e:
+                print ("Error: %s - %s." % (e.filename, e.strerror))
         os.makedirs(self.uploadFolder, exist_ok=True)
         self.uploadPath = os.path.join(self.basePath, self.uploadFolder)
 
