@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="https://npmcdn.com/leaflet-geometryutil"></script>
+    <script src="https://unpkg.com/leaflet-lasso@2.2.6/dist/leaflet-lasso.umd.js"></script>
+    <!-- Leaflet property end -->
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/mainWindowClass.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/mapClass.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/lassoClass.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/parameterClass.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/modelClass.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script> -->
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/mapClass.js"></script>
+    <script src="js/lassoClass.js"></script>
+    <script src="js/mainWindowClass.js"></script>
+    <script src="js/parameterClass.js"></script>
+    <script src="js/modelClass.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/flaskSet.js"></script>
+    
+  </head>
+  
+  <body>
+    <div id='main-container'>
+      <div id='child-main-container-1'></div>
+      <div id='child-main-container-2'>
+        <div id='child-main-container-2-left'>
+          <div id='cmc2l-panel-container-parent'>
+            <div id='cmc2l-panel-container'>
+              <div id='cmc2l-panel-container-scroll'>
+                <div id='cmc2l-panel-content'>
+
+                  <div class='cmc2l-panel-item-group'>
+                    <button class="btn-accordion-lr">Mouse Settings</button>
+                    <div class="accordion-panel-lr">
+                      <table class="table-panel-lr">
+                        <colgroup>
+                          <col class="table-panel-lr-col-1" span="1">
+                          <col class="table-panel-lr-col-2" span="1">
+                        </colgroup>
+                        <tbody>
+                          <tr>
+                            <td class="table-label-panel-lr">Mode</td>
+                            <td class="table-input-panel-lr">
+                              <select id="mouse-set-mode-select">
+                                <option value="none">none</option>
+                                <option value="showLatLng">show latlng</option>
+                                <option value="lasso">lasso</option>
+                              </select>
+                            </td>
+                          </tr>
+                          <tr class="tr-lasso">
+                            <td class="table-label-panel-lr">Lasso status</td>
+                            <td class="table-label-panel-lr" id="td-lasso-status"></td>
+                          </tr>
+                          <tr class="tr-lasso">
+                            <td class="table-label-panel-lr">Lasso mode</td>
+                            <td class="table-input-panel-lr">
+                              <select id="lasso-mode-select">
+                                <option value="contain">contain</option>
+                                <option value="intersect">intersect</option>
+                              </select>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="panel-item-btn-container">
+                        <button id="mouse-set-ok-btn">Apply</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class='cmc2l-panel-item-group'>
+                    <button class="btn-accordion-lr">Station Coordinate File</button>
+                    <div class="accordion-panel-lr">
+
+                      <form id="coord-form" method="POST" enctype="multipart/form-data">
+                        <table class="table-panel-lr">
+                          <tr>
+                            <td class="table-input-panel-lr">
+                              <!-- <input type="file" id="sta-coord-btn" name="sta-coord-btn"> -->
+                              <input type="file" name="myfile" id="coordinate-input">
+                            </td>
+                          </tr>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <!-- <button id="btn-delete-sta">Delete</button> -->
+                          <input type="submit" value="Apply">
+                        </div>
+                      </form>
+                      
+                    </div>
+                  </div>
+    
+                  <div class='cmc2l-panel-item-group'>
+                    <button class="btn-accordion-lr">Rectangle Boundary</button>
+                    <div class="accordion-panel-lr">
+                      <table class="table-panel-lr">
+                        <th colspan="2">Point 1 (South West)</th>
+                        <tr>
+                          <td class="table-label-panel-lr">Latitude</td>
+                          <td class="table-input-panel-lr">
+                            <input type="text" size=5 id="textBoundSWlat">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="table-label-panel-lr">Longitude</td>
+                          <td class="table-input-panel-lr">
+                            <input type="text" size=5 id="textBoundSWlng">
+                          </td>
+                        </tr>
+                        <th colspan="2">Point 2 (North East)</th>
+                        <tr>
+                          <td class="table-label-panel-lr">Latitude</td>
+                          <td class="table-input-panel-lr">
+                            <input type="text" size=5 id="textBoundNElat">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="table-label-panel-lr">Longitude</td>
+                          <td class="table-input-panel-lr">
+                            <input type="text" size=5 id="textBoundNElng">
+                          </td>
+                        </tr>
+                      </table>
+                      <div class="panel-item-btn-container">
+                        <button id="btn-delete-boundaries">Delete</button>
+                        <button id="btn-plot-boundaries">Apply</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class='cmc2l-panel-item-group'>
+                    <button class="btn-accordion-lr">Model Center</button>
+                    <div class="accordion-panel-lr">
+                      <table class="table-panel-lr">
+                        <colgroup>
+                          <col class="table-panel-lr-col-1" span="1">
+                          <col class="table-panel-lr-col-2" span="1">
+                        </colgroup>
+                        <tbody>
+                          <tr>
+                            <td class="table-label-panel-lr">Mode</td>
+                            <td class="table-input-panel-lr">
+                              <select id="selectModelCenterMode">
+                                <option value="rect-center">rect center</option>
+                                <option value="sta-center">sta center</option>
+                                <option value="manual">manual</option>
+                              </select>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="table-label-panel-lr">Latitude</td>
+                            <td class="table-input-panel-lr">
+                              <input type="text" size=5 id="textModelCenterLat">
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="table-label-panel-lr">Longitude</td>
+                            <td class="table-input-panel-lr">
+                              <input type="text" size=5 id="textModelCenterLng">
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="panel-item-btn-container">
+                        <button id="btn-delete-model-center">Delete</button>
+                        <button id="btn-plot-model-center">Apply</button>
+                      </div>
+                    </div>
+                  </div>
+    
+                  <div class='cmc2l-panel-item-group'>
+                    <button class="btn-accordion-lr">Block X Y</button>
+                    <div class="accordion-panel-lr">
+                      <table class="table-panel-lr">
+                        <tr>
+                          <td class="table-label-panel-lr">Input</td>
+                          <td class="table-input-panel-lr">
+                            <select id="block-xy-mode-select">
+                              <option value="size">size (meter)</option>
+                              <option value="distance">distance (meter)</option>
+                            </select>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>Center-North</th>
+                          <th>Center-South</th>
+                        </tr>
+                        <tr>
+                          <td class="table-input-panel-lr">
+                            <select id="CN-mode-select">
+                              <option value="manual">manual</option>
+                              <option value="CS">=CS</option>
+                              <option value="CE">=CE</option>
+                              <option value="CW">=CW</option>
+                            </select>
+                          </td>
+                          <td class="table-input-panel-lr">
+                            <select id="CS-mode-select">
+                              <option value="manual">manual</option>
+                              <option value="CN">=CN</option>
+                              <option value="CE">=CE</option>
+                              <option value="CW">=CW</option>
+                            </select>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="table-input-panel-lr">
+                            <textarea rows="7" id="CN-textarea"></textarea>
+                          </td>
+                          <td class="table-input-panel-lr">
+                            <textarea rows="7" id="CS-textarea"></textarea>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>Center-East</th>
+                          <th>Center-West</th>
+                        </tr>
+                        <tr>
+                          <td class="table-input-panel-lr">
+                            <select id="CE-mode-select">
+                              <option value="manual">manual</option>
+                              <option value="CN">=CN</option>
+                              <option value="CS">=CS</option>
+                              <option value="CW">=CW</option>
+                            </select>
+                          </td>
+                          <td class="table-input-panel-lr">
+                            <select id="CW-mode-select">
+                              <option value="manual">manual</option>
+                              <option value="CN">=CN</option>
+                              <option value="CS">=CS</option>
+                              <option value="CE">=CE</option>
+                            </select>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="table-input-panel-lr">
+                            <textarea rows="7" id="CE-textarea"></textarea>
+                          </td>
+                          <td class="table-input-panel-lr">
+                            <textarea rows="7" id="CW-textarea"></textarea>
+                          </td>
+                        </tr>
+                      </table>
+                      <div class="panel-item-btn-container">
+                        <button id="block-xy-delete-btn">Delete</button>
+                        <button id="block-xy-ok-btn">Apply</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class='cmc2l-panel-item-group'>
+                    <button class="btn-accordion-lr">Block Z</button>
+                    <div class="accordion-panel-lr">
+                      <table class="table-panel-lr">
+                        <colgroup>
+                          <col class="table-panel-lr-col-1" span="1">
+                          <col class="table-panel-lr-col-2" span="1">
+                        </colgroup>
+                        <tr>
+                          <td class="table-label-panel-lr">Input</td>
+                          <td class="table-input-panel-lr">
+                            <select id="block-z-mode-select">
+                              <option value="size">size (meter)</option>
+                              <option value="distance">distance (meter)</option>
+                            </select>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="table-input-panel-lr"  colspan="2">
+                            <textarea rows="7" id="block-z-textarea"></textarea>
+                          </td>
+                        </tr>
+                      </table>
+                      <div class="panel-item-btn-container">
+                        <button id="block-z-delete-btn">Delete</button>
+                        <button id="block-z-ok-btn">Apply</button>
+                      </div>
+                    </div>
+                  </div>
+
+
+                </div>
+              </div>
+              <!-- <div id="left-panel-btn-content">
+                <button id='plot-btn'>Apply All</button>
+              </div> -->
+            </div>
+
+            <div class="cmc-hide-panel-btn-container">
+              <button id="hide-panel-left-btn"></button>
+            </div>
+          </div>
+        </div>
+        <div id='child-main-container-2-center'>
+          <div id="map"></div>
+        </div>
+        <div id='child-main-container-2-right'>
+          <div id='cmc2r-panel-container-parent'>
+            <div class="cmc-hide-panel-btn-container">
+              <button id="hide-panel-right-btn"></button>
+            </div>
+            <div id='cmc2r-panel-container'>
+              <div id='cmc2r-panel-menu-tab'>
+                <button class="panelr-tablinks" id="datafile-tab-btn">Data File</button>
+                <button class="panelr-tablinks" id="initialmodel-tab-btn">Initial Model</button>
+                <button class="panelr-tablinks" id="priormodel-tab-btn">Prior Model</button>
+              </div>
+              <div id='cmc2r-panel-container-scroll'>
+                <div id='cmc2r-panel-content'>
+
+                  <div id="datafile-tab" class="tabcontent">
+                    
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">.pt1 Files</button>
+                      <div class="accordion-panel-lr">
+                        <form id="df-sta-form" method="POST" enctype="multipart/form-data">
+                          <table class="table-panel-lr">
+                            <tr>
+                              <td class="table-input-panel-lr">
+                                <input type="file" name="file[]" id="df-sta-input" multiple>
+                              </td>
+                            </tr>
+                          </table>
+                          <div class="panel-item-btn-container">
+                            <!-- <button id="btn-delete-sta">Delete</button> -->
+                            <input type="submit" value="Apply">
+                          </div>
+                        </form>
+
+                        <div class="scroll-content-container">
+                          <table class="table-panel-lr" id="df-sta-name-table">
+                            <colgroup>
+                              <col class="scroll-table-col-no" span="1">
+                              <col class="scroll-table-col-name" span="1">
+                            </colgroup>
+                            <thead>
+                              <tr><th>No</th><th>File Name</th></tr>
+                            </thead>
+                            <tbody id="df-sta-name-tbody"></tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Response</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <td class="table-label-panel-lr">Number</td>
+                              <td class="table-input-panel-lr">
+                                <select id="df-resp-number-select">
+                                  <option value=4>4</option>
+                                  <option value=8 selected="selected">8</option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="scroll-content-container">
+                          <table class="table-panel-lr" id="df-resp-name-table">
+                            <colgroup>
+                              <col class="scroll-table-col-no" span="1">
+                              <col class="scroll-table-col-name" span="1">
+                            </colgroup>
+                            <tbody>
+                              <tr><th>No</th><th>Name</th></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">1</td><td class="table-label-panel-lr">Zxx (Real)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">2</td><td class="table-label-panel-lr">Zxx (Imaginer)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">3</td><td class="table-label-panel-lr">Zxy (Real)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">4</td><td class="table-label-panel-lr">Zxy (Imaginer)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">5</td><td class="table-label-panel-lr">Zyx (Real)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">6</td><td class="table-label-panel-lr">Zyx (Imaginer)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">7</td><td class="table-label-panel-lr">Zyy (Real)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">8</td><td class="table-label-panel-lr">Zyy (Imaginer)</td></tr>
+                              
+                              <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">1</td><td class="table-label-panel-lr">Zxy (Real)</td></tr>
+                              <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">2</td><td class="table-label-panel-lr">Zxy (Imaginer)</td></tr>
+                              <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">3</td><td class="table-label-panel-lr">Zyx (Real)</td></tr>
+                              <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">4</td><td class="table-label-panel-lr">Zyx (Imaginer)</td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Period</button>
+                      <div class="accordion-panel-lr">
+                        <div class="scroll-content-container">
+                          <table class="table-panel-lr" id="df-period-table">
+                            <colgroup>
+                              <col class="table-panel-lr-col-1-dfpt" span="1">
+                              <col class="table-panel-lr-col-2-dfpt" span="1">
+                              <col class="table-panel-lr-col-3-dfpt" span="1">
+                            </colgroup>
+                            <tbody>
+                              <tr>
+                                <th>No</th>
+                                <th>Value</th>
+                                <th>Action</th>
+                              </tr>
+                              <tr>
+                                <td class="td-table-panel-lr-p-no">1</td>
+                                <td class="table-input-panel-lr">
+                                  <input type="text" class="df-period-inputs">
+                                </td>
+                                <td class="td-plus-minus-btn">
+                                  <button class="dfpt-minus-btn">-</button>
+                                  <button class="dfpt-plus-btn">+</button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="panel-item-btn-container">
+                          <button id="df-period-apply-btn">Apply</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Error Period</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <td class="table-label-panel-lr">input</td>
+                              <td>
+                                <select id="errperiod-select">
+                                  <option value="=real">=real</option>
+                                  <option value="manual">manual</option>
+                                </select>
+                              </td>
+                            </tr>
+                            <tr id="tr-errperiod-manual">
+                              <td class="table-label-panel-lr">value</td> 
+                              <td class="table-input-panel-lr"><input type="text" id="manual-errperiod-text"></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="df-errperiod-apply-btn">Apply</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Error Map Period</button>
+                      <div class="accordion-panel-lr">
+
+                        <table class="table-panel-lr" id="df-errmap-period-mode-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <td class="table-label-panel-lr">Action</td>
+                              <td>
+                                <select id="df-errmap-period-mode-select">
+                                  <option value="none">none</option>
+                                  <option value="change">change</option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                        <div class="scroll-content-container" id="df-errmap-period-scroll">
+                          <table class="table-panel-lr table-panel-lr-multi" id="df-errmap-period-table">
+                            <colgroup>
+                              <col class="table-panel-lr-col-1-dfempt" span="1">
+                              <col class="table-panel-lr-col-2-dfempt" span="1">
+                              <col class="table-panel-lr-col-3-dfempt" span="1">
+                              <col class="table-panel-lr-col-4-dfempt" span="1">
+                              <col class="table-panel-lr-col-5-dfempt" span="1">
+                            </colgroup>
+                            <tbody>
+                              <tr>
+                                <th colspan="5">Change Value</th>
+                              </tr>
+                              <tr>
+                                <th>Period</th>
+                                <th>Station</th>
+                                <th>Response</th>
+                                <th>Value</th>
+                                <th>Action</th>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <select class="errmap-period-select"></select>
+                                </td>
+                                <td class="table-input-panel-lr">
+                                  <input type="text" size=3 class="errmap-station-input">
+                                </td>
+                                <td class="table-input-panel-lr">
+                                  <input type="text" size=3 class="errmap-response-input">
+                                </td>
+                                <td class="table-input-panel-lr">
+                                  <input type="text" size=3 class="errmap-value-input">
+                                </td>
+                                <td class="td-plus-minus-btn">
+                                  <button class="dfempt-minus-btn">-</button>
+                                  <button class="dfempt-plus-btn">+</button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="panel-item-btn-container">
+                          <button id="df-empt-ok-btn">Apply</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Output</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr">
+                          <tr>
+                            <th>Name</th>
+                          </tr>
+                          <tr>
+                            <td class="table-input-panel-lr">
+                              <textarea rows="1" id="df-output-fname-textarea"></textarea>
+                            </td>
+                          </tr>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="df-output-save-btn">Save</button>
+                          <button id="df-output-preview-btn">Preview</button>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  <!-- INITIAL MODEL TAB -->
+                  <div id="initialmodel-tab" class="tabcontent">
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Model</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr">
+                          <tr>
+                            <th>Title</th>
+                          </tr>
+                          <tr>
+                            <td class="table-input-panel-lr">
+                              <textarea rows="1" id="im-title-textarea"></textarea>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Resistivity</button>
+                      <div class="accordion-panel-lr">
+                        <div class="scroll-content-container">
+                          <table class="table-panel-lr" id="im-res-table">
+                            <colgroup>
+                              <col class="table-panel-lr-col-1-imrt" span="1">
+                              <col class="table-panel-lr-col-2-imrt" span="1">
+                              <col class="table-panel-lr-col-3-imrt" span="1">
+                              <col class="table-panel-lr-col-4-imrt" span="1">
+                            </colgroup>
+                            <tbody>
+                              <tr>
+                                <th>No</th>
+                                <th>Value</th>
+                                <th>Color</th>
+                                <th>Action</th>
+                              </tr>
+                              <tr>
+                                <td class="td-table-panel-lr-p-no imrt-no">1</td>
+                                <td class="table-input-panel-lr">
+                                  <input class="im-r-val-text" type="text">
+                                </td>
+                                <td class="td-imrt-color">
+                                  <input type="color" class="imrt-color-input" name="body" value="#34eb3a">
+                                </td>
+                                <td class="td-plus-minus-btn">
+                                  <button class="imrt-minus-btn">-</button>
+                                  <button class="imrt-plus-btn">+</button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="panel-item-btn-container">
+                          <button id="im-res-apply-btn">Apply</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Layer Resistivity Index</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr" id="im-lri-setinit-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <th colspan="2">Set Initial Value</th>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">Layer</td>
+                              <td>
+                                <select id="im-lri-si-layer-select"></select>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">Value</td>
+                              <td class="table-input-panel-lr">
+                                <select id="im-lri-si-value-select">
+                                  <option value=1>1</option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="im-lri-si-ok-btn">Set Initial Value</button>
+                        </div>
+
+                        <table class="table-panel-lr" id="im-lri-cl-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <th colspan="2">Set Cell Value</th>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">Cell value</td>
+                              <td>
+                                <select id="im-lri-cl-value-select">
+                                  <option value=1>1</option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                        <table class="table-panel-lr table-panel-lr-multi" id="im-lri-al-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <th colspan="2">Apply Block to Layer</th>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">Mode</td>
+                              <td>
+                                <select id="im-lri-al-mode-select">
+                                  <option value="single">single layer</option>
+                                  <option value="multiple">multiple layer</option>
+                                </select>
+                              </td>
+                            </tr>
+                            <tr id="tr-im-lri-al-layer-single">
+                              <td class="table-label-panel-lr">Layer (z)</td>
+                              <td>
+                                <select class="im-lri-al-layer-select" id="im-lri-al-layer-single-select">
+                                  <option></option>
+                                </select>
+                              </td>
+                            </tr>
+                            <tr id="tr-im-lri-al-layer-multiple-s">
+                              <td class="table-label-panel-lr">Start Layer (z)</td>
+                              <td>
+                                <select class="im-lri-al-layer-select" id="im-lri-al-layer-ms-select">
+                                  <option></option>
+                                </select>
+                              </td>
+                            </tr>
+                            <tr id="tr-im-lri-al-layer-multiple-e">
+                              <td class="table-label-panel-lr">End Layer (z)</td>
+                              <td>
+                                <select class="im-lri-al-layer-select" id="im-lri-al-layer-me-select">
+                                  <option></option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                        <div class="panel-item-btn-container">
+                          <button id="im-lri-al-ok-btn">Apply</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Show Layer</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr" id="im-sl-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <td class="table-label-panel-lr">Layer (z)</td>
+                              <td>
+                                <select id="im-show-layer-select"></select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="im-showlayer-ok-btn">Show</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Output</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr">
+                          <tr>
+                            <th>Name</th>
+                          </tr>
+                          <tr>
+                            <td class="table-input-panel-lr">
+                              <textarea rows="1" id="im-output-fname-textarea"></textarea>
+                            </td>
+                          </tr>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="im-output-save-btn">Save</button>
+                          <button id="im-output-preview-btn">Preview</button>
+                        </div>
+                      </div>
+                    </div>
+                  
+                  </div>
+                  
+                  <div id="priormodel-tab" class="tabcontent">
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Index</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr" id="pm-index-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1-pmit" span="1">
+                            <col class="table-panel-lr-col-2-pmit" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <th>Value</th>
+                              <th>Color</th>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">0 (free to change)</td>
+                              <td class="td-pmit-color">
+                                <input type="color" class="pmit-color-input" name="body" value="#ffffff">
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">1 (fixed)</td>
+                              <td class="td-pmit-color">
+                                <input type="color" class="pmit-color-input" name="body" value="#000000">
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="pm-i-ok-btn">Apply</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Control Model Index</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr" id="pm-cmi-setinit-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <th colspan="2">Set Initial Value</th>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">Layer</td>
+                              <td>
+                                <select id="pm-cmi-si-layer-select"></select>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">Value</td>
+                              <td class="table-input-panel-lr">
+                                <select id="pm-cmi-si-value-select">
+                                  <option value=0>0</option>
+                                  <option value=1>1</option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="pm-cmi-si-ok-btn">Set Initial Value</button>
+                        </div>
+
+                        <table class="table-panel-lr" id="pm-cmi-cl-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <th colspan="2">Set Cell Value</th>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">Cell value</td>
+                              <td>
+                                <select id="pm-cmi-cl-value-select">
+                                  <option value=0>0</option>
+                                  <option value=1>1</option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                        <table class="table-panel-lr table-panel-lr-multi" id="pm-cmi-al-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <th colspan="2">Apply Block to Layer</th>
+                            </tr>
+                            <tr>
+                              <td class="table-label-panel-lr">Mode</td>
+                              <td>
+                                <select id="pm-cmi-al-mode-select">
+                                  <option value="single">single layer</option>
+                                  <option value="multiple">multiple layer</option>
+                                </select>
+                              </td>
+                            </tr>
+                            <tr id="tr-pm-cmi-al-layer-single">
+                              <td class="table-label-panel-lr">Layer (z)</td>
+                              <td>
+                                <select class="pm-cmi-al-layer-select" id="pm-cmi-cl-layer-single-select">
+                                  <option></option>
+                                </select>
+                              </td>
+                            </tr>
+                            <tr id="tr-pm-cmi-al-layer-multiple-s">
+                              <td class="table-label-panel-lr">Start Layer (z)</td>
+                              <td>
+                                <select class="pm-cmi-al-layer-select" id="pm-cmi-al-layer-ms-select">
+                                  <option></option>
+                                </select>
+                              </td>
+                            </tr>
+                            <tr id="tr-pm-cmi-al-layer-multiple-e">
+                              <td class="table-label-panel-lr">End Layer (z)</td>
+                              <td>
+                                <select class="pm-cmi-al-layer-select" id="pm-cmi-al-layer-me-select">
+                                  <option></option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                        <div class="panel-item-btn-container">
+                          <button id="pm-cmi-cl-ok-btn">Apply</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Show Layer</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr" id="pm-sl-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <td class="table-label-panel-lr">Layer (z)</td>
+                              <td>
+                                <select id="pm-show-layer-select"></select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="pm-showlayer-ok-btn">Show</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class='cmc2r-panel-item-group'>
+                      <button class="btn-accordion-lr">Output</button>
+                      <div class="accordion-panel-lr">
+                        <table class="table-panel-lr">
+                          <tr>
+                            <th>Name</th>
+                          </tr>
+                          <tr>
+                            <td class="table-input-panel-lr">
+                              <textarea rows="1" id="pm-output-fname-textarea"></textarea>
+                            </td>
+                          </tr>
+                        </table>
+                        <div class="panel-item-btn-container">
+                          <button id="pm-output-save-btn">Save</button>
+                          <button id="pm-output-preview-btn">Preview</button>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

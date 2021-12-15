@@ -1,0 +1,321 @@
+html, body {
+    background-color: rgb(230, 230, 230);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+    height: 100vh;
+    width: 100vw;
+    margin:0px;
+    /* overflow: hidden; */
+}
+#main-container {
+    /* border-style: solid; */
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#child-main-container-1 {
+    /* border-style: solid; */
+    background-color: rgb(230, 228, 228);
+    height: 5%;
+    width: 100%;
+    /* visibility: hidden; */
+}
+#child-main-container-2 {
+    /* border-style: solid; */
+    background-color: red;
+    height: 95%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+#child-main-container-2-left, #child-main-container-2-right {
+    background-color: royalblue;
+    height: 100%;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    /* display: none; */
+}
+#child-main-container-2-center {
+    background-color: rgb(116, 118, 124);
+    height: 100%;
+    width: 100%;
+    display: flex;
+    float: left;
+    align-items: center;
+    justify-content: center;
+}
+#cmc2l-panel-container-parent, #cmc2r-panel-container-parent{
+    background-color: rgb(255, 255, 255);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+#cmc2r-panel-container {
+    background-color: rgb(226, 226, 226);
+    width: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+#cmc2r-panel-menu-tab {
+    width: auto;
+    height: 30px;
+    background-color: aquamarine;
+}
+#cmc2r-panel-container-scroll {
+    background-color: rgb(235, 235, 235);
+    width: 300px;
+    height: 90%;
+    overflow-y: scroll;
+}
+#cmc2l-panel-container-scroll {
+    background-color: rgb(247, 247, 247);
+    width: 300px;
+    height: 100%;
+    overflow-y: scroll;
+    display: block;
+}
+.cmc-hide-panel-btn-container {
+    height: 100%;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cmc-hide-panel-btn-container button  {
+    background-color: rgb(212, 212, 212);
+    height: 80px;
+    width: 7px;
+    border-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+.cmc-hide-panel-btn-container button:hover{
+    background-color: rgb(170, 169, 169);
+}
+#cmc2l-panel-content, #cmc2r-panel-content {
+    background-color: rgb(255, 255, 255);
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+.cmc2l-panel-item-group, .cmc2r-panel-item-group {
+    padding: 3px;
+    margin-bottom: 10px;
+}
+
+.btn-accordion-lr {
+    font-weight: normal;
+    width: 100%;
+    background-color: rgb(167, 202, 243);
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 3px 3px;
+}
+.accordion-panel-lr {
+    /* background-color: chartreuse; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-top: none;
+    padding: 3px;
+    /* padding: 5px 0px 5px 0px; */
+}
+.accordion-panel-lr form {
+    width: 100%;
+}
+.panel-item-add-container {
+    height: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 5px 0px 5px 0px;
+}
+.panel-item-btn-container {
+    height: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 5px 0px 5px 0px;
+}
+.panel-item-btn-container button, input{
+    background-color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-color: rgb(201, 200, 200);
+    padding: 1px 5px 1px 5px;
+}
+.panel-item-btn-container button:hover, input:hover {
+    border-color: rgb(219, 219, 219);
+    background-color: rgb(216, 215, 215);
+}
+.panel-item-btn-container button{
+    margin-left: 5px;
+}
+.cmc2l-panel-content, table, tr, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+.cmc2l-panel-content, th {
+    font-weight: normal;
+}
+.cmc2r-panel-content, table, tr, th, td {
+    border: 1px solid rgb(184, 184, 184);
+    border-collapse: collapse;
+}
+table.table-panel-lr {
+    table-layout: auto;
+    width: 100%;
+}
+.table-panel-lr {
+    padding: 20px;
+}
+.table-label-panel-lr {
+    padding-left: 8px;
+}
+.table-panel-lr-col-1, .table-panel-lr-col-2 {
+    width: 50%;
+}
+.table-panel-lr-col-1-dfpt {
+    width: 15%;
+}
+.table-panel-lr-col-2-dfpt {
+    width: 65%;
+}
+.table-panel-lr-col-3-dfpt {
+    width: 20%;
+}
+.table-input-panel-lr input, select, textarea {
+    background-color: white;
+    border-style: none;
+    box-sizing: border-box;
+    width: 100%;
+}
+.scroll-content-container {
+    width: 100%;
+    height: 150;
+    overflow-y: scroll;
+}
+.td-table-panel-lr-p-no {
+    padding-left: 5px;
+}
+.td-plus-minus-btn {
+    border-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.td-plus-minus-btn button {
+    border-width: 1px;
+    border-color: transparent;
+}
+.td-plus-minus-btn button:hover {
+    border-color: rgb(172, 169, 169);
+}
+#left-panel-btn-content {
+    background-color: rgb(199, 199, 199);
+    height: 50px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#df-errmap-period-table {
+    width: 120%;
+}
+.table-panel-lr-col-1-dfempt {
+    width: 20%;
+}
+.table-panel-lr-col-2-dfempt {
+    width: 20%;
+}
+.table-panel-lr-col-3-dfempt {
+    width: 20%;
+}
+.table-panel-lr-col-4-dfempt {
+    width: 20%;
+}
+.table-panel-lr-col-5-dfempt {
+    width: 10%;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    /* display: none; */
+    /* border-style: solid; */
+    /* background-color: brown; */
+}
+#cmc2r-panel-menu-tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+}
+/* Style the buttons inside the tab */
+#cmc2r-panel-menu-tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 7px 7px;
+}
+#cmc2r-panel-menu-tab button:hover {
+    background-color: #ddd;
+}
+#cmc2r-panel-menu-tab button.active {
+    background-color: #ccc;
+}
+.tabcontent {
+    display: none;
+    /* padding: 6px 12px; */
+    border: 1px solid #ccc;
+    border-top: none;
+}
+/* Tab datafile */
+.scroll-table-col-no {
+    width: 20%;
+}
+.scroll-table-col-name {
+    width: 80%;
+}
+/* Tab initial model */
+.td-imrt-color {text-align: center;}
+.imrt-color-input {
+    /* background-color: cadetblue; */
+    border-style: none;
+    outline: none;
+    height: 20px;
+    width: 20px;
+    padding: 0px;
+    margin: 0px;
+    opacity: 0.5;
+}
+.table-panel-lr-multi {
+    margin-top: 10px;
+}
+
+/* Tab Prior model */
+.td-pmit-color {text-align: center;}
+.pmit-color-input {
+    /* background-color: cadetblue; */
+    border-style: none;
+    outline: none;
+    height: 20px;
+    width: 20px;
+    padding: 0px;
+    margin: 0px;
+    opacity: 0.5;
+}
