@@ -15,7 +15,7 @@ doTest = function() {
     document.getElementById("model-center-plot-btn").click();
     document.getElementById("block-xy-ok-btn").click();
     document.getElementById("block-z-ok-btn").click();
-    document.getElementById('datafile-tab-btn').click();
+    document.getElementById('initialmodel-tab-btn').click();
 }
 
 function getLayer(layerGroup, id) {
@@ -136,7 +136,7 @@ window.onload = function() {
         myWindow.updateOptions(pmShowLayerSelect, "id", impmShowLayerSelectOptText, impmShowLayerSelectOptVal)
     };
     // INITIAL MODEL SECTION //
-    document.getElementById("im-res-apply-btn").onclick = function() {
+    document.getElementById("im-res-ok-btn").onclick = function() {
         var imRes = myParam.getIMRes();
         var imLRISIValSelect = document.getElementById("im-lri-si-value-select");
         myWindow.updateOptions(imLRISIValSelect, "id", imRes.ids, imRes.ids)
@@ -437,7 +437,7 @@ window.onload = function() {
             blockZ: myParam.blockZ.size,
             title: myParam.getimTitle(),
             resistivity: imResVal,
-            nr: imResVal.length,
+            nr: imResVal.number,
             saveName: myParam.getimSaveName()
         };
         jsonImData = JSON.stringify(imData);

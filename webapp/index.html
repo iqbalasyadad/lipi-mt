@@ -3,10 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-    <script src="https://npmcdn.com/leaflet-geometryutil"></script>
-    <script src="https://unpkg.com/leaflet-lasso@2.2.6/dist/leaflet-lasso.umd.js"></script>
+    <link rel="stylesheet" href="/css/leaflet.css" />
+    <script src="/js/leaflet/leaflet.js"></script>
+    <script src="/js/leaflet.geometryutil.js"></script>
+    <script src="/js/leaflet-lasso.umd.min.js"></script>
+
+    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" /> -->
+    <!-- <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script> -->
+    <!-- <script src="https://npmcdn.com/leaflet-geometryutil"></script> -->
+    <!-- <script src="https://unpkg.com/leaflet-lasso@2.2.6/dist/leaflet-lasso.umd.js"></script> -->
     <!-- Leaflet property end -->
     <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/mainWindowClass.js') }}"></script>
@@ -574,6 +579,20 @@
                     <div class='cmc2r-panel-item-group'>
                       <button class="btn-accordion-lr">Resistivity</button>
                       <div class="accordion-panel-lr">
+                        <table class="table-panel-lr" id="im-lri-setinit-table">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <td class="table-label-panel-lr">Number</td>
+                              <td class="table-input-panel-lr">
+                                <input type="text" size=5 id="im-r-number-text">
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                         <div class="scroll-content-container">
                           <table class="table-panel-lr" id="im-res-table">
                             <colgroup>
@@ -606,7 +625,7 @@
                           </table>
                         </div>
                         <div class="panel-item-btn-container">
-                          <button id="im-res-apply-btn">Apply</button>
+                          <button id="im-res-ok-btn">Apply</button>
                         </div>
                       </div>
                     </div>

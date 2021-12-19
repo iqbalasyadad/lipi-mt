@@ -104,8 +104,8 @@ class Parameter {
         return fname;
     }
     getIMRes() {
-        var resistivity = {ids:[], values:[], colors: []};
-
+        var nr = parseInt (document.getElementById("im-r-number-text").value);
+        var resistivity = {ids:[], values:[], colors: [], number: nr};
         var imResTextEls = document.getElementsByClassName("im-r-val-text");
         for (var i=0; i<imResTextEls.length; i++) {
             var iValStr = imResTextEls[i].value.replace(/\s/g,'');
