@@ -3,32 +3,48 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/leaflet.css" />
+
+    <!-- OLD LIVE SOURCE -->
+    <!-- <link rel="stylesheet" href="/css/style.css"> -->
+    <!-- <link rel="stylesheet" href="/css/leaflet.css" />
     <script src="/js/leaflet/leaflet.js"></script>
     <script src="/js/leaflet.geometryutil.js"></script>
     <script src="/js/leaflet-lasso.umd.min.js"></script>
 
+    <script src="/js/mapClass.js"></script>
+    <script src="/js/lassoClass.js"></script>
+    <script src="/js/mainWindowClass.js"></script>
+    <script src="/js/parameterClass.js"></script>
+    <script src="/js/modelClass.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/flaskSet.js"></script> -->
+    <!-- OLD LIVE SOURCE END -->
+
+    <!-- ONLINE -->
     <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" /> -->
     <!-- <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script> -->
     <!-- <script src="https://npmcdn.com/leaflet-geometryutil"></script> -->
     <!-- <script src="https://unpkg.com/leaflet-lasso@2.2.6/dist/leaflet-lasso.umd.js"></script> -->
-    <!-- Leaflet property end -->
-    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', filename='js/mainWindowClass.js') }}"></script>
+    <!-- ONLINE END -->
+
+    <!-- FLASK RENDER -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/leaflet.css') }}">
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/leaflet/leaflet.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/leaflet.geometryutil.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/leaflet-lasso.umd.min.js') }}"></script>
+
     <script type="text/javascript" src="{{ url_for('static', filename='js/mapClass.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/lassoClass.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/mainWindowClass.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/parameterClass.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/modelClass.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script> -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!-- FLASK RENDER END -->
 
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/mapClass.js"></script>
-    <script src="js/lassoClass.js"></script>
-    <script src="js/mainWindowClass.js"></script>
-    <script src="js/parameterClass.js"></script>
-    <script src="js/modelClass.js"></script>
-    <script src="js/script.js"></script>
-    <script src="js/flaskSet.js"></script>
+
+
     
   </head>
   

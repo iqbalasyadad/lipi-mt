@@ -400,7 +400,6 @@ class Parameter {
         this.blockCells.lng.sort((a, b) => a - b);
         this.blockCells.lat.sort((a, b) => a - b).reverse();
 
-        // console.log(this.blockCells);
         return (blockLinePoint);
     }
     getCenterGrid() {
@@ -462,15 +461,3 @@ function compressLayer(id, val) {
     }
     return result;
 }
-
-// var layerId = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-// var layerVal = [[0,0,0],[0,1,1],[0,1,1],
-//             [0,0,1],[0,0,1],[1,1,1],
-//             [1,1,2],[1,1,2],[1,1,2],
-//             [1,1,2],[1,1,2],[1,1,2],
-//             [1,2,2],[1,2,2],[1,2,3]];
-
-
-// var compressedModel = compressLayer(layerId, layerVal);
-// console.log(compressedModel.id);
-// console.log(compressedModel.val);

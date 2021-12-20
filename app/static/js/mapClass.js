@@ -1,13 +1,13 @@
 class Map {
     constructor() {
         let nullLayer = new L.TileLayer('');
-        let basicLayer = new L.TileLayer("https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=kC7gdFCvOXPQM2jFMSUM", {
+        let basicLayer = new L.TileLayer("https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=S0aQBzgPXVQayanwEj5N", {
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
         });
-        let satelliteLayer = new L.TileLayer("https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=kC7gdFCvOXPQM2jFMSUM", {
+        let satelliteLayer = new L.TileLayer("https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=S0aQBzgPXVQayanwEj5N", {
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
         });
-        let stamenLayer = new L.TileLayer("https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg", {
+        let stamenLayer = new L.TileLayer("https://stamen-tiles.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}.jpg", {
             attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
         });
         this.map = L.map('map', {

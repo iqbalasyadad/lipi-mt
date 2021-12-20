@@ -39,9 +39,9 @@ window.onload = function() {
         errMapPeriodIdSelect = numberRange(1, selectedPeriods.length+1)
         myWindow.updateOptions(errMapSelect, "class", errMapPeriodIdSelect, errMapPeriodIdSelect);
     };
-    document.getElementById("df-errperiod-apply-btn").onclick = function() {
-        console.log(myParam.getdfErrorPeriod());
-    };
+    // document.getElementById("df-errperiod-apply-btn").onclick = function() {
+    //     console.log(myParam.getdfErrorPeriod());
+    // };
     document.getElementById("hide-panel-left-btn").onclick = function() {
         var leftPanel = document.getElementById("cmc2l-panel-container");
         leftPanelStyle = leftPanel.currentStyle || window.getComputedStyle(leftPanel);
@@ -426,7 +426,7 @@ window.onload = function() {
 
         myParam.getBlockXY();
         myParam.getBlockZ();
-        var imResVal = myParam.getIMRes().values;
+        var imRes = myParam.getIMRes();
 
         var layerID = numberRange(1, myParam.blockZ.id.length+1);
         var compressedL = compressLayer(layerID, myParam.imCellsVal);
@@ -436,8 +436,8 @@ window.onload = function() {
             blockXY: myParam.blockXY.size,
             blockZ: myParam.blockZ.size,
             title: myParam.getimTitle(),
-            resistivity: imResVal,
-            nr: imResVal.number,
+            resistivity: imRes.values,
+            nr: imRes.number,
             saveName: myParam.getimSaveName()
         };
         jsonImData = JSON.stringify(imData);

@@ -4,9 +4,9 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 
-from datafile import StationCoordinate, CreateDataFile
-from initialmodel import CreateInitialModel
-from priormodel import CreateControlModelIndex
+from module.datafile import StationCoordinate, CreateDataFile
+from module.initialmodel import CreateInitialModel
+from module.priormodel import CreateControlModelIndex
 
 
 class Parameter:
@@ -40,8 +40,8 @@ CORS(app)
 # debug: export FLASK_ENV=development
 
 @app.route('/')
-def hello_world():
-   return 'Hello World'
+def index():
+   return render_template('index.html')
 
 @app.route('/uploadcoordinates', methods=['POST'])
 def uploadCoordinates():

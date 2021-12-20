@@ -41,13 +41,11 @@ class MainWindow {
         imLRIALtrMultipleS.style.display = 'none';
         imLRIALtrMultipleE.style.display = 'none';
         imLRIALMode.addEventListener("change", () => {
-            console.log("change");
             if (imLRIALMode.value==="single") {
                 imLRIALtrSingle.style.display = "";
                 imLRIALtrMultipleS.style.display = "none";
                 imLRIALtrMultipleE.style.display = "none";
             } else if (imLRIALMode.value==="multiple") {
-                console.log("multi");
                 imLRIALtrSingle.style.display = "none";
                 imLRIALtrMultipleS.style.display = "";
                 imLRIALtrMultipleE.style.display = "";
