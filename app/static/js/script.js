@@ -306,7 +306,7 @@ window.onload = function() {
         e.preventDefault();
         var formData = new FormData();
         formData.append("myfile", document.getElementById("coordinate-input").files[0]);
-        var url = "http://127.0.0.1:5000/uploadcoordinates";
+        var url = "/uploadcoordinates";
         var xhr = new XMLHttpRequest();
         xhr.responseType = 'json';
 
@@ -338,7 +338,7 @@ window.onload = function() {
         for (var i=0; i<dfStaInput.files.length; i++) {
             formData.append("file[]", dfStaInput.files[i]);
         }
-        var url = "http://127.0.0.1:5000/uploadstations";
+        var url = "/uploadstations";
         var xhr = new XMLHttpRequest();
         xhr.responseType = 'json';
 
@@ -378,9 +378,9 @@ window.onload = function() {
         dfProcessFlask("preview");
     }
     function dfProcessFlask(mode) {
-        var url = "http://127.0.0.1:5000/dfsave";
-        if (mode==="save") { var url = "http://127.0.0.1:5000/dfsave"; }
-        else if (mode==="preview") { var url = "http://127.0.0.1:5000/dfpreview"; }
+        var url = "/dfsave";
+        if (mode==="save") { var url = "/dfsave"; }
+        else if (mode==="preview") { var url = "/dfpreview"; }
         var dfData = {
             mCenterLatLng: myMap.modelCenter,
             nResponse: parseInt(document.getElementById("df-resp-number-select").value),
@@ -421,8 +421,8 @@ window.onload = function() {
         imProcessFlask("preview")
     };
     function imProcessFlask(mode) {
-        if (mode=="save") { var url = "http://127.0.0.1:5000/imsave"; }
-        else if (mode=="preview") { var url = "http://127.0.0.1:5000/impreview"; }
+        if (mode=="save") { var url = "/imsave"; }
+        else if (mode=="preview") { var url = "/impreview"; }
 
         myParam.getBlockXY();
         myParam.getBlockZ();
@@ -470,8 +470,8 @@ window.onload = function() {
     };
     
     function processPM(mode) {
-        if (mode=="save") { var url = "http://127.0.0.1:5000/pmsave"; }
-        else if (mode=="preview") { var url = "http://127.0.0.1:5000/pmpreview"; }
+        if (mode=="save") { var url = "/pmsave"; }
+        else if (mode=="preview") { var url = "/pmpreview"; }
         myParam.getBlockXY();
         myParam.getBlockZ();
         var nx = myParam.blockXY.size.CS.length + myParam.blockXY.size.CN.length;

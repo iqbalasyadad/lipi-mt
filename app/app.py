@@ -1,5 +1,7 @@
 import os
 import shutil
+import webbrowser
+from threading import Timer
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
@@ -186,5 +188,10 @@ def pmProcess(mode):
     elif mode=="preview":
         return myCMI.strOutput
 
+def open_browser():
+    if not os.environ.get("WERKZEUG_RUN_MAIN"):
+        webbrowser.open_new("http://127.0.0.1:2000/")
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    Timer(1, open_browser).start()
+    app.run(host="127.0.0.1", port=2000)
