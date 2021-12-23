@@ -22,6 +22,7 @@ class MainWindow {
         this.setInit();
 
     }
+
     setInit() {
         var selectErrPeriod = document.getElementById("errperiod-select");
         var rowErrPeriodManual = document.getElementById("tr-errperiod-manual");

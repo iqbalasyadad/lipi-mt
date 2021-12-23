@@ -15,15 +15,6 @@ doTest = function() {
     document.getElementById("model-center-plot-btn").click();
     document.getElementById("block-xy-ok-btn").click();
     document.getElementById("block-z-ok-btn").click();
-    document.getElementById('initialmodel-tab-btn').click();
-}
-
-function getLayer(layerGroup, id) {
-    for (var i in layerGroup._layers) {
-        if (layerGroup._layers[i].options.id == id) {
-            return layerGroup._layers[i];
-        }
-    }
 }
 
 window.onload = function() {
@@ -255,8 +246,8 @@ window.onload = function() {
         }
         myMap.setBlockCellColor(myMap.pmBlockCellsOverlay, 0, pmitColorEls);
     }
-
-    doTest();
+    document.getElementById('datafile-tab-btn').click();
+    // doTest();
 
     // lasso
     myLasso = new Lasso();
@@ -319,6 +310,7 @@ window.onload = function() {
             myMap.staOverlay = myMap.createStation(staObj);
             myMap.addOverlayToMap(myMap.staOverlay, "station");
             myMap.staCenter = myMap.staOverlay.getBounds().getCenter();
+            myMap.map.fitBounds(myMap.staOverlay.getBounds());
         };
         xhr.onerror = function() {
             alert("Error");
