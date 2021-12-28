@@ -162,31 +162,6 @@ class MainWindow {
             parent = parent.parentNode;
         }
     }
-    tablePLbtnAddEvtColor(tableEl, plusBtnsClass, minusBtnsClass, startRow, btnIndex, autoNo, colNo, colorElements, colorList) {
-        minusBtnsClass[btnIndex].addEventListener("click", evt => {
-            if (minusBtnsClass.length>1) {
-                var rowClicked = this.getTR(evt);
-                var rowClickedIndex = rowClicked.rowIndex;
-                tableEl.deleteRow(rowClickedIndex);
-                if (autoNo==true) {
-                    this.resetTableNo(tableEl, colNo);
-                }
-            }
-        });
-        plusBtnsClass[btnIndex].addEventListener("click", evt => {
-            var rowClicked = this.getTR(evt);
-            var rowHTML = rowClicked.innerHTML;
-            var rowClickedIndex = rowClicked.rowIndex;
-            var nextBtnIndex = rowClickedIndex-startRow+1;
-            var row = tableEl.insertRow(rowClickedIndex+1);
-            row.innerHTML = rowHTML;
-            if (autoNo==true) {
-                this.resetTableNo(tableEl, 0);
-            }
-            this.updateColor(colorElements, colorList);
-            this.tablePLbtnAddEvtColor(tableEl, plusBtnsClass, minusBtnsClass, startRow, nextBtnIndex, autoNo, colNo, colorElements, colorList);
-        });
-    }
 
     tablePLbtnAddEvt(tableEl, plusBtnsClass, minusBtnsClass, startRow, btnIndex, autoNo, colNo) {
         minusBtnsClass[btnIndex].addEventListener("click", evt => {
@@ -195,7 +170,7 @@ class MainWindow {
                 var rowClickedIndex = rowClicked.rowIndex;
                 tableEl.deleteRow(rowClickedIndex);
                 if (autoNo==true) {
-                    this.resetTableNo(tableEl, colNo);
+                    this.resetTableNo(tableEl, startRow, colNo);
                 }
             }
         });
@@ -207,17 +182,44 @@ class MainWindow {
             var row = tableEl.insertRow(rowClickedIndex+1);
             row.innerHTML = rowHTML;
             if (autoNo==true) {
-                this.resetTableNo(tableEl, 0);
+                this.resetTableNo(tableEl, startRow, colNo);
             }
             this.tablePLbtnAddEvt(tableEl, plusBtnsClass, minusBtnsClass, startRow, nextBtnIndex, autoNo, colNo);
         });
     }
 
-    resetTableNo(tableEl, colIndex) {
-        for (var i=0; i<tableEl.rows.length-1; i++) {
-            tableEl.rows[i+1].cells[colIndex].innerText = i+1;
+    tablePLbtnAddEvtColor(tableEl, plusBtnsClass, minusBtnsClass, startRow, btnIndex, autoNo, colNo, colorElements, colorList) {
+        minusBtnsClass[btnIndex].addEventListener("click", evt => {
+            if (minusBtnsClass.length>1) {
+                var rowClicked = this.getTR(evt);
+                var rowClickedIndex = rowClicked.rowIndex;
+                tableEl.deleteRow(rowClickedIndex);
+                if (autoNo==true) {
+                    this.resetTableNo(tableEl, startRow, colNo);
+                }
+            }
+        });
+        plusBtnsClass[btnIndex].addEventListener("click", evt => {
+            var rowClicked = this.getTR(evt);
+            var rowHTML = rowClicked.innerHTML;
+            var rowClickedIndex = rowClicked.rowIndex;
+            var nextBtnIndex = rowClickedIndex-startRow+1;
+            var row = tableEl.insertRow(rowClickedIndex+1);
+            row.innerHTML = rowHTML;
+            if (autoNo==true) {
+                this.resetTableNo(tableEl, startRow, colNo);
+            }
+            this.updateColor(colorElements, colorList);
+            this.tablePLbtnAddEvtColor(tableEl, plusBtnsClass, minusBtnsClass, startRow, nextBtnIndex, autoNo, colNo, colorElements, colorList);
+        });
+    }
+    
+    resetTableNo(tableEl, startRow, colIndex) {
+        for (var i=0; i<tableEl.rows.length-startRow; i++) {
+            tableEl.rows[startRow+i].cells[colIndex].innerText = i+1;
         }
     }
+    
     updateOptions(selectElementsInput, type, optText, optValue) {
         var selectElements = [];
         if (type==="id") {
