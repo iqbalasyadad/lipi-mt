@@ -20,18 +20,18 @@ class Parameter {
         } else if (dfErrmapModeSelect.value==="change") {
             var errMapChange = {}
             for (var i=0; i<errmapPeriodSelects.length; i++) {
-                var cPeriod = this.parseInput(errmapPeriodSelects[i].value, "int")[0];
+                var cPeriod = this.parseInputs(errmapPeriodSelects[i].value, "int")[0];
                 if (errmapStaInputs[i].value.replace(" ", "").toLowerCase()==="all") {
                     var cStation = "all";
                 } else {
-                    var cStation = this.parseInput(errmapStaInputs[i].value, "int");
+                    var cStation = this.parseInputs(errmapStaInputs[i].value, "int");
                 }
                 if (errmapRespInputs[i].value.replace(" ", "").toLowerCase()==="all") {
                     var cResponse = "all";
                 } else {
-                    var cResponse = this.parseInput(errmapRespInputs[i].value, "int");
+                    var cResponse = this.parseInputs(errmapRespInputs[i].value, "int");
                 }
-                var cValue = this.parseInput(errmapValInputs[i].value, "int")[0];
+                var cValue = this.parseInputs(errmapValInputs[i].value, "int")[0];
     
                 errMapChange[i] = { "period": cPeriod, "station": cStation,
                                     "response": cResponse, "value": cValue };
@@ -104,14 +104,17 @@ class Parameter {
         return fname;
     }
     getIMRes() {
-        var nr = parseInt (document.getElementById("im-r-number-text").value);
+        var nrEl = document.getElementById("im-r-number-text");
+        var nr = this.parseInput(nrEl, "int");
         var resistivity = {ids:[], values:[], colors: [], number: nr};
         var imResTextEls = document.getElementsByClassName("im-r-val-text");
         for (var i=0; i<imResTextEls.length; i++) {
-            var iValStr = imResTextEls[i].value.replace(/\s/g,'');
-            if (iValStr != '') {
-                resistivity.values.push(parseFloat(iValStr));
-            }
+            var imResVal = this.parseInput(imResTextEls[i], "float");
+            resistivity.values.push(imResVal);
+            // var iValStr = imResTextEls[i].value.replace(/\s/g,'');
+            // if (iValStr != '') {
+            //     resistivity.values.push(parseFloat(iValStr));
+            // }
         }
         var imResColorEls = document.getElementsByClassName("imrt-color-input");
         for (var i=0; i<imResColorEls.length; i++) {
@@ -245,10 +248,19 @@ class Parameter {
             lngManual: document.getElementById("textModelCenterLng").value
         };
     }
-    parseInputToStr(dataStr) {
-        return dataStr.replace(" ", '');
+    parseInput(el, outType) {
+        var val = el.value.replace(/\s/g,'');
+        if (val === '') {
+            alert("Error: empty parameter");
+        } else {
+            if (outType==="int") {
+                return parseInt(val);
+            } else if (outType==="float") {
+                return parseFloat(val);
+            }
+        }
     }
-    parseInput(dataStr, outType) {
+    parseInputs(dataStr, outType) {
         let dataList = [];
         let inputDataListStr = dataStr.split(/\s+/g);
         for (var i=0; i<inputDataListStr.length; i++) {
@@ -286,10 +298,10 @@ class Parameter {
             CW: document.getElementById("CW-textarea")
         }
         let inputBlock = {
-            CN: this.parseInput(textInput.CN.value, "float"),
-            CS: this.parseInput(textInput.CS.value, "float"),
-            CE: this.parseInput(textInput.CE.value, "float"),
-            CW: this.parseInput(textInput.CW.value, "float")
+            CN: this.parseInputs(textInput.CN.value, "float"),
+            CS: this.parseInputs(textInput.CS.value, "float"),
+            CE: this.parseInputs(textInput.CE.value, "float"),
+            CW: this.parseInputs(textInput.CW.value, "float")
         }
         let inputBlockMode = {
             CN: document.getElementById("CN-mode-select").value,
@@ -407,7 +419,7 @@ class Parameter {
     }
     getBlockZ() {
         let textInput = document.getElementById("block-z-textarea");
-        let inputBlock = this.parseInput(textInput.value, "float");
+        let inputBlock = this.parseInputs(textInput.value, "float");
         let mode = document.getElementById("block-z-mode-select").value;
         this.blockZ = {id:null, size: null, distance: null};
         if (mode==="size") {

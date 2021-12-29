@@ -45,6 +45,34 @@ window.onload = function() {
         if (rightPanelStyle.display === 'block') {rightPanel.style.display = 'none';} 
         else {rightPanel.style.display = 'block';}
     };
+    var drawRect = new L.Draw.Rectangle(myMap.map);
+    document.getElementById("boundary-draw-btn").addEventListener("click", ()=> {
+        var rectOptions = {
+            showArea: false,
+            shapeOptions: {
+                fill: false,
+                color: "blue",
+                weight: 2
+            }
+        };
+        drawRect.enable();
+        drawRect.setOptions(rectOptions);
+    });
+    myMap.map.on('draw:created', function (e) {
+        var type = e.layerType
+        if (type === 'rectangle') {
+            var layer = e.layer;
+            document.getElementById("textBoundSWlat").value = layer.getBounds().getSouthWest().lat.toFixed(8);
+            document.getElementById("textBoundSWlng").value = layer.getBounds().getSouthWest().lng.toFixed(8);
+            document.getElementById("textBoundNElat").value = layer.getBounds().getNorthEast().lat.toFixed(8);
+            document.getElementById("textBoundNElng").value = layer.getBounds().getNorthEast().lng.toFixed(8);
+
+            myParam.getBundaries();
+            myModel.boundary.sw = myParam.boundaries.point1;
+            myModel.boundary.ne = myParam.boundaries.point2;
+            myMap.plotModelBoundary(myModel.boundary.sw, myModel.boundary.ne);
+        }
+    });
     document.getElementById("boundary-plot-btn").onclick = function() {
         myParam.getBundaries();
         myModel.boundary.sw = myParam.boundaries.point1;
