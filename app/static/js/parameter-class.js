@@ -2,8 +2,8 @@ class Parameter {
     constructor() {
         this.imCellsVal = null;
         this.imCellsValDesign = null;
-        this.pmCellsVal = null;
-        this.pmCellsValDesign = null;
+        this.cmCellsVal = null;
+        this.cmCellsValDesign = null;
         this.lastCellsVal = null;
         //init im cell val
     }
@@ -104,8 +104,6 @@ class Parameter {
         return fname;
     }
     getIMRes() {
-        // var nrEl = document.getElementById("im-r-number-text");
-        // var nr = this.parseInput(nrEl, "int");
         var resistivity = {ids:[], values:[], colors: [], number: null};
         var imResTextEls = document.getElementsByClassName("im-r-val-text");
         for (var i=0; i<imResTextEls.length; i++) {
@@ -223,7 +221,6 @@ class Parameter {
         for (var i=0; i<dfPeriodValInputs.length; i++) {
             dfPeriods.push(this.parseInput(dfPeriodValInputs[i], "float"));
         }
-        console.log(dfPeriods)
         return dfPeriods;
     }
     getBundaries() {
@@ -426,6 +423,37 @@ class Parameter {
         }
         this.blockZ.id = Array.from({length: this.blockZ.size.length}, (_, i) => i + 1);
     }
+    getIMCMReplace() {
+        // var replaceIMCM = {im:[], cm:[]}
+        var replaceIMCM = {};
+
+        var useIMCMIM = document.getElementsByClassName("cm-cmi-use-im-im");
+        var useIMCMSelects = document.getElementsByClassName("cm-cmi-use-im-cm-select");
+        for (var i=0; i<useIMCMSelects.length; i++) {
+            var key = parseInt(useIMCMIM[i].innerHTML);
+            replaceIMCM[key] = this.parseInput(useIMCMSelects[i], "int");
+        }
+        return replaceIMCM;
+    }
+    replaceCMVals(inputVals, rFormat) {
+        var nLayer = inputVals.length;
+        var nCell = inputVals[0].length;
+
+        var outputVals = new Array(nLayer);
+        for (var i=0; i<nLayer; i++) {
+            outputVals[i] = Array.apply(null, Array(nCell)).map(Number.prototype.valueOf, 0);
+        }
+        for (var i=0; i<inputVals.length; i++) {
+            for (var j=0; j<inputVals[i].length; j++) {
+                for (var key in rFormat) {
+                    if (inputVals[i][j] == key) {
+                        outputVals[i][j] = rFormat[key];
+                    }
+                }
+            }
+        }
+        return outputVals;
+    }
 
 }
 
@@ -448,7 +476,6 @@ function compareArr(arr1, arr2) {
 function compressLayer(id, val) {
     var result = {id: [], value: []};
     var lastCellVal = [null];
-    var sameIDTemp = [];
 
     for (var i=0; i<val.length; i++) {
         if (!compareArr(lastCellVal, val[i])) {

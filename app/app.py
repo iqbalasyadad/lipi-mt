@@ -39,8 +39,6 @@ myParam = Parameter()
 app = Flask(__name__)
 CORS(app)
 
-# debug: export FLASK_ENV=development
-
 @app.route('/')
 def index():
    return render_template('index.html')
@@ -195,3 +193,5 @@ def open_browser():
 if __name__ == '__main__':
     Timer(1, open_browser).start()
     app.run(host="127.0.0.1", port=2000)
+
+# debug: export FLASK_ENV=development

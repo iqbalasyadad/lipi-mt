@@ -262,4 +262,20 @@ class MainWindow {
         var myWindow = window.open("", "MsgWindow", "width=800,height=700");
         myWindow.document.write("<p style='font-family:Arial; white-space:pre-wrap; word-spacing:5px;'>"+text+"</p>");
     }
+
+    updateCMUseIMTable(nRes) {
+        var cmiUseIMTable = document.getElementById("pm-cmi-use-im-table");
+        var rowCount = cmiUseIMTable.rows.length;
+        var startRow = 2
+        if (rowCount > startRow) {
+            for (var i=startRow; i<rowCount; i++) {
+                cmiUseIMTable.deleteRow(startRow);
+            }
+        }
+        for (var i=0; i<nRes; i++) {
+            var row = cmiUseIMTable.insertRow(-1);
+            var im_id = i+1
+            row.innerHTML = '<td class=cm-cmi-use-im-im>'+im_id+'</td><td><select class="cm-cmi-use-im-cm-select"><option value=0>0</option><option value=1>1</option></select></td>'
+        }
+    }
 }

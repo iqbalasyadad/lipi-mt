@@ -111,17 +111,21 @@ window.onload = function() {
         var imLRICLLayerSelect = document.getElementsByClassName("im-lri-al-layer-select");
         myWindow.updateOptions(imLRICLLayerSelect, "class", myParam.blockZ.id, myParam.blockZ.id)
 
-        var impmSILayerSelectOptText = ["all", "design"];
+        // var impmSILayerSelectOptText = ["all", "design"];
+        var impmSILayerSelectOptText = ["all"];
         impmSILayerSelectOptText.push.apply(impmSILayerSelectOptText, myParam.blockZ.id);
-        var impmSILayerSelectOptVal = ["all", "design"];
+        // var impmSILayerSelectOptVal = ["all", "design"];
+        var impmSILayerSelectOptVal = ["all"];
         impmSILayerSelectOptVal.push.apply(impmSILayerSelectOptVal, myParam.blockZ.id);
 
         var imLRISILayerSelect = document.getElementById("im-lri-si-layer-select");
         myWindow.updateOptions(imLRISILayerSelect, "id", impmSILayerSelectOptText, impmSILayerSelectOptVal);
 
-        var impmShowLayerSelectOptText = ["design"];
+        // var impmShowLayerSelectOptText = ["design"];
+        var impmShowLayerSelectOptText = [];
         impmShowLayerSelectOptText.push.apply(impmShowLayerSelectOptText, myParam.blockZ.id);
-        var impmShowLayerSelectOptVal = ["design"];
+        // var impmShowLayerSelectOptVal = ["design"];
+        var impmShowLayerSelectOptVal = [];
         impmShowLayerSelectOptVal.push.apply(impmShowLayerSelectOptVal, myParam.blockZ.id);
 
         var imShowLayerSelect = document.getElementById("im-show-layer-select");
@@ -140,6 +144,8 @@ window.onload = function() {
         var imRes = myParam.getIMRes();
         var imLRISIValSelect = document.getElementById("im-lri-si-value-select");
         myWindow.updateOptions(imLRISIValSelect, "id", imRes.ids, imRes.ids)
+
+        myWindow.updateCMUseIMTable(imRes.number);
 
         var imLRICLValSelect = document.getElementById("im-lri-cl-value-select");
         myWindow.updateOptions(imLRICLValSelect, "id", imRes.ids, imRes.ids)
@@ -172,7 +178,8 @@ window.onload = function() {
         myParam.imCellsVal = myParam.setCellVal(layerSelectedidx, cellsValue, myParam.imCellsVal);
     };
     document.getElementById("im-showlayer-ok-btn").onclick = function() {
-        imShowLayer()
+        imShowLayer();
+        console.log(myParam.imCellsVal);
     };
     function imShowLayer() {
         var layer = myParam.getimShowLayer();
@@ -215,6 +222,20 @@ window.onload = function() {
     };
 
     // PRIOR MODEL SECTION //
+    document.getElementById("pm-cmi-use-im-ok-btn").onclick = function() {
+        var rFormat = myParam.getIMCMReplace();
+        myParam.cmCellsVal = myParam.replaceCMVals(myParam.imCellsVal, rFormat);
+        if (myMap.pmBlockCellsOverlay===null) {
+            myMap.pmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
+            myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
+            myMap.showedBlockCells = "pm";
+            var pmCMICLValSelect = document.getElementById("pm-cmi-cl-value-select");
+            var pmitColorEls = document.getElementsByClassName("pmit-color-input");
+            myMap.addBlockCellEvt(myMap.pmBlockCellsOverlay, pmCMICLValSelect, 0, pmitColorEls);
+        }
+        pmShowLayer();
+    };
+
     document.getElementById("pm-cmi-si-ok-btn").onclick = function() {
         if (myMap.pmBlockCellsOverlay===null) {
             myMap.pmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
@@ -227,20 +248,20 @@ window.onload = function() {
         var siParam = myParam.getpmInitialCells();
         var nCell = myMap.pmBlockCellsOverlay.getLayers().length;
         if (siParam.layer==="design") {
-            myParam.pmCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
+            myParam.cmCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
         } else if (siParam.layer==="all") {
-            myParam.pmCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
-            myParam.pmCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.pmCellsVal);
+            myParam.cmCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
+            myParam.cmCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.cmCellsVal);
         }
         else {
-            myParam.pmCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.pmCellsVal);
+            myParam.cmCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.cmCellsVal);
         }
         pmShowLayer();
     };
     document.getElementById("pm-cmi-cl-ok-btn").onclick = function() {
         var layerSelectedidx = myParam.getpmChangeL();
         var cellsValue = myMap.getBlockCellVal(myMap.pmBlockCellsOverlay);
-        myParam.pmCellsVal = myParam.setCellVal(layerSelectedidx, cellsValue, myParam.pmCellsVal);
+        myParam.cmCellsVal = myParam.setCellVal(layerSelectedidx, cellsValue, myParam.cmCellsVal);
     };
     document.getElementById("pm-showlayer-ok-btn").onclick = function() {
         pmShowLayer();
@@ -249,9 +270,9 @@ window.onload = function() {
         var layer = myParam.getpmShowLayer();
         var pmitColorEls = document.getElementsByClassName("pmit-color-input");
         if (layer === "design") {
-            myMap.setBlockCellVal(myMap.pmBlockCellsOverlay, myParam.pmCellsValDesign);
+            myMap.setBlockCellVal(myMap.pmBlockCellsOverlay, myParam.cmCellsValDesign);
         } else {
-            myMap.setBlockCellVal(myMap.pmBlockCellsOverlay, myParam.pmCellsVal[layer-1]);
+            myMap.setBlockCellVal(myMap.pmBlockCellsOverlay, myParam.cmCellsVal[layer-1]);
         }
         myMap.setBlockCellColor(myMap.pmBlockCellsOverlay, 0, pmitColorEls);
     }
@@ -415,10 +436,10 @@ window.onload = function() {
     }
     // FLASK INITIAL MODEL //
     document.getElementById("im-output-save-btn").onclick = function() {
-        imProcessFlask("save")
+        imProcessFlask("save");
     };
     document.getElementById("im-output-preview-btn").onclick = function() {
-        imProcessFlask("preview")
+        imProcessFlask("preview");
     };
     function imProcessFlask(mode) {
         if (mode=="save") { var url = "/imsave"; }
@@ -478,7 +499,7 @@ window.onload = function() {
         var ny = myParam.blockXY.size.CW.length + myParam.blockXY.size.CE.length;
         var nz = myParam.blockZ.size.length;
         layerID = numberRange(1, myParam.blockZ.id.length+1);
-        var compressedL = compressLayer(layerID, myParam.pmCellsVal);
+        var compressedL = compressLayer(layerID, myParam.cmCellsVal);
 
         var pmData = {
             nx: nx,
