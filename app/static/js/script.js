@@ -1,22 +1,3 @@
-doTest = function() {
-    let point1 = [-9.681256, 124.815378];
-    let point2 = [-9.244726, 125.243898];
-    document.getElementById("textBoundSWlat").value = point1[0];
-    document.getElementById("textBoundSWlng").value = point1[1];
-    document.getElementById("textBoundNElat").value = point2[0];
-    document.getElementById("textBoundNElng").value = point2[1];
-    
-    document.getElementById("CN-textarea").value = "1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100";
-    document.getElementById("CS-textarea").value = "1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100";
-    document.getElementById("CE-textarea").value = "1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100";
-    document.getElementById("CW-textarea").value = "1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100";
-    document.getElementById("block-z-textarea").value = "100 100 100 100";
-    document.getElementById("boundary-plot-btn").click();
-    document.getElementById("model-center-plot-btn").click();
-    document.getElementById("block-xy-ok-btn").click();
-    document.getElementById("block-z-ok-btn").click();
-}
-
 window.onload = function() {
     let myParam = new Parameter();
     let myWindow = new MainWindow();
@@ -275,7 +256,6 @@ window.onload = function() {
         myMap.setBlockCellColor(myMap.pmBlockCellsOverlay, 0, pmitColorEls);
     }
     document.getElementById('datafile-tab-btn').click();
-    // doTest();
 
     // lasso
     myLasso = new Lasso();
@@ -533,4 +513,12 @@ window.onload = function() {
         xhr.open("POST", url);
         xhr.send(jsonPmData);
     }
+
+////// Test Section /////////
+    // myTest = new Test();
+    // myTest.boundary();
+    // myTest.model_center();
+    // myTest.block_xy();
+    // myTest.block_z();
+////////////////////////////
 }

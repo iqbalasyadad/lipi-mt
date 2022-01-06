@@ -109,14 +109,12 @@ html, body {
     font-weight: normal;
     width: 100%;
     background-color: rgb(167, 202, 243);
+    border: 1px solid rgb(167, 202, 243);
     float: left;
-    border: none;
-    outline: none;
     cursor: pointer;
     padding: 3px 3px;
 }
 .accordion-panel-lr {
-    /* background-color: chartreuse; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -252,8 +250,8 @@ table.table-panel-lr {
 }
 #cmc2r-panel-menu-tab {
     overflow: hidden;
-    border: 1px solid #ccc;
-    background-color: #f1f1f1;
+    border: 1px solid rgb(255, 255, 255);
+    background-color: #dbdbdb;
     /* display: flex;
     justify-content: center;
     align-items: center; */
@@ -268,10 +266,10 @@ table.table-panel-lr {
     padding: 7px 7px;
 }
 #cmc2r-panel-menu-tab button:hover {
-    background-color: #ddd;
+    background-color: rgb(238, 238, 238);
 }
 #cmc2r-panel-menu-tab button.active {
-    background-color: #ccc;
+    background-color: rgb(255, 255, 255);
 }
 .tabcontent {
     display: none;
@@ -287,6 +285,7 @@ table.table-panel-lr {
     width: 80%;
 }
 /* Tab initial model */
+.table-panel-lr-col-1-imrt {width: 10%;}
 .td-imrt-color {text-align: center;}
 .imrt-color-input {
     /* background-color: cadetblue; */

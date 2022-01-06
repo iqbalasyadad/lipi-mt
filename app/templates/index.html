@@ -37,11 +37,12 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/leaflet.draw.js') }}"></script>
 
 
-    <script type="text/javascript" src="{{ url_for('static', filename='js/mapClass.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/lassoClass.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/mainWindowClass.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/parameterClass.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/modelClass.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/map-class.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/lasso-class.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main-win-class.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/parameter-class.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/model-class.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/test-class.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
     <!-- FLASK RENDER END -->
 
@@ -205,11 +206,11 @@
                     <div class="accordion-panel-lr">
                       <table class="table-panel-lr">
                         <tr>
-                          <td class="table-label-panel-lr">Input</td>
+                          <td class="table-label-panel-lr">Input (meter)</td>
                           <td class="table-input-panel-lr">
                             <select id="block-xy-mode-select">
-                              <option value="size">size (meter)</option>
-                              <option value="distance">distance (meter)</option>
+                              <option value="size">size</option>
+                              <option value="distance">distance (from center)</option>
                             </select>
                           </td>
                         </tr>
@@ -290,11 +291,11 @@
                           <col class="table-panel-lr-col-2" span="1">
                         </colgroup>
                         <tr>
-                          <td class="table-label-panel-lr">Input</td>
+                          <td class="table-label-panel-lr">Input (meter)</td>
                           <td class="table-input-panel-lr">
                             <select id="block-z-mode-select">
-                              <option value="size">size (meter)</option>
-                              <option value="distance">distance (meter)</option>
+                              <option value="size">size</option>
+                              <option value="distance">distance(from center)</option>
                             </select>
                           </td>
                         </tr>
@@ -367,7 +368,7 @@
                               <col class="scroll-table-col-name" span="1">
                             </colgroup>
                             <thead>
-                              <tr><th>No</th><th>File Name</th></tr>
+                              <tr><th>ID</th><th>File Name</th></tr>
                             </thead>
                             <tbody id="df-sta-name-tbody"></tbody>
                           </table>
@@ -402,7 +403,7 @@
                               <col class="scroll-table-col-name" span="1">
                             </colgroup>
                             <tbody>
-                              <tr><th>No</th><th>Name</th></tr>
+                              <tr><th>ID</th><th>Name</th></tr>
                               <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">1</td><td class="table-label-panel-lr">Zxx (Real)</td></tr>
                               <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">2</td><td class="table-label-panel-lr">Zxx (Imaginer)</td></tr>
                               <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">3</td><td class="table-label-panel-lr">Zxy (Real)</td></tr>
@@ -434,7 +435,7 @@
                             </colgroup>
                             <tbody>
                               <tr>
-                                <th>No</th>
+                                <th>ID</th>
                                 <th>Value</th>
                                 <th>Action</th>
                               </tr>
@@ -458,7 +459,7 @@
                     </div>
 
                     <div class='cmc2r-panel-item-group'>
-                      <button class="btn-accordion-lr">Error Period</button>
+                      <button class="btn-accordion-lr">Error Period (Imaginary)</button>
                       <div class="accordion-panel-lr">
                         <table class="table-panel-lr">
                           <colgroup>
@@ -598,20 +599,6 @@
                     <div class='cmc2r-panel-item-group'>
                       <button class="btn-accordion-lr">Resistivity</button>
                       <div class="accordion-panel-lr">
-                        <table class="table-panel-lr" id="im-lri-setinit-table">
-                          <colgroup>
-                            <col class="table-panel-lr-col-1" span="1">
-                            <col class="table-panel-lr-col-2" span="1">
-                          </colgroup>
-                          <tbody>
-                            <tr>
-                              <td class="table-label-panel-lr">Number</td>
-                              <td class="table-input-panel-lr">
-                                <input type="text" size=5 id="im-r-number-text">
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
                         <div class="scroll-content-container">
                           <table class="table-panel-lr" id="im-res-table">
                             <colgroup>
@@ -622,7 +609,7 @@
                             </colgroup>
                             <tbody>
                               <tr>
-                                <th>No</th>
+                                <th>ID</th>
                                 <th>Value</th>
                                 <th>Color</th>
                                 <th>Action</th>
