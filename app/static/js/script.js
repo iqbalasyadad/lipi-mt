@@ -11,9 +11,7 @@ window.onload = function() {
         errMapPeriodIdSelect = numberRange(1, selectedPeriods.length+1)
         myWindow.updateOptions(errMapSelect, "class", errMapPeriodIdSelect, errMapPeriodIdSelect);
     };
-    // document.getElementById("df-errperiod-apply-btn").onclick = function() {
-    //     console.log(myParam.getdfErrorPeriod());
-    // };
+
     document.getElementById("hide-panel-left-btn").onclick = function() {
         var leftPanel = document.getElementById("cmc2l-panel-container");
         leftPanelStyle = leftPanel.currentStyle || window.getComputedStyle(leftPanel);
@@ -541,10 +539,10 @@ window.onload = function() {
     }
 
 ////// Test Section /////////
-    myTest = new Test();
-    myTest.boundary();
-    myTest.model_center();
-    myTest.block_xy();
-    myTest.block_z();
+    // myTest = new Test();
+    // myTest.boundary();
+    // myTest.model_center();
+    // myTest.block_xy();
+    // myTest.block_z();
 ////////////////////////////
 }
