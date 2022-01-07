@@ -541,10 +541,10 @@ window.onload = function() {
     }
 
 ////// Test Section /////////
-    // myTest = new Test();
-    // myTest.boundary();
-    // myTest.model_center();
-    // myTest.block_xy();
-    // myTest.block_z();
+    myTest = new Test();
+    myTest.boundary();
+    myTest.model_center();
+    myTest.block_xy();
+    myTest.block_z();
 ////////////////////////////
 }
