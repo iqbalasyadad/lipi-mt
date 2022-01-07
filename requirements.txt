@@ -1,5 +1,6 @@
+tabulate==0.8.9
+Flask_Cors==3.0.10
 numpy==1.21.1
 utm==0.7.0
-Flask_Cors==3.0.10
 Werkzeug==2.0.1
-tabulate==0.8.9
+Flask==2.0.1
