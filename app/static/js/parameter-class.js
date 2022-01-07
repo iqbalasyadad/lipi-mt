@@ -445,11 +445,8 @@ class Parameter {
         }
         for (var i=0; i<inputVals.length; i++) {
             for (var j=0; j<inputVals[i].length; j++) {
-                for (var key in rFormat) {
-                    if (inputVals[i][j] == key) {
-                        outputVals[i][j] = rFormat[key];
-                    }
-                }
+                var key = (inputVals[i][j]).toString();
+                outputVals[i][j] = rFormat[key];
             }
         }
         return outputVals;

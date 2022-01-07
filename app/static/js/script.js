@@ -179,7 +179,6 @@ window.onload = function() {
     };
     document.getElementById("im-showlayer-ok-btn").onclick = function() {
         imShowLayer();
-        console.log(myParam.imCellsVal);
     };
     function imShowLayer() {
         var layer = myParam.getimShowLayer();
@@ -325,7 +324,9 @@ window.onload = function() {
     coordForm.addEventListener('submit', e => {
         e.preventDefault();
         var formData = new FormData();
-        formData.append("myfile", document.getElementById("coordinate-input").files[0]);
+        var fileInfo = document.getElementById("coordinate-input").files[0];
+        // console.log(fileInfo.name);
+        formData.append("myfile", fileInfo);
         var url = "/uploadcoordinates";
         var xhr = new XMLHttpRequest();
         xhr.responseType = 'json';
@@ -373,7 +374,8 @@ window.onload = function() {
                     staName = xhr.response;
                     myWindow.dfSetFileTable(staName);
                 } else {
-                    console.log("error request")
+                    console.log("error request");
+                    alert("Error request");
                 }
             }
         };
@@ -424,7 +426,8 @@ window.onload = function() {
                     if (mode==="save") {alert("Success");}
                     else if (mode==="preview") { myWindow.showPreview(xhr.responseText); }
                 } else {
-                    console.log("error request")
+                    console.log("error request");
+                    alert("Error request");
                 }
             }
         };
@@ -471,7 +474,8 @@ window.onload = function() {
                     if (mode=="save") {alert("Success")}
                     else if (mode==="preview") { myWindow.showPreview(xhr.responseText); }
                 } else {
-                    console.log("error request")
+                    console.log("error request");
+                    alert("Error request");
                 }
             }
         };
@@ -524,7 +528,8 @@ window.onload = function() {
                         myWindow.showPreview(xhr.responseText);
                     }
                 } else {
-                    console.log("error request")
+                    console.log("error request");
+                    alert("Error request");
                 }
             }
         };
