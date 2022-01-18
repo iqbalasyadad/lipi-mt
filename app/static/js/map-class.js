@@ -7,13 +7,15 @@ class Map {
         let satelliteLayer = new L.TileLayer("https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=S0aQBzgPXVQayanwEj5N", {
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
         });
-        let stamenLayer = new L.TileLayer("https://stamen-tiles.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}.jpg", {
-            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
-        });
+        // let stamenLayer = new L.TileLayer("https://stamen-tiles.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}.jpg", {
+        //     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+        // });
+        let stamenLayer = new L.StamenTileLayer("terrain");
+        
         this.map = L.map('map', {
             center: [0, 118.03710938],
             zoom: 5,
-            layers: [satelliteLayer],
+            layers: [stamenLayer],
             fadeAnimation: false,
             zoomAnimation: false
         });
@@ -28,9 +30,9 @@ class Map {
         this.staOverlay = null;
         this.staCenter = null;
         this.imBlockCellsOverlay = null;
-        this.pmBlockCellsOverlay = null;
+        this.cmBlockCellsOverlay = null;
         this.showedBlockCells = null;
-        this.bcName = {init: "Initial Model", pri: "Prior Model"};
+        this.bcName = {init: "Initial Model", pc: "Prior/Control Model"};
         this.popup = L.popup();
         this.showLatLngClick();
 
@@ -62,9 +64,7 @@ class Map {
     }
 
     plotModelBoundary(sw, ne) {
-        var southWest = L.latLng(sw);
-        var northEast = L.latLng(ne);
-        var bounds = L.latLngBounds(southWest, northEast);
+        var bounds = L.latLngBounds(sw, ne);
         if (this.modelBoundaryOverlay == null) {
             this.addModelBoundary(bounds);
         } else {
@@ -89,18 +89,9 @@ class Map {
         this.map.addLayer(this.centerAxisOverlay)
         this.controlLayer.addOverlay(this.centerAxisOverlay, "Model Center");
     }
-    plotModelCenter(mode, latInput, lngInput) {
-        if (mode==="rect-center"){
-            this.modelCenter = this.modelBoundary.getBounds().getCenter();
-            document.getElementById("textModelCenterLat").value = this.modelCenter.lat.toFixed(8);
-            document.getElementById("textModelCenterLng").value = this.modelCenter.lng.toFixed(8);
-        } else if (mode==="sta-center"){
-            this.modelCenter = this.staCenter;
-            document.getElementById("textModelCenterLat").value = this.modelCenter.lat.toFixed(8);
-            document.getElementById("textModelCenterLng").value = this.modelCenter.lng.toFixed(8);
-        } else if (mode==="manual"){
-            this.modelCenter = {lat: latInput, lng: lngInput};
-        }
+
+    plotModelCenter(lat, lng) {
+        this.modelCenter = {lat: lat, lng: lng};
         let hStart = L.latLng(this.modelCenter.lat, this.modelBoundaryWest);
         let hEnd = L.latLng(this.modelCenter.lat, this.modelBoundaryEast);
         let vStart = L.latLng(this.modelBoundaryNorth, this.modelCenter.lng);;
@@ -113,6 +104,31 @@ class Map {
             this.centerVline.setLatLngs([vStart, vEnd]);
         }
     }
+
+    // plotModelCenter(mode, latInput, lngInput) {
+    //     if (mode==="rect-center"){
+    //         this.modelCenter = this.modelBoundary.getBounds().getCenter();
+    //         document.getElementById("model-center-lat-text").value = this.modelCenter.lat.toFixed(8);
+    //         document.getElementById("model-center-lng-text").value = this.modelCenter.lng.toFixed(8);
+    //     } else if (mode==="sta-center"){
+    //         this.modelCenter = this.staCenter;
+    //         document.getElementById("model-center-lat-text").value = this.modelCenter.lat.toFixed(8);
+    //         document.getElementById("model-center-lng-text").value = this.modelCenter.lng.toFixed(8);
+    //     } else if (mode==="manual"){
+    //         this.modelCenter = {lat: latInput, lng: lngInput};
+    //     }
+    //     let hStart = L.latLng(this.modelCenter.lat, this.modelBoundaryWest);
+    //     let hEnd = L.latLng(this.modelCenter.lat, this.modelBoundaryEast);
+    //     let vStart = L.latLng(this.modelBoundaryNorth, this.modelCenter.lng);;
+    //     let vEnd = L.latLng(this.modelBoundarySouth, this.modelCenter.lng);
+
+    //     if (this.centerAxisOverlay==null) {
+    //         this.addModelCenter(hStart, hEnd, vStart, vEnd);
+    //     } else {
+    //         this.centerHline.setLatLngs([hStart, hEnd]);
+    //         this.centerVline.setLatLngs([vStart, vEnd]);
+    //     }
+    // }
     addBlockLine(latlngs) {
         this.blockLineOverlay = L.layerGroup([]);
         this.blockLine = L.polyline(latlngs, {weight: 1, color: "black", interactive: false}).addTo(this.blockLineOverlay);
@@ -154,9 +170,9 @@ class Map {
     removeOverlay(layerGroup, name) {
         if (this.map.hasLayer(layerGroup)) {
             this.map.removeLayer(layerGroup);
-            if (name) {
-               this.controlLayer.removeLayer(layerGroup, name);     
-            }
+        }
+        if (name) {
+            this.controlLayer.removeLayer(layerGroup, name);     
         }
     }
     resetOverlay(layerGroup, name) {

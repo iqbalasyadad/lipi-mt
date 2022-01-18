@@ -2,10 +2,10 @@ class MainWindow {
     constructor() {
         this.imColorInit = ["#34eb3a", "#3434eb", "#eb3434", "#9f34eb", "#1ec4e6", "#f0f059"];
 
-        var dfptTable = document.getElementById("df-period-table");
-        var dfptMinusBtns = document.getElementsByClassName("dfpt-minus-btn");
-        var dfptPlusBtns = document.getElementsByClassName("dfpt-plus-btn");
-        this.tablePLbtnAddEvt(dfptTable, dfptPlusBtns,dfptMinusBtns, 1, 0, true, 0);
+        var dfuvtTable = document.getElementById("df-used-value-table");
+        var dfuvtMinusBtns = document.getElementsByClassName("dfuvt-minus-btn");
+        var dfuvtPlusBtns = document.getElementsByClassName("dfuvt-plus-btn");
+        this.tablePLbtnAddEvt(dfuvtTable, dfuvtPlusBtns,dfuvtMinusBtns, 1, 0, true, 0);
 
         var dfemptTable = document.getElementById("df-errmap-period-table");
         var dfemptMinusBtns = document.getElementsByClassName("dfempt-minus-btn");
@@ -20,10 +20,12 @@ class MainWindow {
 
         this.addLeftTabEvt();
         this.setInit();
+        document.getElementById('datafile-tab-btn').click();
+
     }
 
     setInit() {
-        var selectErrPeriod = document.getElementById("errperiod-select");
+        var selectErrPeriod = document.getElementById("df-errperiod-select");
         var rowErrPeriodManual = document.getElementById("tr-errperiod-manual");
         rowErrPeriodManual.style.display='none';
         selectErrPeriod.addEventListener("change", ()=> {
@@ -51,21 +53,21 @@ class MainWindow {
                 imLRIALtrMultipleE.style.display = "";
             }
         });
-        var pmiCMIALMode = document.getElementById("pm-cmi-al-mode-select");
-        var pmiCMIALtrSingle = document.getElementById("tr-pm-cmi-al-layer-single");
-        var pmiCMIALtrMultipleS = document.getElementById("tr-pm-cmi-al-layer-multiple-s");
-        var pmiCMIALtrMultipleE = document.getElementById("tr-pm-cmi-al-layer-multiple-e");
-        pmiCMIALtrMultipleS.style.display = 'none';
-        pmiCMIALtrMultipleE.style.display = 'none';
-        pmiCMIALMode.addEventListener("change", () => {
-            if (pmiCMIALMode.value==="single") {
-                pmiCMIALtrSingle.style.display = "";
-                pmiCMIALtrMultipleS.style.display = "none";
-                pmiCMIALtrMultipleE.style.display = "none";
-            } else if (pmiCMIALMode.value==="multiple") {
-                pmiCMIALtrSingle.style.display = "none";
-                pmiCMIALtrMultipleS.style.display = "";
-                pmiCMIALtrMultipleE.style.display = "";
+        var cmiCMIALMode = document.getElementById("cm-cmi-al-mode-select");
+        var cmiCMIALtrSingle = document.getElementById("tr-cm-cmi-al-layer-single");
+        var cmiCMIALtrMultipleS = document.getElementById("tr-cm-cmi-al-layer-multiple-s");
+        var cmiCMIALtrMultipleE = document.getElementById("tr-cm-cmi-al-layer-multiple-e");
+        cmiCMIALtrMultipleS.style.display = 'none';
+        cmiCMIALtrMultipleE.style.display = 'none';
+        cmiCMIALMode.addEventListener("change", () => {
+            if (cmiCMIALMode.value==="single") {
+                cmiCMIALtrSingle.style.display = "";
+                cmiCMIALtrMultipleS.style.display = "none";
+                cmiCMIALtrMultipleE.style.display = "none";
+            } else if (cmiCMIALMode.value==="multiple") {
+                cmiCMIALtrSingle.style.display = "none";
+                cmiCMIALtrMultipleS.style.display = "";
+                cmiCMIALtrMultipleE.style.display = "";
             }
         });
         var mouseModeSelect = document.getElementById("mouse-set-mode-select");
@@ -103,21 +105,16 @@ class MainWindow {
 
         // DATAFILE ERRMAP CHANGE MODE
         var dfErrmapModeSelect = document.getElementById("df-errmap-period-mode-select");
-        var dfErrmapChangeTable = document.getElementById("df-errmap-period-table");
         var dfErrmapChangeScroll = document.getElementById("df-errmap-period-scroll");
-        dfErrmapChangeTable.style.display = "none";
-        dfErrmapChangeScroll.style.height = "auto";
+        dfErrmapChangeScroll.style.display = "none";
 
         dfErrmapModeSelect.addEventListener("change", () => {
             if(dfErrmapModeSelect.value==="none") {
-                dfErrmapChangeTable.style.display = "none";
-                dfErrmapChangeScroll.style.height = "auto";
+                dfErrmapChangeScroll.style.display = "none";
             } else if (dfErrmapModeSelect.value==="change") {
-                dfErrmapChangeTable.style.display = "";
-                dfErrmapChangeScroll.style.height = "200px";
-            }
+                dfErrmapChangeScroll.style.display = "";
+            }            
         });
-
     }
     setDisplayEls(els, displayMode) {
         for (var i=0; i<els.length; i++) {
@@ -126,7 +123,7 @@ class MainWindow {
     }
     addLeftTabEvt() {
         var tabBtn = document.getElementsByClassName("panelr-tablinks");
-        var pageName = ["datafile-tab", "initialmodel-tab", "priormodel-tab"];
+        var pageName = ["datafile-tab", "initialmodel-tab", "controlmodel-tab"];
         for (var i=0; i<tabBtn.length; i++) {
             this.tabAddEvt(tabBtn[i], pageName[i]);
         }
@@ -240,6 +237,12 @@ class MainWindow {
             }
         }
     }
+    removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+           selectElement.remove(i);
+        }
+    }
     updateColor(colorElements, colorList) {
         if (colorElements.length <= colorList.length) {
             for (var i=0; i<colorElements.length; i++) {
@@ -264,7 +267,7 @@ class MainWindow {
     }
 
     updateCMUseIMTable(nRes) {
-        var cmiUseIMTable = document.getElementById("pm-cmi-use-im-table");
+        var cmiUseIMTable = document.getElementById("cm-cmi-use-im-table");
         var rowCount = cmiUseIMTable.rows.length;
         var startRow = 2
         if (rowCount > startRow) {

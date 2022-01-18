@@ -1,16 +1,14 @@
 class Parameter {
     constructor() {
         this.imCellsVal = null;
-        this.imCellsValDesign = null;
         this.cmCellsVal = null;
-        this.cmCellsValDesign = null;
         this.lastCellsVal = null;
         //init im cell val
     }
     // DATAFILE //
-    getErrMapParam() {
-        var errmapPeriodSelects = document.getElementsByClassName("errmap-period-select");
-        var errmapStaInputs = document.getElementsByClassName("errmap-station-input");
+    getdfErrMapParam() {
+        var errmapPeriodSelects = document.getElementsByClassName("errmap-used-value-select");
+        var errmapStaInputs = document.getElementsByClassName("errmap-file-input");
         var errmapRespInputs = document.getElementsByClassName("errmap-response-input");
         var errmapValInputs = document.getElementsByClassName("errmap-value-input");
         var dfErrmapModeSelect = document.getElementById("df-errmap-period-mode-select");
@@ -20,11 +18,11 @@ class Parameter {
         } else if (dfErrmapModeSelect.value==="change") {
             var errMapChange = {}
             for (var i=0; i<errmapPeriodSelects.length; i++) {
-                var cPeriod = this.parseInput(errmapPeriodSelects[i], "int");
+                var cUsedValues = this.parseInput(errmapPeriodSelects[i], "int");
                 if (errmapStaInputs[i].value.replace(" ", "").toLowerCase()==="all") {
-                    var cStation = "all";
+                    var cFile = "all";
                 } else {
-                    var cStation = this.parseInputs(errmapStaInputs[i], "int");
+                    var cFile = this.parseInputs(errmapStaInputs[i], "int");
                 }
                 if (errmapRespInputs[i].value.replace(" ", "").toLowerCase()==="all") {
                     var cResponse = "all";
@@ -33,40 +31,39 @@ class Parameter {
                 }
                 var cValue = this.parseInput(errmapValInputs[i], "int");
     
-                errMapChange[i] = { "period": cPeriod, "station": cStation,
-                                    "response": cResponse, "value": cValue };
+                errMapChange[i] = { "frequency_period": cUsedValues, "file": cFile,
+                                    "response": cResponse, "final_value": cValue };
             }
             return errMapChange;
         }
-        
-
     }
     // END DATAFILE //
     
-    // PRIOR MODEL //
-    getpmIndexColor() {
-        this.pmIndexColors = [];
-        var pmitColorEls = document.getElementsByClassName("pmit-color-input");
+    // START CONTROL MODEL //
+    getcmIndexColor() {
+        var pmIndexColors = [];
+        var pmitColorEls = document.getElementsByClassName("cmit-color-input");
         for (var i=0; i<pmitColorEls.length; i++) {
-            this.pmIndexColors.push(pmitColorEls[i].value);
+            pmIndexColors.push(pmitColorEls[i].value);
         }
+        return pmIndexColors;
     }
-    getpmShowLayer() {
-        var imShowLayerValStr = document.getElementById("pm-show-layer-select").value;
+    getcmShowLayer() {
+        var imShowLayerValStr = document.getElementById("cm-show-layer-select").value;
         if (imShowLayerValStr === "design") {
             return imShowLayerValStr;
         } else {
             return parseInt(imShowLayerValStr);
         }
     }
-    getpmChangeL() {
-        var pmcmiClMode = document.getElementById("pm-cmi-al-mode-select");
+    getcmChangeL() {
+        var pmcmiClMode = document.getElementById("cm-cmi-al-mode-select");
         if (pmcmiClMode.value === "single") {
-            var singleLayerSelected = parseInt(document.getElementById("pm-cmi-cl-layer-single-select").value);
+            var singleLayerSelected = parseInt(document.getElementById("cm-cmi-al-layer-single-select").value);
             var layerSelected = [singleLayerSelected]
         } else if (pmcmiClMode.value === "multiple") {
-            var msLayerSelected = parseInt(document.getElementById("pm-cmi-al-layer-ms-select").value);
-            var meLayerSelected = parseInt(document.getElementById("pm-cmi-al-layer-me-select").value);
+            var msLayerSelected = parseInt(document.getElementById("cm-cmi-al-layer-ms-select").value);
+            var meLayerSelected = parseInt(document.getElementById("cm-cmi-al-layer-me-select").value);
             var layerSelectedFL = [msLayerSelected, meLayerSelected];
             layerSelectedFL.sort((a, b) => a - b);
             var layerSelected = [];
@@ -76,23 +73,23 @@ class Parameter {
         }
         return layerSelected;
     }
-    getpmInitialCells() {
-        var pmSILayerSelect = document.getElementById("pm-cmi-si-layer-select").value;
+    getcmInitialCells() {
+        var pmSILayerSelect = document.getElementById("cm-cmi-si-layer-select").value;
         if (pmSILayerSelect != "all" && pmSILayerSelect != "design") {
             pmSILayerSelect = parseInt(pmSILayerSelect);
         }
         var pmSI = {
             layer: pmSILayerSelect,
-            value: parseInt(document.getElementById("pm-cmi-si-value-select").value)
+            value: parseInt(document.getElementById("cm-cmi-si-value-select").value)
         };
         return pmSI;
     }
-    getpmSaveName() {
-        var fname = document.getElementById("pm-output-fname-textarea").value;
+    getcmSaveName() {
+        var fname = document.getElementById("cm-output-fname-textarea").value;
         return fname
 
     }
-    // END PRIOR MODEL //
+    // END CONTROL MODEL //
 
     // START INITIAL MODEL //
     getimTitle() {
@@ -165,6 +162,7 @@ class Parameter {
             cellsValOut = new Array(nLayer);
         }
         if (layer==="all") {
+            cellsValOut = new Array(nLayer);
             for (var i=0; i<nLayer; i++) {
                 cellsValOut[i] = Array.apply(null, Array(nCell)).map(Number.prototype.valueOf, val);
             }
@@ -205,39 +203,49 @@ class Parameter {
     }
     getdfErrorPeriod() {
         var dfErrorPeriod = null;
-        var selectErrPeriod = document.getElementById("errperiod-select");
-        if (selectErrPeriod.value==="=real") {
+        var modeSelect = document.getElementById("df-errperiod-select");
+
+        if (modeSelect.value==="=real") {
             dfErrorPeriod = "=real"
-        } else if (selectErrPeriod.value==="manual"){
-            dfErrorPeriod = document.getElementById("manual-errperiod-text").value;
+        } else if (modeSelect.value==="manual"){
+            dfErrorPeriod = document.getElementById("df-errperiod-text").value;
         }
         return dfErrorPeriod;
 
     }
-    getdfPeriod() {
-        var dfPeriods = [];
-        var table = document.getElementById("df-period-table");
-        var dfPeriodValInputs = document.getElementsByClassName("df-period-inputs");
-        for (var i=0; i<dfPeriodValInputs.length; i++) {
-            dfPeriods.push(this.parseInput(dfPeriodValInputs[i], "float"));
+    getdfUsedValue() {
+        var usedValue = {
+            mode: document.getElementById("df-used-value-mode-select").value,
+            value: []
         }
-        return dfPeriods;
+        var dfPeriodValInputs = document.getElementsByClassName("df-used-value-inputs");
+        for (var i=0; i<dfPeriodValInputs.length; i++) {
+            usedValue.value.push(this.parseInput(dfPeriodValInputs[i], "float"));
+        }
+        return usedValue;
     }
-    getBundaries() {
-        let latSW = document.getElementById("textBoundSWlat").value;
-        let lngSW = document.getElementById("textBoundSWlng").value;
-        let latNE = document.getElementById("textBoundNElat").value;
-        let lngNE = document.getElementById("textBoundNElng").value;
-        this.boundaries = {
-            point1: [latSW, lngSW],
-            point2: [latNE, lngNE]
+    getModelBoundary() {
+        var sw_lat_text = document.getElementById("boundary-sw-lat-text");
+        var sw_lng_text = document.getElementById("boundary-sw-lng-text");
+        var ne_lat_text = document.getElementById("boundary-ne-lat-text");
+        var ne_lng_text = document.getElementById("boundary-ne-lng-text");
+
+        this.boundary = {
+            sw: {
+                lat: this.parseInput(sw_lat_text, "float"),
+                lng: this.parseInput(sw_lng_text, "float")                
+            },
+            ne: {
+                lat: this.parseInput(ne_lat_text, "float"),
+                lng: this.parseInput(ne_lng_text, "float")               
+            }
         };
     }
     getModelCenter() {
         this.modelCenter = {
-            mode: document.getElementById("selectModelCenterMode").value,
-            latManual: document.getElementById("textModelCenterLat").value,
-            lngManual: document.getElementById("textModelCenterLng").value
+            mode: document.getElementById("model-center-mode-select").value,
+            lat: this.parseInput(document.getElementById("model-center-lat-text"), "float"),
+            lng: this.parseInput(document.getElementById("model-center-lng-text"), "float")
         };
     }
     parseInput(el, outType) {
@@ -319,6 +327,13 @@ class Parameter {
         }
         let mode = document.getElementById("block-xy-mode-select").value;
         this.blockXY = {
+            input_mode: mode,
+            block_mode: {
+                CN: document.getElementById("CN-mode-select").value,
+                CS: document.getElementById("CS-mode-select").value,
+                CE: document.getElementById("CE-mode-select").value,
+                CW: document.getElementById("CW-mode-select").value
+            },
             size: {CN: null, CS: null, CE: null, CW: null},
             distance: {CN: null, CS: null, CE: null, CW: null}
         };
@@ -412,12 +427,12 @@ class Parameter {
     getBlockZ() {
         let textInput = document.getElementById("block-z-textarea");
         let inputBlock = this.parseInputs(textInput, "float");
-        let mode = document.getElementById("block-z-mode-select").value;
-        this.blockZ = {id:null, size: null, distance: null};
-        if (mode==="size") {
+        let inputMode = document.getElementById("block-z-mode-select").value;
+        this.blockZ = {input_mode: inputMode, id: null, size: null, distance: null};
+        if (inputMode==="size") {
             this.blockZ.size = inputBlock;
             this.blockZ.distance = this.sumBlock(inputBlock);
-        } else if (mode==="distance"){
+        } else if (inputMode==="distance"){
             this.blockZ.size = this.breakSumBlock(inputBlock)
             this.blockZ.distance = inputBlock;
         }

@@ -92,26 +92,20 @@ class CoordinateFileError(Exception):
     pass
     
 class CreateDataFile:
+        
+    def __init__ (self):
+        self.inputHeader = {
+            "frequency": "FREQS",
+            "zxx": {"re": "Zxx Re (Rot)", "im": "Zxx Im (Rot)", "var": "Zxx VAR (Rot)"},
+            "zxy": {"re": "Zxy Re (Rot)", "im": "Zxy Im (Rot)", "var": "Zxy VAR (Rot)"},
+            "zyx": {"re": "Zyx Re (Rot)", "im": "Zyx Im (Rot)", "var": "Zyx VAR (Rot)"},
+            "zyy": {"re": "Zyy Re (Rot)", "im": "Zyy Im (Rot)", "var": "Zyy VAR (Rot)"} }
+        
+        self.outputStr = ''
+        self.basePath = os.getcwd()
     
     def __vartoerr(self, data):
         return data ** 0.5
-        
-    def __init__ (self):
-        self.headerFreq = "FREQS"
-        self.headerZxxRe = "Zxx Re (Rot)"
-        self.headerZxxIm = "Zxx Im (Rot)"
-        self.headerZxyRe = "Zxy Re (Rot)"
-        self.headerZxyIm = "Zxy Im (Rot)"
-        self.headerZyxRe = "Zyx Re (Rot)"
-        self.headerZyxIm = "Zyx Im (Rot)"
-        self.headerZyyRe = "Zyy Re (Rot)"
-        self.headerZyyIm = "Zyy Im (Rot)"
-        self.headerZxxVar = "Zxx VAR (Rot)"
-        self.headerZxyVar = "Zxy VAR (Rot)"
-        self.headerZyxVar = "Zyx VAR (Rot)"
-        self.headerZyyVar = "Zyy VAR (Rot)"
-        self.outputStr = ''
-        self.basePath = os.getcwd()
     
     def setInputDirectory(self, directory=None):
         if directory:
@@ -143,20 +137,38 @@ class CreateDataFile:
     def setResponses(self, nResponses):
         self.nResponses = nResponses
         if self.nResponses == 4:
-            self.impedanceTensorHeaders = [self.headerZxyRe, self.headerZxyIm, self.headerZyxRe, self.headerZyxIm]
-            self.impedanceTensorErrorHeaders = [self.headerZxyVar, '-', self.headerZyxVar, '-']
+            
+            self.impedanceTensorHeaders = [self.inputHeader["zxy"]["re"], self.inputHeader["zxy"]["im"], 
+                                           self.inputHeader["zyx"]["re"], self.inputHeader["zyx"]["im"]]
+            
+            self.impedanceTensorErrorHeaders = [self.inputHeader["zxy"]["var"], '-', self.inputHeader["zyx"]["var"], '-']
+                                           
+                                           
         elif self.nResponses == 8:
-            self.impedanceTensorHeaders = [self.headerZxxRe, self.headerZxxIm, self.headerZxyRe, self.headerZxyIm,
-                                           self.headerZyxRe, self.headerZyxIm, self.headerZyyRe, self.headerZyyIm]
-            self.impedanceTensorErrorHeaders = [self.headerZxxVar, '-', self.headerZxyVar, '-',
-                                                self.headerZyxVar, '-', self.headerZyyVar, '-']
+                                           
+            self.impedanceTensorHeaders = [self.inputHeader["zxx"]["re"], self.inputHeader["zxx"]["im"], 
+                                           self.inputHeader["zxy"]["re"], self.inputHeader["zxy"]["im"],
+                                           self.inputHeader["zyx"]["re"], self.inputHeader["zyx"]["im"], 
+                                           self.inputHeader["zyy"]["re"], self.inputHeader["zyy"]["im"]]
+                                           
+            self.impedanceTensorErrorHeaders = [self.inputHeader["zxx"]["var"], '-',
+                                                self.inputHeader["zxy"]["var"], '-',
+                                                self.inputHeader["zyx"]["var"], '-',
+                                                self.inputHeader["zyy"]["var"], '-']
         else:
             raise ValueError("Invalid number of responses: {}".format(nResponses))
-
-    def setUsedPeriods(self, usedPeriods):
-        usedPeriodsArr = np.array(usedPeriods)
-        self.usedPeriods = usedPeriodsArr
-        self.usedFrequencies = 1/usedPeriodsArr
+    
+    def setUsedValues(self, mode, usedValues):
+        self.usedValuesMode = mode
+        if mode=="frequency":
+            self.usedFrequencies = np.array(usedValues)
+            self.usedPeriods = 1/self.usedFrequencies
+        elif mode=="period":
+            self.usedPeriods = np.array(usedValues)
+            self.usedFrequencies = 1/self.usedPeriods
+        else:
+            raise ValueError("Invalid mode")
+        
     
     def __parse(self, file):
         headers=[]
@@ -186,22 +198,21 @@ class CreateDataFile:
                 return index
         assert found==True, "Header not found"
         
-    def __getNearestPeriodsIndex(self, usedPeriods, filePeriods):
-        filePeriods = np.array(filePeriods)
-        nearestPeriodsIndex = np.zeros(len(usedPeriods), dtype=int)
-        nearestPeriods = np.zeros(len(usedPeriods), dtype=float)
-        for i in range (len(usedPeriods)):
-            nearestPeriodIndex = np.argmin(abs(filePeriods-usedPeriods[i]))
-            nearestPeriodsIndex[i] = nearestPeriodIndex
-            nearestPeriods[i] = filePeriods[nearestPeriodIndex]
-        return nearestPeriods, nearestPeriodsIndex
+    def __getNearestFrequencyIndex(self, usedFrequencies, fileFrequencies):
+        nearestFrequenciesIndex = np.zeros(len(usedFrequencies), dtype=int)
+        nearestFrequencies = np.zeros(len(usedFrequencies), dtype=float)
+        for i in range(len(usedFrequencies)):
+            nearestIndex = np.argmin(abs(fileFrequencies-usedFrequencies[i]))
+            nearestFrequenciesIndex[i] = nearestIndex
+            nearestFrequencies[i] = fileFrequencies[nearestIndex]
+        return nearestFrequencies, nearestFrequenciesIndex
     
-    def __getDataOnPeriods(self, searchHeader, fileHeaders, fileData, periodsIndex):
+    def __getDataOnFrequencies(self, searchHeader, fileHeaders, fileData, frequenciesIndex):
         headerIndex = self.__getHeaderIndex(searchHeader, fileHeaders)
         headerData = fileData[headerIndex]
-        usedHeaderData = np.zeros(len(periodsIndex), dtype=float)
-        for i in range (len(periodsIndex)):
-            usedHeaderData[i] = headerData[periodsIndex[i]]
+        usedHeaderData = np.zeros(len(frequenciesIndex), dtype=float)
+        for i in range (len(frequenciesIndex)):
+            usedHeaderData[i] = headerData[frequenciesIndex[i]]
         return usedHeaderData
     
     def setImpedanceTensorErrorImag(self, errorValue):
@@ -210,30 +221,29 @@ class CreateDataFile:
     def __getAllData(self):
         self.impedanceTensorHeaderDatasAll = []
         self.impedanceTensorHeaderErrorDatasAll = []
-        self.nearestPeriodsAll = np.zeros([len(self.inputFiles),len(self.usedPeriods)], dtype=float)
+        self.nearestFrequenciesAll = np.zeros([len(self.inputFiles),len(self.usedFrequencies)], dtype=float)
         
         for fIndex, f in enumerate (self.inputFiles):
             pt1FilePath = os.path.join(self.pt1FolderPath, f)
             fileHeaders, fileData = self.__parse(pt1FilePath)
             
-            # get nearest periods
-            fileFrequencyIndex = self.__getHeaderIndex(self.headerFreq, fileHeaders)
-            fileFrequencies = fileData[fileFrequencyIndex]
-            filePeriods = 1/fileFrequencies
-            self.nearestPeriodsAll[fIndex], nearestPeriodsIndex = self.__getNearestPeriodsIndex(self.usedPeriods, filePeriods)
+            # get nearest frequency
+            fileFrequencyIndex = self.__getHeaderIndex(self.inputHeader["frequency"], fileHeaders)
+            fileFrequencies = np.array(fileData[fileFrequencyIndex])            
+            self.nearestFrequenciesAll[fIndex], nearestFrequenciesIndex = self.__getNearestFrequencyIndex(self.usedFrequencies, fileFrequencies)
             
             # get impedance tensor for each header
-            impedanceTensorHeaderDatas = np.zeros([len(self.impedanceTensorHeaders) ,len(self.usedPeriods)], dtype=float)
+            impedanceTensorHeaderDatas = np.zeros([len(self.impedanceTensorHeaders), len(self.usedFrequencies)], dtype=float)
             for i in range (len(self.impedanceTensorHeaders)):
-                impedanceTensorHeaderDatas[i] = self.__getDataOnPeriods(self.impedanceTensorHeaders[i], fileHeaders, fileData, nearestPeriodsIndex)
+                impedanceTensorHeaderDatas[i] = self.__getDataOnFrequencies(self.impedanceTensorHeaders[i], fileHeaders, fileData, nearestFrequenciesIndex)
             self.impedanceTensorHeaderDatasAll.append(impedanceTensorHeaderDatas)
 
             # get impedance tensor error for each header
-            impedanceTensorHeaderErrorDatas = np.zeros([len(self.impedanceTensorErrorHeaders) ,len(self.usedPeriods)], dtype=float)
-            lastImpedanceTensorError = np.zeros(len(self.usedPeriods), dtype=float)
+            impedanceTensorHeaderErrorDatas = np.zeros([len(self.impedanceTensorErrorHeaders), len(self.usedFrequencies)], dtype=float)
+            lastImpedanceTensorError = np.zeros(len(self.usedFrequencies), dtype=float)
             for i in range (len(self.impedanceTensorErrorHeaders)):
                 if self.impedanceTensorErrorHeaders[i] == '-' :
-                    impedanceTensorErrorValue = np.zeros(len(self.usedPeriods), dtype=float)
+                    impedanceTensorErrorValue = np.zeros(len(self.usedFrequencies), dtype=float)
                     try:
                         impedanceTensorErrorValue[:] = float (self.impedanceTensorErrorImag)
                     except:
@@ -242,49 +252,92 @@ class CreateDataFile:
                         else:
                             impedanceTensorErrorValue[:] = np.nan
                 else:
-                    impedanceTensorErrorValue = self.__getDataOnPeriods(self.impedanceTensorErrorHeaders[i], fileHeaders, fileData, nearestPeriodsIndex)
+                    impedanceTensorErrorValue = self.__getDataOnFrequencies(self.impedanceTensorErrorHeaders[i], fileHeaders, fileData, nearestFrequenciesIndex)
                     impedanceTensorErrorValue = self.__vartoerr(impedanceTensorErrorValue)
                     lastImpedanceTensorError = impedanceTensorErrorValue
                 impedanceTensorHeaderErrorDatas[i] = impedanceTensorErrorValue
             self.impedanceTensorHeaderErrorDatasAll.append(impedanceTensorHeaderErrorDatas)
     
-    def __createDataOnP(self, data, headers):
-        dataOnPeriods =  np.zeros([len(self.usedPeriods), len(self.inputFiles), len(headers)])
-        for i in range (len(self.usedPeriods)):
+    def __createDataOnF(self, data, headers):
+        dataOnFrequencies =  np.zeros([len(self.usedFrequencies), len(self.inputFiles), len(headers)])
+        for i in range (len(self.usedFrequencies)):
             for j in range (len(self.inputFiles)):
                 for k in range (len(headers)):
-                    dataOnPeriods[i][j][k] = data[j][k][i]
-        return dataOnPeriods
+                    dataOnFrequencies[i][j][k] = data[j][k][i]
+        return dataOnFrequencies
         
     def initErrMapVal(self):
-        nPeriod = len(self.usedPeriods)
+        nFrequency= len(self.usedFrequencies)
         nFile =  len(self.inputFiles)
         nITHeader = len(self.impedanceTensorHeaders)
-        self.errMapVal = np.ones([nPeriod, nFile, nITHeader])
+        self.errMapVal = np.ones([nFrequency, nFile, nITHeader])
     
     def changeErrMapVal(self, changeDict):
+        frequency_period_range = np.arange(1, len(self.usedFrequencies)+1)
+        file_range = np.arange(1, len(self.inputFiles)+1)
+        response_range = np.arange(1, len(self.impedanceTensorHeaders)+1)
+        
         for ID in changeDict:
-            period = changeDict[ID]["period"]
-            stations = changeDict[ID]["station"]
-            responses = changeDict[ID]["response"]
-            value = changeDict[ID]["value"]
-            if (stations=="all"):
-                stations = np.arange(len(self.errMapVal[0]))
-            if (responses=="all"):
-                responses = np.arange(len(self.errMapVal[0][0]))
-            for station in stations:
-                for response in responses:
-                    self.errMapVal[period-1][station-1][response-1] = value
+            frequency_period_id = changeDict[ID]["frequency_period"]
+            files_id = changeDict[ID]["file"]
+            responses_id = changeDict[ID]["response"]
+            final_value = changeDict[ID]["final_value"]
+            
+            if isinstance(frequency_period_id, int) and frequency_period_id in frequency_period_range:
+                pass
+            else:
+                raise ValueError("Invalid frequency/period id")
+            
+            if isinstance(files_id, str):
+                if files_id=="all":
+                    pass
+                else:
+                    raise ValueError("Invalid file id")
+            elif isinstance(files_id, list):
+                for file_id in files_id:
+                    if isinstance(file_id, int) and file_id in file_range:
+                        pass
+                    else:
+                        raise ValueError("Invalid file id")
+            else:
+                raise ValueError("Invalid file id")
+                
+            if isinstance(responses_id, str):
+                if responses_id=="all":
+                    pass
+                else:
+                    raise ValueError("Invalid response id")
+            elif isinstance(responses_id, list):
+                for response_id in responses_id:
+                    if isinstance(response_id, int) and response_id in response_range:
+                        pass
+                    else:
+                        raise ValueError("Invalid response id")
+            else:
+                raise ValueError("Invalid response id")
+
+            if isinstance(final_value, int):
+                pass
+            else:
+                raise ValueError("Invalid value")
+            
+            if (files_id=="all"):
+                files_id = np.arange(len(self.errMapVal[0]))
+            if (responses_id=="all"):
+                responses_id = np.arange(len(self.errMapVal[0][0]))
+            for file_id in files_id:
+                for response_id in responses_id:
+                    self.errMapVal[frequency_period_id-1][file_id-1][response_id-1] = final_value
         
     def __addFirstLinestr(self):
-        self.outputStr += ' {} {} {}'.format(len(self.inputFiles), len(self.usedPeriods),
+        self.outputStr += ' {} {} {}'.format(len(self.inputFiles), len(self.usedFrequencies),
                                              len(self.impedanceTensorHeaders))
-        
-    def __addDataOnPstr(self, headerOut, data):
+    
+    def __addDataOnFstr(self, headerOut, data):
         # get maximum character
         nCharData = 0
         negativeVal = False
-        for i in range (len(self.usedPeriods)):
+        for i in range (len(self.usedFrequencies)):
             for row in data[i]:
                 for val in row:
                     nCharDataCurrent = len("{:.4E}".format(val))
@@ -298,7 +351,7 @@ class CreateDataFile:
             dataSpacing = nCharData + 1
         
         # add header and data to output string
-        for i in range(len(self.usedPeriods)):
+        for i in range(len(self.usedFrequencies)):
             self.outputStr += "\n{}  {:.4E}".format(headerOut, self.usedPeriods[i])
             for row in data[i]:
                 self.outputStr += '\n'
@@ -325,15 +378,15 @@ class CreateDataFile:
             
     def process(self):
         self.__getAllData()
-        impedanceTensorOnP = self.__createDataOnP(self.impedanceTensorHeaderDatasAll, self.impedanceTensorHeaders)
-        impedanceTensorErrorOnP = self.__createDataOnP(self.impedanceTensorHeaderErrorDatasAll, self.impedanceTensorErrorHeaders)
+        impedanceTensorOnF = self.__createDataOnF(self.impedanceTensorHeaderDatasAll, self.impedanceTensorHeaders)
+        impedanceTensorErrorOnF = self.__createDataOnF(self.impedanceTensorHeaderErrorDatasAll, self.impedanceTensorErrorHeaders)
         
         self.__addFirstLinestr()
         self.__addCoordinatestr("Station_Location: N-S", self.northing)
         self.__addCoordinatestr("Station_Location: E-W", self.easting)
-        self.__addDataOnPstr("DATA_Period:", impedanceTensorOnP)
-        self.__addDataOnPstr("ERROR_Period:", impedanceTensorErrorOnP)
-        self.__addDataOnPstr("ERMAP_Period:", self.errMapVal)
+        self.__addDataOnFstr("DATA_Period:", impedanceTensorOnF)
+        self.__addDataOnFstr("ERROR_Period:", impedanceTensorErrorOnF)
+        self.__addDataOnFstr("ERMAP_Period:", self.errMapVal)
         
     def save(self, outputFile):
         self.outName = outputFile
@@ -361,7 +414,6 @@ class DataFileCLI:
         print("                             DATA FILE                              ")
         print("####################################################################")
         print("{0:17s}: {1}".format("TAB", "autocomplete file or folder name"))
-        print("{0:17s}: {1}".format("DOUBLE TAB", "list of all file and folder in the directory"))
         print("{0:17s}: {1}".format("CTRL+C or \'exit\'", "close the program"))
         print("{0:17s}: {1}".format("BASE PATH", self.basePath))
         print("####################################################################")
@@ -434,33 +486,46 @@ class DataFileCLI:
             else:
                 break
         self.newFile.setResponses(nResponses)
-    
-    def getSelectedPeriods(self):
+
+    def getSelectedValues(self):
         print()
-        print("Select periods")
-        selectedPeriods = []
+        print("Select values: <\"frequency\"/\"period\"> <list of values>")
+        selectedValues = []
+        mode = ''
         while True:
-            inputPeriods = self.getInput().split()
-            for period in inputPeriods:
-                if period.lower()=="end":    
-                    if len(selectedPeriods)==0:
-                        print("period length must be greater than 0")
-                        continue
+            inputValues = self.getInput().split()
+            for value in inputValues:
+                value = value.lower()
+                if value=="end":
+                    if mode and len(selectedValues)>0:
+                        self.newFile.setUsedValues(mode, selectedValues)
+                        return True
                     else:
-                        self.newFile.setUsedPeriods(selectedPeriods)
-                        return
-                elif period.lower()=="reset":
-                    selectedPeriods = []
+                        print("Invalid input")
+                        if self.getSelectedValues():
+                            return True
+
+                elif value=="reset":
                     print("Input periods cleared")
+                    if self.getSelectedValues():
+                        return True
                 else:
-                    try:
-                        period = float(period)
-                    except:
-                        print("Invalid value")
-                        selectedPeriods = []
-                        print("Input periods cleared")
+                    if mode:
+                        try:
+                            value = float(value)
+                        except:
+                            print("TypeError: value must be int/float")
+                            if self.getSelectedValues():
+                                return True
+                        else:
+                            selectedValues.append(value)
                     else:
-                        selectedPeriods.append(period)
+                        if value=="frequency" or value=="period":
+                            mode = value
+                        else:
+                            print("Invalid mode")
+                            if self.getSelectedValues():
+                                return True
     
     def getITImaginaryError(self):
         print()
@@ -475,88 +540,117 @@ class DataFileCLI:
             else:
                 break
     def showErrMapParamTable(self, datas, name):
-        tableHeader = ["Id"]
+        tableID = []
         for i in range(len(datas)):
-            tableHeader.append(i+1)
-        tableData = [name]
+            tableID.append(i+1)
+        tableData = []
         for data in datas:
             try:
                 float(data)
             except:
                 data = data.replace(" (Rot)", "")
                 data = data.replace(".pt1", "")
-            tableData.append(data)
-        print(tabulate([tableData], headers=tableHeader))   
+            tableData.append(data)        
+        print(tabulate({"ID": tableID, name: tableData}, headers="keys", tablefmt="pretty"))        
         
-    def breakErrMapStr(self, inputStr): #(break "1_1-2_All_999")
-        inputStr = inputStr.split("_")
-        changeLists = []
-        for lists in inputStr:
-            if lists != '':
-                strList = lists.split("-")
-                tempList = []
-                for el in strList:
-                    try:
-                        el = int(el)
-                    except:
-                        tempList.append(el.lower())
-                    else:
-                        tempList.append(el)
-                if len(tempList)==1:
-                    changeLists.append(tempList[0])
-                else:
-                    changeLists.append(tempList)
+    def breakErrMapStr(self, input_str): #(break "1_1-2_All_999")
+        change_list = input_str.lower().split("_")
+
+        if len(change_list)!=4:
+            raise ValueError("Invalid input")
+
+        try:
+            change_list[0] = int(change_list[0])
+        except:
+            raise ValueError("Invalid frequency/period id")
+
+        if change_list[1]=="all":
+            pass
+        else:
+            change_list[1] = change_list[1].split("-")
+            for i in range(len(change_list[1])):
+                try:
+                    change_list[1][i] = int(change_list[1][i])
+                except:
+                    raise ValueError("Invalid file id")
+
+        if change_list[2]=="all":
+            pass
+        else:
+            change_list[2] = change_list[2].split("-")
+            for i in range(len(change_list[2])):
+                try:
+                    change_list[2][i] = int(change_list[2][i])
+                except:
+                    raise ValueError("Invalid response id")
+        try:
+            change_list[3] = int(change_list[3])
+        except:
+            raise ValueError("Invalid value id")
+
         changeErrMap = {
-            "period": changeLists[0], "station": changeLists[1],
-            "response": changeLists[2], "value": changeLists[3]
+            "frequency_period": change_list[0], "file": change_list[1],
+            "response": change_list[2], "final_value": change_list[3]
         }
         return changeErrMap
-    
-    def getErrMapChangesVal(self):
-        changeErrMaps = {}
-        changeID = 1
-        while True:
-            rawInputsStr = self.getInput().lower()
-            rawInputsStr = rawInputsStr.split()
-            for rawInputStr in rawInputsStr:
-                if rawInputStr=="end":
-                    return changeErrMaps
-                elif rawInputStr=="reset":
-                    changeErrMaps = {}
-                else:
-                    try:
-                        changeErrMaps[changeID] = self.breakErrMapStr(rawInputStr)
-                    except:
-                        print("invalid value")
-                    else:
-                        changeID += 1
+        
+        
     
     def getErrorMap(self):
         self.newFile.initErrMapVal()
         print()
         print("Change Error Map Period? (y/n)")
-        while True:
-            changeErrMap = self.getInput().lower()
-            if changeErrMap=="y":
+        while(True):
+            changeStatus = self.getInput().lower()
+            if changeStatus=="n":
+                return
+            elif changeStatus=="y":
                 print()
-                self.showErrMapParamTable(self.newFile.usedPeriods, "Period")
+                if self.newFile.usedValuesMode == "frequency":
+                    self.showErrMapParamTable(self.newFile.usedFrequencies, "Frequency")
+                elif self.newFile.usedValuesMode == "period":
+                    self.showErrMapParamTable(self.newFile.usedPeriods, "Period")
                 print()
                 self.showErrMapParamTable(self.newFile.getInputFiles(), "File")
                 print()
                 self.showErrMapParamTable(self.newFile.impedanceTensorHeaders, "Response")
                 print()
-                print("Input format: period_file-list_response-list_value")
-                errMapChanges = self.getErrMapChangesVal()
-                try:
-                    self.newFile.changeErrMapVal(errMapChanges)
-                except:
-                    print("Invalid input")
-                break
-            elif changeErrMap=="n":
+                print("Input format: <{} id>_<files id>_<responses id>_<final value>".format(self.newFile.usedValuesMode))
                 break
             else:
                 print("Invalid input")
-                continue
+
+        changeParam = {}
+        changeId = 0
+        while(True):
+            userInputs = self.getInput().lower().split()
+            for userInput in userInputs:
+                if userInput=="end":
+                    if len(changeParam)>0:
+                        try:
+                            self.newFile.changeErrMapVal(changeParam)
+                        except Exception as e:
+                            print(e)
+                            changeParam = {}
+                            changeId = 0
+                            print("Changes cleared")
+                        else:
+                            return
+                    else:
+                        print("Invalid input")
+
+                elif userInput=="reset":
+                    changeParam = {}
+                    changeId = 0
+                    print("Changes cleared")
+
+                else:
+                    try:
+                        changeParam[changeId] = self.breakErrMapStr(userInput)
+                    except Exception as e:
+                        print(e)
+                    else:
+                        changeId+=1                
     
     def getCoordinate(self):
         print()
@@ -651,23 +745,34 @@ class DataFileCLI:
         print()
         print("####################################################################")
         print("                             RESULT                                 ")
-        print("\nSelected periods:")
+        print("\nSelected values:")
+        
+        print("Frequency:")
+        for frequency in self.newFile.usedFrequencies:
+            print("{:.4E}".format(frequency), end=' ')
+        print("\nPeriod:")
         for period in self.newFile.usedPeriods:
             print("{:.4E}".format(period), end=' ')
         print()
-        print("\nNearest periods:")
+        print("\nNearest values:")
+        print("Frequency:")
         for i in range (len(self.newFile.inputFiles)):
-            for period in self.newFile.nearestPeriodsAll[i]:
-                print("{:.4E}".format(period), end=' ')
+            for frequency in self.newFile.nearestFrequenciesAll[i]:
+                print("{:.4E}".format(frequency), end=' ')
             print("({})".format(self.newFile.inputFiles[i]))
-        print("\nImpedance Tensor Error (Im): {}".format(self.newFile.impedanceTensorErrorImag))
+        print("Period:")
+        for i in range (len(self.newFile.inputFiles)):
+            for frequency in self.newFile.nearestFrequenciesAll[i]:
+                print("{:.4E}".format(1/frequency), end=' ')
+            print("({})".format(self.newFile.inputFiles[i]))
+
         print("\nCoordinate header: {}".format(self.coordinateHeader))
         print("\nStation coordinate (UTM):")
         staCoordTableList = []
         for i in range(len(self.newFile.inputFiles)):
             staCoordTableList.append([self.newFile.inputFiles[i], self.staCoordinates[0][i], self.staCoordinates[1][i]])
-        print(tabulate(staCoordTableList, headers=['Name', 'Easting', 'Northing'], floatfmt=".2f"))
-        print("\nCenter of station:")
+        print(tabulate(staCoordTableList, headers=['Name', 'Easting', 'Northing'], floatfmt=".2f", tablefmt="pretty"))
+        print("\nCenter of model:")
         print("Easting: {}".format(self.staCenter[0]))
         print("Northing: {}".format(self.staCenter[1]))
         print("\nOutput file: {}".format(self.newFile.getOutName()))
@@ -681,7 +786,7 @@ def main():
     userCLI.getInputFiles()
     userCLI.chdir(userCLI.basePath)
     userCLI.getNumberResponses()
-    userCLI.getSelectedPeriods()
+    userCLI.getSelectedValues()
     userCLI.getITImaginaryError()
     userCLI.getErrorMap()
     userCLI.getCoordinate()

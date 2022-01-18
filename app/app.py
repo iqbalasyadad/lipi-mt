@@ -75,7 +75,7 @@ def dfpreview():
 def dfProcess(mode):
     input_json = request.get_json(force=True)
     mCenter = input_json["mCenterLatLng"]
-    periods = input_json["periods"]
+    usedValues = input_json["usedValues"]
     nResponse = input_json["nResponse"]
     errPeriod = input_json["errPeriod"]
     errMapChange = input_json["errMap"]
@@ -87,7 +87,7 @@ def dfProcess(mode):
     os.chdir(myParam.uploadPath)
     newFile.setInputFiles(myParam.staName)
     newFile.setResponses(nResponse)
-    newFile.setUsedPeriods(periods)
+    newFile.setUsedValues(usedValues["mode"], usedValues["value"])
     newFile.setImpedanceTensorErrorImag(errPeriod)
     newFile.initErrMapVal()
     if errMapChange:
@@ -154,11 +154,11 @@ def imProcess(mode):
         return myIM.strOutput
     
 
-@app.route('/pmsave', methods=['POST'])
+@app.route('/cmsave', methods=['POST'])
 def pmsave():
     return pmProcess("save")
 
-@app.route('/pmpreview', methods=['POST'])
+@app.route('/cmpreview', methods=['POST'])
 def pmpreview():
     return pmProcess("preview")
 

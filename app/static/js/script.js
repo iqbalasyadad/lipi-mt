@@ -4,13 +4,7 @@ window.onload = function() {
     let myMap = new Map();
     let myModel = new Model();
 
-    document.getElementById("df-period-apply-btn").onclick = function() {
-        var selectedPeriods = myParam.getdfPeriod();
-        var errMapSelect = document.getElementsByClassName("errmap-period-select");
-
-        errMapPeriodIdSelect = numberRange(1, selectedPeriods.length+1)
-        myWindow.updateOptions(errMapSelect, "class", errMapPeriodIdSelect, errMapPeriodIdSelect);
-    };
+    let myUI = new AppUI;
 
     document.getElementById("hide-panel-left-btn").onclick = function() {
         var leftPanel = document.getElementById("cmc2l-panel-container");
@@ -41,47 +35,69 @@ window.onload = function() {
         var type = e.layerType
         if (type === 'rectangle') {
             var layer = e.layer;
-            document.getElementById("textBoundSWlat").value = layer.getBounds().getSouthWest().lat.toFixed(8);
-            document.getElementById("textBoundSWlng").value = layer.getBounds().getSouthWest().lng.toFixed(8);
-            document.getElementById("textBoundNElat").value = layer.getBounds().getNorthEast().lat.toFixed(8);
-            document.getElementById("textBoundNElng").value = layer.getBounds().getNorthEast().lng.toFixed(8);
+            document.getElementById("boundary-sw-lat-text").value = layer.getBounds().getSouthWest().lat.toFixed(8);
+            document.getElementById("boundary-sw-lng-text").value = layer.getBounds().getSouthWest().lng.toFixed(8);
+            document.getElementById("boundary-ne-lat-text").value = layer.getBounds().getNorthEast().lat.toFixed(8);
+            document.getElementById("boundary-ne-lng-text").value = layer.getBounds().getNorthEast().lng.toFixed(8);
 
-            myParam.getBundaries();
-            myModel.boundary.sw = myParam.boundaries.point1;
-            myModel.boundary.ne = myParam.boundaries.point2;
-            myMap.plotModelBoundary(myModel.boundary.sw, myModel.boundary.ne);
+            myParam.getModelBoundary();
+            myMap.plotModelBoundary(myParam.boundary.sw, myParam.boundary.ne);
         }
     });
     document.getElementById("boundary-plot-btn").onclick = function() {
-        myParam.getBundaries();
-        myModel.boundary.sw = myParam.boundaries.point1;
-        myModel.boundary.ne = myParam.boundaries.point2;
-        myMap.plotModelBoundary(myModel.boundary.sw, myModel.boundary.ne);
+        myParam.getModelBoundary();
+        myMap.plotModelBoundary(myParam.boundary.sw, myParam.boundary.ne);
     };
     document.getElementById("boundary-delete-btn").onclick = function() {
         if (myMap.resetOverlay(myMap.modelBoundaryOverlay, "Boundary")) {
-            myMap.modelBoundaryOverlay = null
+            myMap.modelBoundaryOverlay = null;
         }
+        document.getElementById("boundary-sw-lat-text").value = "";
+        document.getElementById("boundary-sw-lng-text").value = "";
+        document.getElementById("boundary-ne-lat-text").value = "";
+        document.getElementById("boundary-ne-lng-text").value = "";
+        myParam.boundary = null;
+
     };
     document.getElementById("model-center-plot-btn").onclick = function() {
+        const mode_select = document.getElementById("model-center-mode-select");
+        var lat_text = document.getElementById("model-center-lat-text");
+        var lng_text = document.getElementById("model-center-lng-text");
+        if (mode_select.value==="rect-center") {
+            const rectCenter = myMap.modelBoundary.getBounds().getCenter();
+            lat_text.value = rectCenter.lat.toFixed(8);
+            lng_text.value = rectCenter.lng.toFixed(8);
+        } else if (mode_select.value==="sta-center") {
+            const staCenter = myMap.staOverlay.getBounds().getCenter();
+            lat_text.value = staCenter.lat.toFixed(8);
+            lng_text.value = staCenter.lng.toFixed(8);
+        }
         myParam.getModelCenter();
-        let mode = myParam.modelCenter.mode;
-        myMap.plotModelCenter(mode, myParam.modelCenter.latManual, myParam.modelCenter.lngManual);
+        myMap.plotModelCenter(myParam.modelCenter.lat, myParam.modelCenter.lng);
     };
     document.getElementById("model-center-delete-btn").onclick = function() {
         if (myMap.resetOverlay(myMap.centerAxisOverlay, "Model Center")) {
             myMap.centerAxisOverlay = null;
         }
+        document.getElementById("model-center-lat-text").value = "";
+        document.getElementById("model-center-lng-text").value = "";
+        myParam.modelCenter = null;
     };
     document.getElementById("block-xy-delete-btn").onclick = function() {
+        myParam.blockXY = null;
+        document.getElementById("CN-textarea").value = "";
+        document.getElementById("CS-textarea").value = "";
+        document.getElementById("CE-textarea").value = "";
+        document.getElementById("CW-textarea").value = "";
+
         if (myMap.resetOverlay(myMap.blockLineOverlay, "Block Line")) {
             myMap.blockLineOverlay = null;
         }
-        if (myMap.resetOverlay(myMap.imBlockCellsOverlay, "Initial Model")) {
+        if (myMap.resetOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init)) {
             myMap.imBlockCellsOverlay = null;
         }
-        if (myMap.resetOverlay(myMap.pmBlockCellsOverlay, "Prior Model")) {
-            myMap.pmBlockCellsOverlay = null;
+        if (myMap.resetOverlay(myMap.cmBlockCellsOverlay, myMap.bcName.pc)) {
+            myMap.cmBlockCellsOverlay = null;
         }
     };
     document.getElementById("block-xy-ok-btn").onclick = function() {
@@ -96,9 +112,9 @@ window.onload = function() {
             myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
             myMap.imBlockCellsOverlay = null;
         }
-        if (myMap.pmBlockCellsOverlay != null) {
-            myMap.removeOverlay(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
-            myMap.pmBlockCellsOverlay = null;
+        if (myMap.cmBlockCellsOverlay != null) {
+            myMap.removeOverlay(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
+            myMap.cmBlockCellsOverlay = null;
         }
     };
 
@@ -109,41 +125,60 @@ window.onload = function() {
         var imLRICLLayerSelect = document.getElementsByClassName("im-lri-al-layer-select");
         myWindow.updateOptions(imLRICLLayerSelect, "class", myParam.blockZ.id, myParam.blockZ.id)
 
-        // var impmSILayerSelectOptText = ["all", "design"];
-        var impmSILayerSelectOptText = ["all"];
-        impmSILayerSelectOptText.push.apply(impmSILayerSelectOptText, myParam.blockZ.id);
-        // var impmSILayerSelectOptVal = ["all", "design"];
-        var impmSILayerSelectOptVal = ["all"];
-        impmSILayerSelectOptVal.push.apply(impmSILayerSelectOptVal, myParam.blockZ.id);
+        var imcmSILayerSelectOptText = ["all"];
+        imcmSILayerSelectOptText.push.apply(imcmSILayerSelectOptText, myParam.blockZ.id);
+        var imcmSILayerSelectOptVal = ["all"];
+        imcmSILayerSelectOptVal.push.apply(imcmSILayerSelectOptVal, myParam.blockZ.id);
 
         var imLRISILayerSelect = document.getElementById("im-lri-si-layer-select");
-        myWindow.updateOptions(imLRISILayerSelect, "id", impmSILayerSelectOptText, impmSILayerSelectOptVal);
+        myWindow.updateOptions(imLRISILayerSelect, "id", imcmSILayerSelectOptText, imcmSILayerSelectOptVal);
 
-        // var impmShowLayerSelectOptText = ["design"];
-        var impmShowLayerSelectOptText = [];
-        impmShowLayerSelectOptText.push.apply(impmShowLayerSelectOptText, myParam.blockZ.id);
-        // var impmShowLayerSelectOptVal = ["design"];
-        var impmShowLayerSelectOptVal = [];
-        impmShowLayerSelectOptVal.push.apply(impmShowLayerSelectOptVal, myParam.blockZ.id);
+        var imcmShowLayerSelectOptText = [];
+        imcmShowLayerSelectOptText.push.apply(imcmShowLayerSelectOptText, myParam.blockZ.id);
+        var imcmShowLayerSelectOptVal = [];
+        imcmShowLayerSelectOptVal.push.apply(imcmShowLayerSelectOptVal, myParam.blockZ.id);
 
         var imShowLayerSelect = document.getElementById("im-show-layer-select");
-        myWindow.updateOptions(imShowLayerSelect, "id", impmShowLayerSelectOptText, impmShowLayerSelectOptVal)
+        myWindow.updateOptions(imShowLayerSelect, "id", imcmShowLayerSelectOptText, imcmShowLayerSelectOptVal)
 
-        /// prior model
-        var pmCMICLLayerSelect = document.getElementsByClassName("pm-cmi-al-layer-select");
-        myWindow.updateOptions(pmCMICLLayerSelect, "class", myParam.blockZ.id, myParam.blockZ.id)
-        var pmCMISILayerSelect = document.getElementById("pm-cmi-si-layer-select");
-        myWindow.updateOptions(pmCMISILayerSelect, "id", impmSILayerSelectOptText, impmSILayerSelectOptVal);
-        var pmShowLayerSelect = document.getElementById("pm-show-layer-select");
-        myWindow.updateOptions(pmShowLayerSelect, "id", impmShowLayerSelectOptText, impmShowLayerSelectOptVal)
+        /// control model
+        var cmCMICLLayerSelect = document.getElementsByClassName("cm-cmi-al-layer-select");
+        myWindow.updateOptions(cmCMICLLayerSelect, "class", myParam.blockZ.id, myParam.blockZ.id)
+        var cmCMISILayerSelect = document.getElementById("cm-cmi-si-layer-select");
+        myWindow.updateOptions(cmCMISILayerSelect, "id", imcmSILayerSelectOptText, imcmSILayerSelectOptVal);
+        var cmShowLayerSelect = document.getElementById("cm-show-layer-select");
+        myWindow.updateOptions(cmShowLayerSelect, "id", imcmShowLayerSelectOptText, imcmShowLayerSelectOptVal)
+    };
+    document.getElementById("block-z-delete-btn").onclick = function() {
+        document.getElementById("block-z-textarea").value = "";
+        myParam.blockZ = null;
+
+        var imLRICLLayerSelect = document.getElementsByClassName("im-lri-al-layer-select");
+        var imLRISILayerSelect = document.getElementById("im-lri-si-layer-select");
+        var imShowLayerSelect = document.getElementById("im-show-layer-select");
+        var cmCMICLLayerSelect = document.getElementsByClassName("cm-cmi-al-layer-select");
+        var cmCMISILayerSelect = document.getElementById("cm-cmi-si-layer-select");
+        var cmShowLayerSelect = document.getElementById("cm-show-layer-select");
+
+        for (var i=0; i<imLRICLLayerSelect.length; i++) {
+            myWindow.removeOptions(imLRICLLayerSelect[i]);
+        };
+        myWindow.removeOptions(imLRISILayerSelect);
+        myWindow.removeOptions(imShowLayerSelect);
+        for (var i=0; i<imLRICLLayerSelect.length; i++) {
+            myWindow.removeOptions(cmCMICLLayerSelect[i]);
+        };
+        myWindow.removeOptions(cmCMISILayerSelect);
+        myWindow.removeOptions(cmShowLayerSelect);
+
     };
     // INITIAL MODEL SECTION //
     document.getElementById("im-res-ok-btn").onclick = function() {
         var imRes = myParam.getIMRes();
         var imLRISIValSelect = document.getElementById("im-lri-si-value-select");
         myWindow.updateOptions(imLRISIValSelect, "id", imRes.ids, imRes.ids)
-
         myWindow.updateCMUseIMTable(imRes.number);
+        myParam.im_resistivity = imRes;
 
         var imLRICLValSelect = document.getElementById("im-lri-cl-value-select");
         myWindow.updateOptions(imLRICLValSelect, "id", imRes.ids, imRes.ids)
@@ -168,14 +203,17 @@ window.onload = function() {
         } else {
             myParam.imCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.imCellsVal);
         }
-        imShowLayer()
+        imShowLayer();
     };
     document.getElementById("im-lri-al-ok-btn").onclick = function() {
         var layerSelectedidx = myParam.getimChangeL();
         var cellsValue = myMap.getBlockCellVal(myMap.imBlockCellsOverlay);
         myParam.imCellsVal = myParam.setCellVal(layerSelectedidx, cellsValue, myParam.imCellsVal);
     };
-    document.getElementById("im-showlayer-ok-btn").onclick = function() {
+    // document.getElementById("im-show-layer-ok-btn").onclick = function() {
+    //     imShowLayer();
+    // };
+    document.getElementById("im-show-layer-select").onchange = function() {
         imShowLayer();
     };
     function imShowLayer() {
@@ -192,8 +230,8 @@ window.onload = function() {
     document.getElementById("initialmodel-tab-btn").onclick = function() {
         if (myMap.blockLineOverlay == null) {return}
         if (myMap.showedBlockCells != null) {
-            if (myMap.showedBlockCells=="pm") {
-                myMap.removeOverlay(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
+            if (myMap.showedBlockCells=="cm") {
+                myMap.removeOverlay(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
             } else if (myMap.showedBlockCells=="im") {
                 myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
             }
@@ -203,47 +241,51 @@ window.onload = function() {
             }
         }
     };
-    document.getElementById("priormodel-tab-btn").onclick = function() {
+    document.getElementById("controlmodel-tab-btn").onclick = function() {
         if (myMap.blockLineOverlay == null) {return}
         if (myMap.showedBlockCells != null) {
-            if (myMap.showedBlockCells=="pm") {
-                myMap.removeOverlay(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
+            if (myMap.showedBlockCells=="cm") {
+                myMap.removeOverlay(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
             } else if (myMap.showedBlockCells=="im") {
                 myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
             }
-            if (myMap.pmBlockCellsOverlay != null) {
-                myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
-                myMap.showedBlockCells = "pm";
+            if (myMap.cmBlockCellsOverlay != null) {
+                myMap.addOverlayToMap(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
+                myMap.showedBlockCells = "cm";
             }
         }
     };
 
     // PRIOR MODEL SECTION //
-    document.getElementById("pm-cmi-use-im-ok-btn").onclick = function() {
+    document.getElementById("cm-i-ok-btn").onclick = function() {
+        myParam.cm_i_color = myParam.getcmIndexColor();
+    }
+    document.getElementById("cm-cmi-use-im-ok-btn").onclick = function() {
         var rFormat = myParam.getIMCMReplace();
         myParam.cmCellsVal = myParam.replaceCMVals(myParam.imCellsVal, rFormat);
-        if (myMap.pmBlockCellsOverlay===null) {
-            myMap.pmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
-            myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
-            myMap.showedBlockCells = "pm";
-            var pmCMICLValSelect = document.getElementById("pm-cmi-cl-value-select");
-            var pmitColorEls = document.getElementsByClassName("pmit-color-input");
-            myMap.addBlockCellEvt(myMap.pmBlockCellsOverlay, pmCMICLValSelect, 0, pmitColorEls);
+        if (myMap.cmBlockCellsOverlay===null) {
+            myMap.cmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
+            myMap.addOverlayToMap(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
+            myMap.showedBlockCells = "cm";
+            var cmCMICLValSelect = document.getElementById("cm-cmi-cl-value-select");
+            var cmitColorEls = document.getElementsByClassName("cmit-color-input");
+            myMap.addBlockCellEvt(myMap.cmBlockCellsOverlay, cmCMICLValSelect, 0, cmitColorEls);
         }
-        pmShowLayer();
+        cmShowLayer();
+        // myParam.cm_use_im = true;
     };
 
-    document.getElementById("pm-cmi-si-ok-btn").onclick = function() {
-        if (myMap.pmBlockCellsOverlay===null) {
-            myMap.pmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
-            myMap.addOverlayToMap(myMap.pmBlockCellsOverlay, myMap.bcName.pri);
-            myMap.showedBlockCells = "pm";
-            var pmCMICLValSelect = document.getElementById("pm-cmi-cl-value-select");
-            var pmitColorEls = document.getElementsByClassName("pmit-color-input");
-            myMap.addBlockCellEvt(myMap.pmBlockCellsOverlay, pmCMICLValSelect, 0, pmitColorEls);
+    document.getElementById("cm-cmi-si-ok-btn").onclick = function() {
+        if (myMap.cmBlockCellsOverlay===null) {
+            myMap.cmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
+            myMap.addOverlayToMap(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
+            myMap.showedBlockCells = "cm";
+            var cmCMICLValSelect = document.getElementById("cm-cmi-cl-value-select");
+            var cmitColorEls = document.getElementsByClassName("cmit-color-input");
+            myMap.addBlockCellEvt(myMap.cmBlockCellsOverlay, cmCMICLValSelect, 0, cmitColorEls);
         }
-        var siParam = myParam.getpmInitialCells();
-        var nCell = myMap.pmBlockCellsOverlay.getLayers().length;
+        var siParam = myParam.getcmInitialCells();
+        var nCell = myMap.cmBlockCellsOverlay.getLayers().length;
         if (siParam.layer==="design") {
             myParam.cmCellsValDesign = myParam.setInitialCellsVal("design", siParam.value, 1, nCell, null);
         } else if (siParam.layer==="all") {
@@ -253,27 +295,29 @@ window.onload = function() {
         else {
             myParam.cmCellsVal = myParam.setInitialCellsVal(siParam.layer, siParam.value, myParam.blockZ.id.length, nCell, myParam.cmCellsVal);
         }
-        pmShowLayer();
+        cmShowLayer();
     };
-    document.getElementById("pm-cmi-cl-ok-btn").onclick = function() {
-        var layerSelectedidx = myParam.getpmChangeL();
-        var cellsValue = myMap.getBlockCellVal(myMap.pmBlockCellsOverlay);
+    document.getElementById("cm-cmi-cl-ok-btn").onclick = function() {
+        var layerSelectedidx = myParam.getcmChangeL();
+        var cellsValue = myMap.getBlockCellVal(myMap.cmBlockCellsOverlay);
         myParam.cmCellsVal = myParam.setCellVal(layerSelectedidx, cellsValue, myParam.cmCellsVal);
     };
-    document.getElementById("pm-showlayer-ok-btn").onclick = function() {
-        pmShowLayer();
+    // document.getElementById("cm-show-layer-ok-btn").onclick = function() {
+    //     cmShowLayer();
+    // };
+    document.getElementById("cm-show-layer-select").onchange = function() {
+        cmShowLayer();
     };
-    function pmShowLayer() {
-        var layer = myParam.getpmShowLayer();
-        var pmitColorEls = document.getElementsByClassName("pmit-color-input");
+    function cmShowLayer() {
+        var layer = myParam.getcmShowLayer();
+        var cmitColorEls = document.getElementsByClassName("cmit-color-input");
         if (layer === "design") {
-            myMap.setBlockCellVal(myMap.pmBlockCellsOverlay, myParam.cmCellsValDesign);
+            myMap.setBlockCellVal(myMap.cmBlockCellsOverlay, myParam.cmCellsValDesign);
         } else {
-            myMap.setBlockCellVal(myMap.pmBlockCellsOverlay, myParam.cmCellsVal[layer-1]);
+            myMap.setBlockCellVal(myMap.cmBlockCellsOverlay, myParam.cmCellsVal[layer-1]);
         }
-        myMap.setBlockCellColor(myMap.pmBlockCellsOverlay, 0, pmitColorEls);
+        myMap.setBlockCellColor(myMap.cmBlockCellsOverlay, 0, cmitColorEls);
     }
-    document.getElementById('datafile-tab-btn').click();
 
     // lasso
     myLasso = new Lasso();
@@ -281,19 +325,19 @@ window.onload = function() {
     var lassoStatusTd = document.getElementById("td-lasso-status");
     var lassoModeSelect = document.getElementById("lasso-mode-select");
     // myMap.map.on('mousedown', () => {
-    //     myLasso.resetSelectedState(myMap.pmBlockCellsOverlay);
+    //     myLasso.resetSelectedState(myMap.cmBlockCellsOverlay);
     // });
     myMap.map.on('lasso.finished', event => {
-        if (myWindow.rightTabActive==="priormodel-tab") {
-            var cellValElSelect = document.getElementById("pm-cmi-cl-value-select");
-            var colorEls = document.getElementsByClassName("pmit-color-input");
+        if (myWindow.rightTabActive==="controlmodel-tab") {
+            var cellValElSelect = document.getElementById("cm-cmi-cl-value-select");
+            var colorEls = document.getElementsByClassName("cmit-color-input");
             var startVal = 0;
         } else if (myWindow.rightTabActive==="initialmodel-tab"){
             var cellValElSelect = document.getElementById("im-lri-cl-value-select");
             var colorEls = document.getElementsByClassName("imrt-color-input");
             var startVal = 1;
         }
-        myLasso.setSelectedLayers(myMap.pmBlockCellsOverlay, event.layers, cellValElSelect, startVal, colorEls);
+        myLasso.setSelectedLayers(myMap.cmBlockCellsOverlay, event.layers, cellValElSelect, startVal, colorEls);
 
     });
     myMap.map.on('lasso.enabled', () => {
@@ -323,7 +367,6 @@ window.onload = function() {
         e.preventDefault();
         var formData = new FormData();
         var fileInfo = document.getElementById("coordinate-input").files[0];
-        // console.log(fileInfo.name);
         formData.append("myfile", fileInfo);
         var url = "/uploadcoordinates";
         var xhr = new XMLHttpRequest();
@@ -333,10 +376,10 @@ window.onload = function() {
         xhr.onload = () => {
             let staObj = xhr.response;
             if (myMap.staOverlay!=null) {
-                myMap.removeOverlay(myMap.staOverlay, "station");
+                myMap.removeOverlay(myMap.staOverlay, "Station");
             }
             myMap.staOverlay = myMap.createStation(staObj);
-            myMap.addOverlayToMap(myMap.staOverlay, "station");
+            myMap.addOverlayToMap(myMap.staOverlay, "Station");
             myMap.staCenter = myMap.staOverlay.getBounds().getCenter();
             myMap.map.fitBounds(myMap.staOverlay.getBounds());
         };
@@ -384,10 +427,23 @@ window.onload = function() {
         xhr.send(formData);
     });
     // END PLOT STATION //
+    document.getElementById("df-used-value-apply-btn").onclick = function() {
+        myParam.df_used_value = myParam.getdfUsedValue();
+        var errMapSelect = document.getElementsByClassName("errmap-used-value-select");
+        errMapPeriodIdSelect = numberRange(1, myParam.df_used_value.value.length+1)
+        var errMapUsedValueTh = document.getElementById("df-errmap-used-value-th");
+        if (myParam.df_used_value.mode==="frequency") {
+            errMapUsedValueTh.innerText = "Frequency";
+        } else if (myParam.df_used_value.mode==="period") {
+            errMapUsedValueTh.innerText = "Period";
+        }
+        myWindow.updateOptions(errMapSelect, "class", errMapPeriodIdSelect, errMapPeriodIdSelect);
+    };
+
 
     // DATAFILE ERROR MAP PERIOD //
-    document.getElementById("df-empt-ok-btn").onclick = function() {
-        var errMap = myParam.getErrMapParam();
+    document.getElementById("df-errmap-ok-btn").onclick = function() {
+        myParam.df_em_period = myParam.getdfErrMapParam();
     };
     // END DATAFILE ERROR MAP PERIOD //
 
@@ -405,15 +461,13 @@ window.onload = function() {
         var dfData = {
             mCenterLatLng: myMap.modelCenter,
             nResponse: parseInt(document.getElementById("df-resp-number-select").value),
-            periods: myParam.getdfPeriod(),
+            usedValues: myParam.getdfUsedValue(),
             errPeriod: myParam.getdfErrorPeriod(),
-            errMap: myParam.getErrMapParam(),
+            errMap: myParam.getdfErrMapParam(),
             saveName: myParam.getdfSaveName()
         }
         jsonDfData = JSON.stringify(dfData);
-
         var xhr = new XMLHttpRequest();
-
         xhr.onload = () => {
             //pass
         };
@@ -484,17 +538,17 @@ window.onload = function() {
         xhr.send(jsonImData);
     }
 
-    document.getElementById("pm-output-save-btn").onclick = function() {
-        processPM("save")
+    document.getElementById("cm-output-save-btn").onclick = function() {
+        processcm("save")
     }
 
-    document.getElementById("pm-output-preview-btn").onclick = function() {
-        processPM("preview")
+    document.getElementById("cm-output-preview-btn").onclick = function() {
+        processcm("preview")
     };
     
-    function processPM(mode) {
-        if (mode=="save") { var url = "/pmsave"; }
-        else if (mode=="preview") { var url = "/pmpreview"; }
+    function processcm(mode) {
+        if (mode=="save") { var url = "/cmsave"; }
+        else if (mode=="preview") { var url = "/cmpreview"; }
         myParam.getBlockXY();
         myParam.getBlockZ();
         var nx = myParam.blockXY.size.CS.length + myParam.blockXY.size.CN.length;
@@ -503,15 +557,15 @@ window.onload = function() {
         layerID = numberRange(1, myParam.blockZ.id.length+1);
         var compressedL = compressLayer(layerID, myParam.cmCellsVal);
 
-        var pmData = {
+        var cmData = {
             nx: nx,
             ny: ny,
             nz: nz,
             layerCMI: compressedL,
-            saveName: myParam.getpmSaveName()
+            saveName: myParam.getcmSaveName()
         };
         
-        jsonPmData = JSON.stringify(pmData);
+        jsoncmData = JSON.stringify(cmData);
 
         var xhr = new XMLHttpRequest();
         xhr.onload = () => {
@@ -535,14 +589,221 @@ window.onload = function() {
             alert("Error");
         }
         xhr.open("POST", url);
-        xhr.send(jsonPmData);
+        xhr.send(jsoncmData);
+    }
+    document.getElementById("menu-bar-view-fit").onclick = function() {
+        myMap.map.fitBounds(myMap.modelBoundary.getBounds());
+    };
+    // new save
+    var modal = document.getElementById("save-modal");
+    const menubarSaveBtn = document.getElementById("menu-bar-file-save-as");
+    var span = document.getElementsByClassName("close-modal")[0];
+    menubarSaveBtn.onclick = function() {
+        modal.style.display = "block";
     }
 
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    var saveProjBtn = document.getElementById("modal-save-btn");
+    saveProjBtn.addEventListener("click", ()=>{
+        var mySave = new AppSave();
+
+        var coord_file = document.getElementById("coordinate-input");
+        if (coord_file.files.length>0){
+            mySave.data.coord_file = coord_file.files[0].name;
+        }
+        if (myParam.boundary) {
+            mySave.data.boundary = myParam.boundary;
+        }
+        if (myParam.modelCenter) {
+            mySave.data.model_center = {
+                mode: myParam.modelCenter.mode,
+                lat: myMap.modelCenter.lat,
+                lng: myMap.modelCenter.lng
+            };
+        }
+        if (myParam.blockXY) {
+            // mySave.data.block_xy = myParam.blockXY;
+            Object.assign(mySave.data, {block_xy:  {}});
+            Object.assign(mySave.data.block_xy, {block_mode: myParam.blockXY.block_mode, input_mode: myParam.blockXY.input_mode});
+            if (myParam.blockXY.input_mode==="size") {
+                Object.assign(mySave.data.block_xy, {size: myParam.blockXY.size});
+            } else if(myParam.blockXY.input_mode==="distance") {
+                Object.assign(mySave.data.block_xy, {distance: myParam.blockXY.distance});
+            }
+        };
+
+        if (myParam.blockZ) {
+            // mySave.data.block_z = myParam.blockZ;
+            Object.assign(mySave.data, {block_z:  {}});
+            Object.assign(mySave.data.block_z, {input_mode: myParam.blockZ.input_mode});
+            if (myParam.blockZ.input_mode==="size") {
+                Object.assign(mySave.data.block_z, {size: myParam.blockZ.size});
+            } else if (myParam.blockZ.input_mode==="distance") {
+                Object.assign(mySave.data.block_z, {distance: myParam.blockZ.distance});
+            }
+        };
+
+        // datafile
+        var sta_file_input = document.getElementById("df-sta-input");
+        if (sta_file_input.files.length>0) {
+            var sta_file_obj = [];
+            for (var i=0; i<sta_file_input.files.length; i++){
+                sta_file_obj.push(sta_file_input.files[i].name);
+            }
+            Object.assign(mySave.data.df, {sta_file: sta_file_obj});
+        }
+        if (myParam.df_used_value){
+            Object.assign(mySave.data.df, {used_value: myParam.df_used_value});
+        }
+        if (myParam.df_em_period) {
+            Object.assign(mySave.data.df, {em_period: {mode: "change", change_param: myParam.df_em_period}});
+        }
+
+        // initial model
+        if (myParam.im_resistivity) {
+            Object.assign(mySave.data.im, {resistivity: myParam.im_resistivity});
+        }
+        if (myParam.imCellsVal) {
+            Object.assign(mySave.data.im, {cell_val: myParam.imCellsVal});
+        }
+
+        // control model
+        if (myParam.cm_i_color) {
+            Object.assign(mySave.data.pcm, {index_color: myParam.cm_i_color});
+        }
+        if (myParam.cm_use_im) {
+            Object.assign(mySave.data.pcm, {use_im_format: myParam.getIMCMReplace()});
+        }
+        if (myParam.cmCellsVal) {
+            Object.assign(mySave.data.pcm, {cell_val: myParam.cmCellsVal});
+        }
+        const filename = document.getElementById("modal-save-text").value;
+        if (filename!="") {
+            mySave.download(mySave.data, filename+".mtproject", 'text/plain');
+        } 
+
+    });
+
+
+
+    myLoad = new LoadParam();
+
+    var projectInput = document.getElementById("menu-bar-file-project-input");
+    projectInput.addEventListener("change", ()=>{
+        var fr = new FileReader();
+        fr.addEventListener("load", ()=>{
+            myLoad.data = JSON.parse(fr.result);
+            set_loaded();
+        });
+        fr.readAsText(projectInput.files[0]);            
+    });
+
+    function set_loaded() {
+        if(myLoad.data.boundary) {
+            myLoad.setBoundary(myLoad.data.boundary);
+        }
+        if(myLoad.data.model_center && myLoad.data.model_center!="sta-center") {
+            myLoad.setModelCenter(myLoad.data.model_center);
+        }
+        if(myLoad.data.block_xy) {
+            myLoad.setBlockXY(myLoad.data.block_xy);
+        }
+        if(myLoad.data.block_z) {
+            myLoad.setBlockZ(myLoad.data.block_z);
+        }
+
+        /////////////////////////// Load Data File //////////////////////////////////
+        myLoad.setDFResponse(myLoad.data.df.response);
+        if(myLoad.data.df.used_value) {
+            myLoad.setDFUsedValue(myLoad.data.df.used_value);
+        }
+        myLoad.setDFEP(myLoad.data.df.e_period);
+        if(myLoad.data.df.em_period) {
+            myLoad.setDFEMP(myLoad.data.df.em_period);
+        }
+        if(myLoad.data.df.output) {
+            myLoad.setDFOutput(myLoad.data.df.output);
+        }
+        /////////////////////////// Load Initial Model //////////////////////////////////
+        if(myLoad.data.im.title) {
+            myLoad.setIMTitle(myLoad.data.im.title);
+        }
+        if(myLoad.data.im.resistivity) {
+            myLoad.setIMRes(myLoad.data.im.resistivity);
+        }
+        if(myLoad.data.im.cell_val) {
+
+            if (myMap.imBlockCellsOverlay===null) {
+                myMap.imBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
+                myMap.addOverlayToMap(myMap.imBlockCellsOverlay, myMap.bcName.init);
+                myMap.showedBlockCells = "im";
+                var imLRICLValSelect = document.getElementById("im-lri-cl-value-select");
+                var imrtColorEls = document.getElementsByClassName("imrt-color-input");
+                myMap.addBlockCellEvt(myMap.imBlockCellsOverlay, imLRICLValSelect, 1, imrtColorEls);
+            }
+
+            myParam.imCellsVal = myLoad.data.im.cell_val;
+            if (myMap.cmBlockCellsOverlay != null) {
+                myMap.removeOverlay(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
+            }
+            imShowLayer();
+            document.getElementById("initialmodel-tab-btn").click();
+        }
+        if(myLoad.data.im.output) {
+            myLoad.setIMOutput(myLoad.data.im.output);
+        }
+
+        /////////////////////////// Load Prior/Control Model //////////////////////////////////
+        if(myLoad.data.pcm.cell_val) {
+            if (myMap.imBlockCellsOverlay != null) {
+                myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
+            }
+            if (myLoad.data.pcm.use_im_format){
+                myLoad.setPCMI(myLoad.data.pcm.use_im_format);
+            } else {
+                if (myMap.cmBlockCellsOverlay===null) {
+                    myMap.cmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
+                    myMap.addOverlayToMap(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
+                    myMap.showedBlockCells = "cm";
+                    var cmCMICLValSelect = document.getElementById("cm-cmi-cl-value-select");
+                    var cmitColorEls = document.getElementsByClassName("cmit-color-input");
+                    myMap.addBlockCellEvt(myMap.cmBlockCellsOverlay, cmCMICLValSelect, 0, cmitColorEls);
+                }
+                var siParam = myParam.getcmInitialCells();
+                var nCell = myMap.cmBlockCellsOverlay.getLayers().length;
+                myParam.cmCellsVal = myParam.setInitialCellsVal("all", siParam.value, myParam.blockZ.id.length, nCell, myParam.cmCellsVal);
+            }
+            myParam.cmCellsVal = myLoad.data.pcm.cell_val;
+            cmShowLayer();
+            document.getElementById("controlmodel-tab-btn").click();
+        }
+        if(myLoad.data.pcm.output) {
+            myLoad.setPCMOutput(myLoad.data.pcm.output);
+        }
+    }
+
+
 ////// Test Section /////////
+
     // myTest = new Test();
     // myTest.boundary();
     // myTest.model_center();
     // myTest.block_xy();
     // myTest.block_z();
+    // myTest.df_used_value();
+    // myTest.im_title();
+    // myTest.im_resistivity();
+    // myTest.im_lri_si();
+    // myTest.cm_tab();
+    // myTest.cm_mi();
+
 ////////////////////////////
+
 }

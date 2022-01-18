@@ -4,29 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- OLD LIVE SOURCE -->
-    <!-- <link rel="stylesheet" href="/css/style.css"> -->
-    <!-- <link rel="stylesheet" href="/css/leaflet.css" />
-    <script src="/js/leaflet/leaflet.js"></script>
-    <script src="/js/leaflet.geometryutil.js"></script>
-    <script src="/js/leaflet-lasso.umd.min.js"></script>
-
-    <script src="/js/mapClass.js"></script>
-    <script src="/js/lassoClass.js"></script>
-    <script src="/js/mainWindowClass.js"></script>
-    <script src="/js/parameterClass.js"></script>
-    <script src="/js/modelClass.js"></script>
-    <script src="/js/script.js"></script>
-    <script src="/js/flaskSet.js"></script> -->
-    <!-- OLD LIVE SOURCE END -->
-
-    <!-- ONLINE -->
-    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" /> -->
-    <!-- <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script> -->
-    <!-- <script src="https://npmcdn.com/leaflet-geometryutil"></script> -->
-    <!-- <script src="https://unpkg.com/leaflet-lasso@2.2.6/dist/leaflet-lasso.umd.js"></script> -->
-    <!-- ONLINE END -->
-
     <!-- FLASK RENDER -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/leaflet.css') }}">
@@ -36,24 +13,53 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/leaflet-lasso.umd.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/leaflet.draw.js') }}"></script>
 
+    <script type="text/javascript" src="https://stamen-maps.a.ssl.fastly.net/js/tile.stamen.js?v1.3.0"></script>
 
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ui-class.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/map-class.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/lasso-class.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/main-win-class.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/parameter-class.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/model-class.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/save-class.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/test-class.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
     <!-- FLASK RENDER END -->
 
-
-
-    
   </head>
   
   <body>
+
     <div id='main-container'>
-      <div id='child-main-container-1'></div>
+
+      <div id='child-main-container-1'>
+
+        <div class="dropdown">
+          <button class="dropdown-btn">File</button>
+          <div class="dropdown-content">
+              <input type="file" id="menu-bar-file-project-input"/>
+              <label for='menu-bar-file-project-input'> 
+                <a id="menu-bar-file-open-a">Open Project...</a>
+              </label>
+              <a id="menu-bar-file-save-as">Save Project As...</a>
+          </div>
+        </div>
+        <!-- <div class="dropdown">
+          <button class="dropdown-btn">Edit</button>
+          <div class="dropdown-content">
+              <a>Cut</a>
+              <a>Copy</a>
+              <a>Paste</a>
+          </div>
+        </div> -->
+        <div class="dropdown">
+          <button class="dropdown-btn">View</button>
+          <div class="dropdown-content">
+              <a id="menu-bar-view-fit">Fit to boundary</a>
+          </div>
+        </div>
+
+      </div>
       <div id='child-main-container-2'>
         <div id='child-main-container-2-left'>
           <div id='cmc2l-panel-container-parent'>
@@ -101,6 +107,7 @@
                     </div>
                   </div>
 
+
                   <div class='cmc2l-panel-item-group'>
                     <button class="btn-accordion-lr">Station Coordinate File</button>
                     <div class="accordion-panel-lr">
@@ -131,26 +138,26 @@
                         <tr>
                           <td class="table-label-panel-lr">Latitude</td>
                           <td class="table-input-panel-lr">
-                            <input type="text" size=5 id="textBoundSWlat">
+                            <input type="text" size=5 id="boundary-sw-lat-text">
                           </td>
                         </tr>
                         <tr>
                           <td class="table-label-panel-lr">Longitude</td>
                           <td class="table-input-panel-lr">
-                            <input type="text" size=5 id="textBoundSWlng">
+                            <input type="text" size=5 id="boundary-sw-lng-text">
                           </td>
                         </tr>
                         <th colspan="2">Point 2 (North East)</th>
                         <tr>
                           <td class="table-label-panel-lr">Latitude</td>
                           <td class="table-input-panel-lr">
-                            <input type="text" size=5 id="textBoundNElat">
+                            <input type="text" size=5 id="boundary-ne-lat-text">
                           </td>
                         </tr>
                         <tr>
                           <td class="table-label-panel-lr">Longitude</td>
                           <td class="table-input-panel-lr">
-                            <input type="text" size=5 id="textBoundNElng">
+                            <input type="text" size=5 id="boundary-ne-lng-text">
                           </td>
                         </tr>
                       </table>
@@ -173,7 +180,7 @@
                           <tr>
                             <td class="table-label-panel-lr">Mode</td>
                             <td class="table-input-panel-lr">
-                              <select id="selectModelCenterMode">
+                              <select id="model-center-mode-select">
                                 <option value="rect-center">rect center</option>
                                 <option value="sta-center">sta center</option>
                                 <option value="manual">manual</option>
@@ -183,13 +190,13 @@
                           <tr>
                             <td class="table-label-panel-lr">Latitude</td>
                             <td class="table-input-panel-lr">
-                              <input type="text" size=5 id="textModelCenterLat">
+                              <input type="text" size=5 id="model-center-lat-text">
                             </td>
                           </tr>
                           <tr>
                             <td class="table-label-panel-lr">Longitude</td>
                             <td class="table-input-panel-lr">
-                              <input type="text" size=5 id="textModelCenterLng">
+                              <input type="text" size=5 id="model-center-lng-text">
                             </td>
                           </tr>
                         </tbody>
@@ -306,7 +313,7 @@
                         </tr>
                       </table>
                       <div class="panel-item-btn-container">
-                        <!-- <button id="block-z-delete-btn">Delete</button> -->
+                        <button id="block-z-delete-btn">Delete</button>
                         <button id="block-z-ok-btn">Apply</button>
                       </div>
                     </div>
@@ -337,7 +344,7 @@
               <div id='cmc2r-panel-menu-tab'>
                 <button class="panelr-tablinks" id="datafile-tab-btn">Data File</button>
                 <button class="panelr-tablinks" id="initialmodel-tab-btn">Initial Model</button>
-                <button class="panelr-tablinks" id="priormodel-tab-btn">Control Model</button>
+                <button class="panelr-tablinks" id="controlmodel-tab-btn">Prior/Control Model</button>
               </div>
               <div id='cmc2r-panel-container-scroll'>
                 <div id='cmc2r-panel-content'>
@@ -405,18 +412,18 @@
                             <tbody>
                               <tr><th>ID</th><th>Name</th></tr>
                               <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">1</td><td class="table-label-panel-lr">Zxx (Real)</td></tr>
-                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">2</td><td class="table-label-panel-lr">Zxx (Imaginer)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">2</td><td class="table-label-panel-lr">Zxx (Imaginary)</td></tr>
                               <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">3</td><td class="table-label-panel-lr">Zxy (Real)</td></tr>
-                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">4</td><td class="table-label-panel-lr">Zxy (Imaginer)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">4</td><td class="table-label-panel-lr">Zxy (Imaginary)</td></tr>
                               <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">5</td><td class="table-label-panel-lr">Zyx (Real)</td></tr>
-                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">6</td><td class="table-label-panel-lr">Zyx (Imaginer)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">6</td><td class="table-label-panel-lr">Zyx (Imaginary)</td></tr>
                               <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">7</td><td class="table-label-panel-lr">Zyy (Real)</td></tr>
-                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">8</td><td class="table-label-panel-lr">Zyy (Imaginer)</td></tr>
+                              <tr class="df-resp-name-8-tr"><td class="table-label-panel-lr">8</td><td class="table-label-panel-lr">Zyy (Imaginary)</td></tr>
                               
                               <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">1</td><td class="table-label-panel-lr">Zxy (Real)</td></tr>
-                              <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">2</td><td class="table-label-panel-lr">Zxy (Imaginer)</td></tr>
+                              <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">2</td><td class="table-label-panel-lr">Zxy (Imaginary)</td></tr>
                               <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">3</td><td class="table-label-panel-lr">Zyx (Real)</td></tr>
-                              <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">4</td><td class="table-label-panel-lr">Zyx (Imaginer)</td></tr>
+                              <tr class="df-resp-name-4-tr"><td class="table-label-panel-lr">4</td><td class="table-label-panel-lr">Zyx (Imaginary)</td></tr>
                             </tbody>
                           </table>
                         </div>
@@ -424,14 +431,31 @@
                     </div>
 
                     <div class='cmc2r-panel-item-group'>
-                      <button class="btn-accordion-lr">Period</button>
+                      <button class="btn-accordion-lr">Select Value</button>
                       <div class="accordion-panel-lr">
+                        <table class="table-panel-lr">
+                          <colgroup>
+                            <col class="table-panel-lr-col-1" span="1">
+                            <col class="table-panel-lr-col-2" span="1">
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <td class="table-label-panel-lr">Mode</td>
+                              <td class="table-input-panel-lr">
+                                <select id="df-used-value-mode-select">
+                                  <option value="frequency">frequency</option>
+                                  <option value="period">period</option>
+                                </select>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                         <div class="scroll-content-container">
-                          <table class="table-panel-lr" id="df-period-table">
+                          <table class="table-panel-lr" id="df-used-value-table">
                             <colgroup>
-                              <col class="table-panel-lr-col-1-dfpt" span="1">
-                              <col class="table-panel-lr-col-2-dfpt" span="1">
-                              <col class="table-panel-lr-col-3-dfpt" span="1">
+                              <col class="table-panel-lr-col-1-dfuvt" span="1">
+                              <col class="table-panel-lr-col-2-dfuvt" span="1">
+                              <col class="table-panel-lr-col-3-dfuvt" span="1">
                             </colgroup>
                             <tbody>
                               <tr>
@@ -442,18 +466,18 @@
                               <tr>
                                 <td class="td-table-panel-lr-p-no">1</td>
                                 <td class="table-input-panel-lr">
-                                  <input type="text" class="df-period-inputs">
+                                  <input type="text" class="df-used-value-inputs">
                                 </td>
                                 <td class="td-plus-minus-btn">
-                                  <button class="dfpt-minus-btn">-</button>
-                                  <button class="dfpt-plus-btn">+</button>
+                                  <button class="dfuvt-minus-btn">-</button>
+                                  <button class="dfuvt-plus-btn">+</button>
                                 </td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
                         <div class="panel-item-btn-container">
-                          <button id="df-period-apply-btn">Apply</button>
+                          <button id="df-used-value-apply-btn">Apply</button>
                         </div>
                       </div>
                     </div>
@@ -470,7 +494,7 @@
                             <tr>
                               <td class="table-label-panel-lr">input</td>
                               <td>
-                                <select id="errperiod-select">
+                                <select id="df-errperiod-select">
                                   <option value="=real">=real</option>
                                   <option value="manual">manual</option>
                                 </select>
@@ -478,12 +502,12 @@
                             </tr>
                             <tr id="tr-errperiod-manual">
                               <td class="table-label-panel-lr">value</td> 
-                              <td class="table-input-panel-lr"><input type="text" id="manual-errperiod-text"></td>
+                              <td class="table-input-panel-lr"><input type="text" id="df-errperiod-text"></td>
                             </tr>
                           </tbody>
                         </table>
                         <div class="panel-item-btn-container">
-                          <button id="df-errperiod-apply-btn">Apply</button>
+                          <!-- <button id="df-errperiod-apply-btn">Apply</button> -->
                         </div>
                       </div>
                     </div>
@@ -499,10 +523,10 @@
                           </colgroup>
                           <tbody>
                             <tr>
-                              <td class="table-label-panel-lr">Action</td>
+                              <td class="table-label-panel-lr">Mode</td>
                               <td>
                                 <select id="df-errmap-period-mode-select">
-                                  <option value="none">none</option>
+                                  <option value="none">default</option>
                                   <option value="change">change</option>
                                 </select>
                               </td>
@@ -524,7 +548,7 @@
                                 <th colspan="5">Change Value</th>
                               </tr>
                               <tr>
-                                <th>Period</th>
+                                <th id="df-errmap-used-value-th"></th>
                                 <th>File</th>
                                 <th>Response</th>
                                 <th>Value</th>
@@ -532,10 +556,10 @@
                               </tr>
                               <tr>
                                 <td>
-                                  <select class="errmap-period-select"></select>
+                                  <select class="errmap-used-value-select"></select>
                                 </td>
                                 <td class="table-input-panel-lr">
-                                  <input type="text" size=3 class="errmap-station-input">
+                                  <input type="text" size=3 class="errmap-file-input">
                                 </td>
                                 <td class="table-input-panel-lr">
                                   <input type="text" size=3 class="errmap-response-input">
@@ -552,7 +576,7 @@
                           </table>
                         </div>
                         <div class="panel-item-btn-container">
-                          <button id="df-empt-ok-btn">Apply</button>
+                          <button id="df-errmap-ok-btn">Apply</button>
                         </div>
                       </div>
                     </div>
@@ -695,7 +719,7 @@
                           </colgroup>
                           <tbody>
                             <tr>
-                              <th colspan="2">Apply Block to Layer</th>
+                              <th colspan="2">Apply to Layer</th>
                             </tr>
                             <tr>
                               <td class="table-label-panel-lr">Mode</td>
@@ -756,9 +780,9 @@
                             </tr>
                           </tbody>
                         </table>
-                        <div class="panel-item-btn-container">
-                          <button id="im-showlayer-ok-btn">Show</button>
-                        </div>
+                        <!-- <div class="panel-item-btn-container">
+                          <button id="im-show-layer-ok-btn">Show</button>
+                        </div> -->
                       </div>
                     </div>
 
@@ -783,16 +807,17 @@
                     </div>
                   
                   </div>
-                  
-                  <div id="priormodel-tab" class="tabcontent">
+
+                  <!-- CONTROL MODEL TAB -->
+                  <div id="controlmodel-tab" class="tabcontent">
 
                     <div class='cmc2r-panel-item-group'>
                       <button class="btn-accordion-lr">Index</button>
                       <div class="accordion-panel-lr">
                         <table class="table-panel-lr" id="pm-index-table">
                           <colgroup>
-                            <col class="table-panel-lr-col-1-pmit" span="1">
-                            <col class="table-panel-lr-col-2-pmit" span="1">
+                            <col class="table-panel-lr-col-1-cmit" span="1">
+                            <col class="table-panel-lr-col-2-cmit" span="1">
                           </colgroup>
                           <tbody>
                             <tr>
@@ -801,30 +826,30 @@
                             </tr>
                             <tr>
                               <td class="table-label-panel-lr">0 (free to change)</td>
-                              <td class="td-pmit-color">
-                                <input type="color" class="pmit-color-input" name="body" value="#ffffff">
+                              <td class="td-cmit-color">
+                                <input type="color" class="cmit-color-input" name="body" value="#ffffff">
                               </td>
                             </tr>
                             <tr>
                               <td class="table-label-panel-lr">1 (fixed)</td>
-                              <td class="td-pmit-color">
-                                <input type="color" class="pmit-color-input" name="body" value="#000000">
+                              <td class="td-cmit-color">
+                                <input type="color" class="cmit-color-input" name="body" value="#000000">
                               </td>
                             </tr>
                           </tbody>
                         </table>
                         <div class="panel-item-btn-container">
-                          <button id="pm-i-ok-btn">Apply</button>
+                          <button id="cm-i-ok-btn">Apply</button>
                         </div>
                       </div>
                     </div>
 
                     <div class='cmc2r-panel-item-group'>
-                      <button class="btn-accordion-lr">Control Model Index</button>
+                      <button class="btn-accordion-lr">Model Index</button>
                       <div class="accordion-panel-lr">
 
                         <div class="scroll-content-container">
-                          <table class="table-panel-lr" id="pm-cmi-use-im-table">
+                          <table class="table-panel-lr" id="cm-cmi-use-im-table">
                             <colgroup>
                               <col class="table-panel-lr-col-1" span="1">
                               <col class="table-panel-lr-col-2" span="1">
@@ -835,17 +860,17 @@
                               </tr>
                               <tr>
                                 <th>Initial Model</th>
-                                <th>Control Model</th>
+                                <th>Prior/Control Model</th>
                               </tr>                            
                             </tbody>
                           </table>
                         </div>
 
                         <div class="panel-item-btn-container">
-                          <button id="pm-cmi-use-im-ok-btn">Use Initial Model</button>
+                          <button id="cm-cmi-use-im-ok-btn">Use Initial Model</button>
                         </div>
 
-                        <table class="table-panel-lr" id="pm-cmi-setinit-table">
+                        <table class="table-panel-lr" id="cm-cmi-setinit-table">
                           <colgroup>
                             <col class="table-panel-lr-col-1" span="1">
                             <col class="table-panel-lr-col-2" span="1">
@@ -857,13 +882,13 @@
                             <tr>
                               <td class="table-label-panel-lr">Layer</td>
                               <td>
-                                <select id="pm-cmi-si-layer-select"></select>
+                                <select id="cm-cmi-si-layer-select"></select>
                               </td>
                             </tr>
                             <tr>
                               <td class="table-label-panel-lr">Value</td>
                               <td class="table-input-panel-lr">
-                                <select id="pm-cmi-si-value-select">
+                                <select id="cm-cmi-si-value-select">
                                   <option value=0>0</option>
                                   <option value=1>1</option>
                                 </select>
@@ -872,10 +897,10 @@
                           </tbody>
                         </table>
                         <div class="panel-item-btn-container">
-                          <button id="pm-cmi-si-ok-btn">Set Initial Value</button>
+                          <button id="cm-cmi-si-ok-btn">Set Initial Value</button>
                         </div>
 
-                        <table class="table-panel-lr" id="pm-cmi-cl-table">
+                        <table class="table-panel-lr" id="cm-cmi-cl-table">
                           <colgroup>
                             <col class="table-panel-lr-col-1" span="1">
                             <col class="table-panel-lr-col-2" span="1">
@@ -887,7 +912,7 @@
                             <tr>
                               <td class="table-label-panel-lr">Cell value</td>
                               <td>
-                                <select id="pm-cmi-cl-value-select">
+                                <select id="cm-cmi-cl-value-select">
                                   <option value=0>0</option>
                                   <option value=1>1</option>
                                 </select>
@@ -896,44 +921,44 @@
                           </tbody>
                         </table>
 
-                        <table class="table-panel-lr table-panel-lr-multi" id="pm-cmi-al-table">
+                        <table class="table-panel-lr table-panel-lr-multi" id="cm-cmi-al-table">
                           <colgroup>
                             <col class="table-panel-lr-col-1" span="1">
                             <col class="table-panel-lr-col-2" span="1">
                           </colgroup>
                           <tbody>
                             <tr>
-                              <th colspan="2">Apply Block to Layer</th>
+                              <th colspan="2">Apply to Layer</th>
                             </tr>
                             <tr>
                               <td class="table-label-panel-lr">Mode</td>
                               <td>
-                                <select id="pm-cmi-al-mode-select">
+                                <select id="cm-cmi-al-mode-select">
                                   <option value="single">single layer</option>
                                   <option value="multiple">multiple layer</option>
                                 </select>
                               </td>
                             </tr>
-                            <tr id="tr-pm-cmi-al-layer-single">
+                            <tr id="tr-cm-cmi-al-layer-single">
                               <td class="table-label-panel-lr">Layer (z)</td>
                               <td>
-                                <select class="pm-cmi-al-layer-select" id="pm-cmi-cl-layer-single-select">
+                                <select class="cm-cmi-al-layer-select" id="cm-cmi-al-layer-single-select">
                                   <option></option>
                                 </select>
                               </td>
                             </tr>
-                            <tr id="tr-pm-cmi-al-layer-multiple-s">
+                            <tr id="tr-cm-cmi-al-layer-multiple-s">
                               <td class="table-label-panel-lr">Start Layer (z)</td>
                               <td>
-                                <select class="pm-cmi-al-layer-select" id="pm-cmi-al-layer-ms-select">
+                                <select class="cm-cmi-al-layer-select" id="cm-cmi-al-layer-ms-select">
                                   <option></option>
                                 </select>
                               </td>
                             </tr>
-                            <tr id="tr-pm-cmi-al-layer-multiple-e">
+                            <tr id="tr-cm-cmi-al-layer-multiple-e">
                               <td class="table-label-panel-lr">End Layer (z)</td>
                               <td>
-                                <select class="pm-cmi-al-layer-select" id="pm-cmi-al-layer-me-select">
+                                <select class="cm-cmi-al-layer-select" id="cm-cmi-al-layer-me-select">
                                   <option></option>
                                 </select>
                               </td>
@@ -942,7 +967,7 @@
                         </table>
 
                         <div class="panel-item-btn-container">
-                          <button id="pm-cmi-cl-ok-btn">Apply</button>
+                          <button id="cm-cmi-cl-ok-btn">Apply</button>
                         </div>
                       </div>
                     </div>
@@ -959,14 +984,14 @@
                             <tr>
                               <td class="table-label-panel-lr">Layer (z)</td>
                               <td>
-                                <select id="pm-show-layer-select"></select>
+                                <select id="cm-show-layer-select"></select>
                               </td>
                             </tr>
                           </tbody>
                         </table>
-                        <div class="panel-item-btn-container">
-                          <button id="pm-showlayer-ok-btn">Show</button>
-                        </div>
+                        <!-- <div class="panel-item-btn-container">
+                          <button id="cm-show-layer-ok-btn">Show</button>
+                        </div> -->
                       </div>
                     </div>
 
@@ -979,13 +1004,13 @@
                           </tr>
                           <tr>
                             <td class="table-input-panel-lr">
-                              <textarea rows="1" id="pm-output-fname-textarea"></textarea>
+                              <textarea rows="1" id="cm-output-fname-textarea"></textarea>
                             </td>
                           </tr>
                         </table>
                         <div class="panel-item-btn-container">
-                          <button id="pm-output-save-btn">Save</button>
-                          <button id="pm-output-preview-btn">Preview</button>
+                          <button id="cm-output-save-btn">Save</button>
+                          <button id="cm-output-preview-btn">Preview</button>
                         </div>
                       </div>
                     </div>
@@ -998,5 +1023,25 @@
         </div>
       </div>
     </div>
+
+    <div id="save-modal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+
+        <div class="modal-menubar">
+          <button class="close-modal">&times;</button>
+        </div>
+        <div id="modal-save-content-container">
+          <label for="modal-save-text">Filename:</label>
+          <input type="text" id="modal-save-text" size="30">
+          <label for="modal-save-text">.mtproject</label>
+        </div>
+        <div class="modal-btn-container">
+          <button id="modal-save-btn">Download</button>
+        </div>
+
+      </div>
+    </div>
+
   </body>
 </html>
