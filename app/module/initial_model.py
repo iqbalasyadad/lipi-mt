@@ -261,7 +261,6 @@ class CreateInitialModel:
         self.outFileName = outputFile
         with open(outputFile, 'w') as f:
             f.write(self.strOutput)
-        f.close()
 
 class InitialModelCLI():
     

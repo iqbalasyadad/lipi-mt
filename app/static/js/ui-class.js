@@ -76,6 +76,7 @@ class AppUI {
             },
             pcm: {
                 tab: document.getElementById("controlmodel-tab-btn"),
+                i_colors: document.getElementsByClassName("cmit-color-input"), 
                 mi_use_im_r: document.getElementsByClassName("cm-cmi-use-im-im"), 
                 mi_use_im_select: document.getElementsByClassName("cm-cmi-use-im-cm-select"),
                 mi_use_im_ok_btn: document.getElementById("cm-cmi-use-im-ok-btn"),

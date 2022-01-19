@@ -1,6 +1,7 @@
 import os
 import shutil
 import webbrowser
+import json
 from threading import Timer
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, jsonify
@@ -33,6 +34,20 @@ class Parameter:
         self.outputFolder = "outputs"
         os.makedirs(self.outputFolder, exist_ok=True)
         self.outputPath = os.path.join(self.basePath, self.outputFolder)
+
+class AppSave:
+    def __init__(self):
+        self.basePath = os.getcwd()
+        self.folderName = "projects"
+        self.savePath = os.path.join(self.basePath, self.folderName)
+        os.makedirs(self.folderName, exist_ok=True)
+        self.format = ".mtproject"
+    
+    def saveProject(self, savepath, filename, data):
+        if os.path.exists(savepath):
+            with open (os.path.join(savepath, filename), 'w') as f:
+                f.write(data)
+
 
 myParam = Parameter()
 
@@ -185,12 +200,25 @@ def pmProcess(mode):
     elif mode=="preview":
         return myCMI.strOutput
 
+@app.route('/saveproject', methods=['POST'])
+def saveProject():
+    input_json = request.get_json(force=True)
+    project_name = input_json["name"]
+
+    mySave = AppSave()
+    mySave.saveProject(mySave.folderName, project_name + mySave.format, json.dumps(input_json))
+    return ""
+
 def open_browser():
     if not os.environ.get("WERKZEUG_RUN_MAIN"):
         webbrowser.open_new("http://127.0.0.1:2000/")
 
-if __name__ == '__main__':
+def main():
     Timer(1, open_browser).start()
     app.run(host="127.0.0.1", port=2000)
+
+if __name__ == '__main__':
+    main()
+
 
 # debug: export FLASK_ENV=development

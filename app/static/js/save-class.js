@@ -182,6 +182,11 @@ class LoadParam extends AppUI {
         this.el.im.output_text.value = output;
     }
 
+    setPCMColor(colors) {
+        for (var i=0; i<colors.length; i++) {
+            this.el.pcm.i_colors[i].value = colors[i];
+        }
+    }
     setPCMI(rFormat) {
         const nRow = this.el.pcm.mi_use_im_r.length;
         for (var i=0; i<nRow; i++) {

@@ -272,6 +272,7 @@ window.onload = function() {
             myMap.addBlockCellEvt(myMap.cmBlockCellsOverlay, cmCMICLValSelect, 0, cmitColorEls);
         }
         cmShowLayer();
+        myParam.cm_use_im = true;
     };
 
     document.getElementById("cm-cmi-si-ok-btn").onclick = function() {
@@ -594,25 +595,24 @@ window.onload = function() {
         myMap.map.fitBounds(myMap.modelBoundary.getBounds());
     };
     // new save
-    var modal = document.getElementById("save-modal");
-    const menubarSaveBtn = document.getElementById("menu-bar-file-save-as");
+    var saveAsModal = document.getElementById("save-modal");
     var span = document.getElementsByClassName("close-modal")[0];
+    const menubarSaveBtn = document.getElementById("menu-bar-file-save-as");
     menubarSaveBtn.onclick = function() {
-        modal.style.display = "block";
+        saveAsModal.style.display = "block";
     }
 
     span.onclick = function() {
-        modal.style.display = "none";
+        saveAsModal.style.display = "none";
     }
     window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        if (event.target == saveAsModal) {
+            saveAsModal.style.display = "none";
         }
     }
-    var saveProjBtn = document.getElementById("modal-save-btn");
-    saveProjBtn.addEventListener("click", ()=>{
-        var mySave = new AppSave();
 
+    function getSaveData() {
+        var mySave = new AppSave();
         var coord_file = document.getElementById("coordinate-input");
         if (coord_file.files.length>0){
             mySave.data.coord_file = coord_file.files[0].name;
@@ -683,61 +683,123 @@ window.onload = function() {
         if (myParam.cmCellsVal) {
             Object.assign(mySave.data.pcm, {cell_val: myParam.cmCellsVal});
         }
-        const filename = document.getElementById("modal-save-text").value;
-        if (filename!="") {
-            mySave.download(mySave.data, filename+".mtproject", 'text/plain');
-        } 
+        return mySave.data;
+    }
 
+    function sendSave(url, data) {
+
+        const jsonData = JSON.stringify(data);
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState === XMLHttpRequest.DONE) {
+                var status = xhr.status;
+                if (status === 0 || (status >= 200 && status < 400)) {
+                    alert("Success");
+                    saveAsModal.style.display = "none";
+                    myWindow.setProjectName(myParam.projectName);
+                } else {
+                    alert("Error request");
+                }
+            }
+        };
+        xhr.onerror = function() {
+            alert("Error");
+        }
+        xhr.open("POST", url);
+        xhr.send(jsonData);
+    }
+
+    var menuFileSaveAsBtn = document.getElementById("modal-save-btn");
+    menuFileSaveAsBtn.addEventListener("click", ()=>{
+        const saveAsText = document.getElementById("modal-save-text");
+        const projectName = saveAsText.value.replace(/\s/g,'');
+
+        if (projectName!="") {
+            myParam.projectName = projectName;
+            const project_save = {
+                name: myParam.projectName,
+                data: getSaveData()
+            };
+            sendSave("/saveproject", project_save);
+        } else {
+            alert("Error: empty name");
+        }
     });
 
-
+    var menuFileSaveBtn = document.getElementById("menu-bar-file-save");
+    menuFileSaveBtn.addEventListener("click", ()=>{
+        if(myParam.projectName) {
+            const project_save = {
+                name: myParam.projectName,
+                data: getSaveData()
+            };
+            sendSave("/saveproject", project_save);
+        } else {
+            saveAsModal.style.display = "block";
+        }
+    });
 
     myLoad = new LoadParam();
-
     var projectInput = document.getElementById("menu-bar-file-project-input");
     projectInput.addEventListener("change", ()=>{
-        var fr = new FileReader();
-        fr.addEventListener("load", ()=>{
-            myLoad.data = JSON.parse(fr.result);
-            set_loaded();
-        });
-        fr.readAsText(projectInput.files[0]);            
+        if (projectInput.files.length>0) {
+            var fr = new FileReader();
+            fr.addEventListener("load", ()=>{
+                myLoad.input = JSON.parse(fr.result);
+                try {
+                    set_loaded();
+                }
+                catch(err) {
+                    alert(err.message);
+                }
+            });
+            fr.readAsText(projectInput.files[0]);  
+        }
     });
 
     function set_loaded() {
-        if(myLoad.data.boundary) {
-            myLoad.setBoundary(myLoad.data.boundary);
+        if (myLoad.input.name) {
+            myParam.projectName = myLoad.input.name;
+            myWindow.setProjectName(myLoad.input.name);
         }
-        if(myLoad.data.model_center && myLoad.data.model_center!="sta-center") {
-            myLoad.setModelCenter(myLoad.data.model_center);
+        if(myLoad.input.data.boundary) {
+            myLoad.setBoundary(myLoad.input.data.boundary);
         }
-        if(myLoad.data.block_xy) {
-            myLoad.setBlockXY(myLoad.data.block_xy);
+        if(myLoad.input.data.model_center && myLoad.input.data.model_center!="sta-center") {
+            myLoad.setModelCenter(myLoad.input.data.model_center);
         }
-        if(myLoad.data.block_z) {
-            myLoad.setBlockZ(myLoad.data.block_z);
+        if(myLoad.input.data.block_xy) {
+            myLoad.setBlockXY(myLoad.input.data.block_xy);
+        }
+        if(myLoad.input.data.block_z) {
+            myLoad.setBlockZ(myLoad.input.data.block_z);
         }
 
         /////////////////////////// Load Data File //////////////////////////////////
-        myLoad.setDFResponse(myLoad.data.df.response);
-        if(myLoad.data.df.used_value) {
-            myLoad.setDFUsedValue(myLoad.data.df.used_value);
+        if(myLoad.input.data.df.response) {
+            myLoad.setDFResponse(myLoad.input.data.df.response);
         }
-        myLoad.setDFEP(myLoad.data.df.e_period);
-        if(myLoad.data.df.em_period) {
-            myLoad.setDFEMP(myLoad.data.df.em_period);
+        if(myLoad.input.data.df.used_value) {
+            myLoad.setDFUsedValue(myLoad.input.data.df.used_value);
         }
-        if(myLoad.data.df.output) {
-            myLoad.setDFOutput(myLoad.data.df.output);
+        if(myLoad.input.data.df.e_period0) {
+            myLoad.setDFEP(myLoad.input.data.df.e_period);
+        }
+        if(myLoad.input.data.df.em_period) {
+            myLoad.setDFEMP(myLoad.input.data.df.em_period);
+        }
+        if(myLoad.input.data.df.output) {
+            myLoad.setDFOutput(myLoad.input.data.df.output);
         }
         /////////////////////////// Load Initial Model //////////////////////////////////
-        if(myLoad.data.im.title) {
-            myLoad.setIMTitle(myLoad.data.im.title);
+        if(myLoad.input.data.im.title) {
+            myLoad.setIMTitle(myLoad.input.data.im.title);
         }
-        if(myLoad.data.im.resistivity) {
-            myLoad.setIMRes(myLoad.data.im.resistivity);
+        if(myLoad.input.data.im.resistivity) {
+            myLoad.setIMRes(myLoad.input.data.im.resistivity);
         }
-        if(myLoad.data.im.cell_val) {
+        if(myLoad.input.data.im.cell_val) {
 
             if (myMap.imBlockCellsOverlay===null) {
                 myMap.imBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
@@ -748,24 +810,27 @@ window.onload = function() {
                 myMap.addBlockCellEvt(myMap.imBlockCellsOverlay, imLRICLValSelect, 1, imrtColorEls);
             }
 
-            myParam.imCellsVal = myLoad.data.im.cell_val;
+            myParam.imCellsVal = myLoad.input.data.im.cell_val;
             if (myMap.cmBlockCellsOverlay != null) {
                 myMap.removeOverlay(myMap.cmBlockCellsOverlay, myMap.bcName.pc);
             }
             imShowLayer();
             document.getElementById("initialmodel-tab-btn").click();
         }
-        if(myLoad.data.im.output) {
-            myLoad.setIMOutput(myLoad.data.im.output);
+        if(myLoad.input.data.im.output) {
+            myLoad.setIMOutput(myLoad.input.data.im.output);
         }
 
         /////////////////////////// Load Prior/Control Model //////////////////////////////////
-        if(myLoad.data.pcm.cell_val) {
+        if (myLoad.input.data.pcm.index_color) {
+            myLoad.setPCMColor(myLoad.input.data.pcm.index_color);
+        }
+        if(myLoad.input.data.pcm.cell_val) {
             if (myMap.imBlockCellsOverlay != null) {
                 myMap.removeOverlay(myMap.imBlockCellsOverlay, myMap.bcName.init);
             }
-            if (myLoad.data.pcm.use_im_format){
-                myLoad.setPCMI(myLoad.data.pcm.use_im_format);
+            if (myLoad.input.data.pcm.use_im_format){
+                myLoad.setPCMI(myLoad.input.data.pcm.use_im_format);
             } else {
                 if (myMap.cmBlockCellsOverlay===null) {
                     myMap.cmBlockCellsOverlay = myMap.createBlockCells(myParam.blockCells);
@@ -779,12 +844,12 @@ window.onload = function() {
                 var nCell = myMap.cmBlockCellsOverlay.getLayers().length;
                 myParam.cmCellsVal = myParam.setInitialCellsVal("all", siParam.value, myParam.blockZ.id.length, nCell, myParam.cmCellsVal);
             }
-            myParam.cmCellsVal = myLoad.data.pcm.cell_val;
+            myParam.cmCellsVal = myLoad.input.data.pcm.cell_val;
             cmShowLayer();
             document.getElementById("controlmodel-tab-btn").click();
         }
-        if(myLoad.data.pcm.output) {
-            myLoad.setPCMOutput(myLoad.data.pcm.output);
+        if(myLoad.input.data.pcm.output) {
+            myLoad.setPCMOutput(myLoad.input.data.pcm.output);
         }
     }
 

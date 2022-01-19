@@ -37,21 +37,15 @@
         <div class="dropdown">
           <button class="dropdown-btn">File</button>
           <div class="dropdown-content">
-              <input type="file" id="menu-bar-file-project-input"/>
+              <input type="file" accept=".mtproject" id="menu-bar-file-project-input"/>
               <label for='menu-bar-file-project-input'> 
                 <a id="menu-bar-file-open-a">Open Project...</a>
               </label>
+              <a id="menu-bar-file-save">Save</a>
               <a id="menu-bar-file-save-as">Save Project As...</a>
           </div>
         </div>
-        <!-- <div class="dropdown">
-          <button class="dropdown-btn">Edit</button>
-          <div class="dropdown-content">
-              <a>Cut</a>
-              <a>Copy</a>
-              <a>Paste</a>
-          </div>
-        </div> -->
+
         <div class="dropdown">
           <button class="dropdown-btn">View</button>
           <div class="dropdown-content">
@@ -59,7 +53,10 @@
           </div>
         </div>
 
+        <div id="project-title-container"><p id="project-title"></p></div>
+
       </div>
+
       <div id='child-main-container-2'>
         <div id='child-main-container-2-left'>
           <div id='cmc2l-panel-container-parent'>
@@ -1037,7 +1034,7 @@
           <label for="modal-save-text">.mtproject</label>
         </div>
         <div class="modal-btn-container">
-          <button id="modal-save-btn">Download</button>
+          <button id="modal-save-btn">Save</button>
         </div>
 
       </div>

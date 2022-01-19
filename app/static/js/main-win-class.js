@@ -281,4 +281,12 @@ class MainWindow {
             row.innerHTML = '<td class=cm-cmi-use-im-im>'+im_id+'</td><td><select class="cm-cmi-use-im-cm-select"><option value=0>0</option><option value=1>1</option></select></td>'
         }
     }
+
+    setProjectName(name) {
+        var titleDiv = document.getElementById("project-title");
+        if(name) {
+            // titleDiv.style.display = "";
+            titleDiv.innerHTML = name;
+        }
+    }
 }

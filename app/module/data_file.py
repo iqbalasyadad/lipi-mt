@@ -392,7 +392,6 @@ class CreateDataFile:
         self.outName = outputFile
         with open (outputFile, 'w') as f:
             f.write(self.outputStr)
-        f.close()
     
     def getOutName(self):
         return self.outName

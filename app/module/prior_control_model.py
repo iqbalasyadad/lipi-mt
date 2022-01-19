@@ -134,7 +134,6 @@ class CreateControlModelIndex:
         self.outFileName = outputFile
         with open(outputFile, 'w') as f:
             f.write(self.strOutput)
-        f.close()
 
 # Class for CLI
 class controlModelIndexCLI():

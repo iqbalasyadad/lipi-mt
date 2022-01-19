@@ -3,7 +3,8 @@ class Parameter {
         this.imCellsVal = null;
         this.cmCellsVal = null;
         this.lastCellsVal = null;
-        //init im cell val
+        this.projectName = null;
+        this.projectFormat = ".mtproject";
     }
     // DATAFILE //
     getdfErrMapParam() {
