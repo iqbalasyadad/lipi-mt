@@ -272,7 +272,6 @@ window.onload = function() {
             myMap.addBlockCellEvt(myMap.cmBlockCellsOverlay, cmCMICLValSelect, 0, cmitColorEls);
         }
         cmShowLayer();
-        // myParam.cm_use_im = true;
     };
 
     document.getElementById("cm-cmi-si-ok-btn").onclick = function() {

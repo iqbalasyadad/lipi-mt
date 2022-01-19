@@ -105,30 +105,6 @@ class Map {
         }
     }
 
-    // plotModelCenter(mode, latInput, lngInput) {
-    //     if (mode==="rect-center"){
-    //         this.modelCenter = this.modelBoundary.getBounds().getCenter();
-    //         document.getElementById("model-center-lat-text").value = this.modelCenter.lat.toFixed(8);
-    //         document.getElementById("model-center-lng-text").value = this.modelCenter.lng.toFixed(8);
-    //     } else if (mode==="sta-center"){
-    //         this.modelCenter = this.staCenter;
-    //         document.getElementById("model-center-lat-text").value = this.modelCenter.lat.toFixed(8);
-    //         document.getElementById("model-center-lng-text").value = this.modelCenter.lng.toFixed(8);
-    //     } else if (mode==="manual"){
-    //         this.modelCenter = {lat: latInput, lng: lngInput};
-    //     }
-    //     let hStart = L.latLng(this.modelCenter.lat, this.modelBoundaryWest);
-    //     let hEnd = L.latLng(this.modelCenter.lat, this.modelBoundaryEast);
-    //     let vStart = L.latLng(this.modelBoundaryNorth, this.modelCenter.lng);;
-    //     let vEnd = L.latLng(this.modelBoundarySouth, this.modelCenter.lng);
-
-    //     if (this.centerAxisOverlay==null) {
-    //         this.addModelCenter(hStart, hEnd, vStart, vEnd);
-    //     } else {
-    //         this.centerHline.setLatLngs([hStart, hEnd]);
-    //         this.centerVline.setLatLngs([vStart, vEnd]);
-    //     }
-    // }
     addBlockLine(latlngs) {
         this.blockLineOverlay = L.layerGroup([]);
         this.blockLine = L.polyline(latlngs, {weight: 1, color: "black", interactive: false}).addTo(this.blockLineOverlay);

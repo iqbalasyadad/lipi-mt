@@ -1,0 +1,113 @@
+####################################################################
+                       MT DATA PREPROCESSING                        
+                             DATA FILE                              
+####################################################################
+TAB              : autocomplete file or folder name
+CTRL+C or 'exit' : close the program
+BASE PATH        : /home/iqbal/Documents/LIPI/program/datafile
+####################################################################
+
+.pt1 directory
+>> data
+
+Input files (./*.pt1)
+>> .
+
+Number of responses (4/8)
+>> 8
+
+Select values: <"frequency"/"period"> <list of values>
+>> frequency 10400 7200 4400 2600 1100 530 40 end
+
+Imaginary impedance tensor error (=real/0/nan)
+>> =real
+
+Change Error Map Period? (y/n)
+>> y
+
++----+-----------+
+| ID | Frequency |
++----+-----------+
+| 1  |  10400.0  |
+| 2  |  7200.0   |
+| 3  |  4400.0   |
+| 4  |  2600.0   |
+| 5  |  1100.0   |
+| 6  |   530.0   |
+| 7  |   40.0    |
++----+-----------+
+
++----+-------+
+| ID | File  |
++----+-------+
+| 1  | AMT22 |
+| 2  | AMT23 |
+| 3  | AMT24 |
+| 4  | AMT25 |
++----+-------+
+
++----+----------+
+| ID | Response |
++----+----------+
+| 1  |  Zxx Re  |
+| 2  |  Zxx Im  |
+| 3  |  Zxy Re  |
+| 4  |  Zxy Im  |
+| 5  |  Zyx Re  |
+| 6  |  Zyx Im  |
+| 7  |  Zyy Re  |
+| 8  |  Zyy Im  |
++----+----------+
+
+Input format: <frequency id>_<files id>_<responses id>_<final value>
+>> 1_1-2-3_all_999 2_all_1-2_999 end
+
+Coordinate file (.txt)
+>> example_coordinate.txt
+
+Automatic model center (using station center)? (y/n)
+>> y
+
+Output file
+>> example_output.data
+success..
+
+####################################################################
+                             RESULT                                 
+
+Selected values:
+Frequency:
+1.0400E+04 7.2000E+03 4.4000E+03 2.6000E+03 1.1000E+03 5.3000E+02 4.0000E+01 
+Period:
+9.6154E-05 1.3889E-04 2.2727E-04 3.8462E-04 9.0909E-04 1.8868E-03 2.5000E-02 
+
+Nearest values:
+Frequency:
+1.0400E+04 7.2000E+03 4.4000E+03 2.6000E+03 1.1000E+03 5.3000E+02 4.0000E+01 (AMT22.pt1)
+1.0400E+04 7.2000E+03 4.4000E+03 3.0000E+03 9.0000E+02 5.3000E+02 4.0000E+01 (AMT23.pt1)
+1.0400E+04 7.2000E+03 4.4000E+03 2.6000E+03 1.1000E+03 5.3000E+02 4.0000E+01 (AMT24.pt1)
+1.0400E+04 7.2000E+03 4.4000E+03 2.6000E+03 1.1000E+03 5.3000E+02 4.0000E+01 (AMT25.pt1)
+Period:
+9.6154E-05 1.3889E-04 2.2727E-04 3.8462E-04 9.0909E-04 1.8868E-03 2.5000E-02 (AMT22.pt1)
+9.6154E-05 1.3889E-04 2.2727E-04 3.3333E-04 1.1111E-03 1.8868E-03 2.5000E-02 (AMT23.pt1)
+9.6154E-05 1.3889E-04 2.2727E-04 3.8462E-04 9.0909E-04 1.8868E-03 2.5000E-02 (AMT24.pt1)
+9.6154E-05 1.3889E-04 2.2727E-04 3.8462E-04 9.0909E-04 1.8868E-03 2.5000E-02 (AMT25.pt1)
+
+Coordinate header: DD
+
+Station coordinate (UTM):
++-----------+-------------------+-------------------+
+|   Name    |      Easting      |     Northing      |
++-----------+-------------------+-------------------+
+| AMT22.pt1 | 710511.6096888956 | 8969240.539396873 |
+| AMT23.pt1 | 733727.8799872898 | 8965434.205657586 |
+| AMT24.pt1 | 712864.9298172158 | 8944646.717311213 |
+| AMT25.pt1 | 733002.1608219086 | 8945352.546413735 |
++-----------+-------------------+-------------------+
+
+Center of model:
+Easting: 722119.7448380927
+Northing: 8956943.628354043
+
+Output file: example_output.data
+####################################################################

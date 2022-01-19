@@ -6,9 +6,9 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 
-from module.datafile import StationCoordinate, CreateDataFile
-from module.initialmodel import CreateInitialModel
-from module.priormodel import CreateControlModelIndex
+from module.data_file import StationCoordinate, CreateDataFile
+from module.initial_model import CreateInitialModel
+from module.prior_control_model import CreateControlModelIndex
 
 
 class Parameter:
@@ -45,14 +45,13 @@ def index():
 
 @app.route('/uploadcoordinates', methods=['POST'])
 def uploadCoordinates():
-    if request.method == 'POST':
-        file = request.files['myfile']
-        myParam.coordName = secure_filename(file.filename)
-        myParam.coordPath = os.path.join(myParam.uploadPath, myParam.coordName)
-        file.save(myParam.coordPath)
-        mySta = StationCoordinate(myParam.coordPath)
-        stationCoord = mySta.getStationInput()
-        return jsonify(stationCoord)
+    file = request.files['myfile']
+    myParam.coordName = secure_filename(file.filename)
+    myParam.coordPath = os.path.join(myParam.uploadPath, myParam.coordName)
+    file.save(myParam.coordPath)
+    mySta = StationCoordinate(myParam.coordPath)
+    stationCoord = mySta.getStationInput()
+    return jsonify(stationCoord)
 
 @app.route('/uploadstations', methods=['POST'])
 def uploadStations():

@@ -72,55 +72,9 @@ class LoadParam extends AppUI {
             var fr = new FileReader();
             fr.addEventListener("load", ()=>{
                 this.data = JSON.parse(fr.result);
-                console.log(JSON.parse(fr.result));
             });
             fr.readAsText(projectInput.files[0]);            
         });
-    }
-    test_set_data(data) {
-        this.data = data;
-        // this.setValue();
-    }
-    setValue() {
-        if(this.data.boundary) {
-            console.log("Boundary OK");
-            this.setBoundary(this.data.boundary);
-        }
-        if(this.data.model_center && this.data.model_center!="sta-center") {
-            console.log("Model Center OK");
-            this.setModelCenter(this.data.model_center);
-        }
-        if(this.data.block_xy) {
-            console.log("Block xy OK");
-            this.setBlockXY(this.data.block_xy);
-        }
-        if(this.data.block_z) {
-            console.log("Block z OK");
-            this.setBlockZ(this.data.block_z);
-        }
-        this.setDFResponse(this.data.df.response);
-        if(this.data.df.used_value) {
-            this.setDFUsedValue(this.data.df.used_value);
-        }
-        this.setDFEP(this.data.df.e_period);
-        if(this.data.df.em_period) {
-            this.setDFEMP(this.data.df.em_period);
-        }
-        if(this.data.im.title) {
-            this.setIMTitle(this.data.im.title);
-        }
-        if(this.data.im.resistivity) {
-            this.setIMRes(this.data.im.resistivity);
-        }
-        if(this.data.im.output) {
-            this.setDFOutput(this.data.im.output);
-        }
-        // if(this.data.pcm.use_im_format){
-        //     console.log("use im ok");
-        //     this.setPCMI(this.data.pcm.use_im_format);
-        // }
-        
-
     }
     setBoundary(boundary) {
         this.el.boundary.sw_lat_text.value = boundary.sw.lat;
@@ -177,11 +131,9 @@ class LoadParam extends AppUI {
         }
     }
     setDFEMP(em_period) {
-        console.log(em_period.mode);
         this.setSelect(this.el.df.em_period_select, em_period.mode);
         if(em_period.mode==="change") {
             this.el.df.em_period_change.style.display = "" ;
-            console.log(em_period.change_param);
             const nChange = Object.keys(em_period.change_param).length;
 
             var i=0;
@@ -232,7 +184,6 @@ class LoadParam extends AppUI {
 
     setPCMI(rFormat) {
         const nRow = this.el.pcm.mi_use_im_r.length;
-        console.log(nRow);
         for (var i=0; i<nRow; i++) {
             var key = parseInt(this.el.pcm.mi_use_im_r[i].innerText);
             var mi = rFormat[key].toString();
