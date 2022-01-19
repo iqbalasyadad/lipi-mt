@@ -4,11 +4,11 @@
 ####################################################################
 TAB              : autocomplete file or folder name
 CTRL+C or 'exit' : close the program
-BASE PATH        : /home/iqbal/Documents/LIPI/program/datafile
+BASE PATH        : /home/iqbal/Documents/LIPI/program/data_file
 ####################################################################
 
 .pt1 directory
->> data
+>> example/data
 
 Input files (./*.pt1)
 >> .
@@ -63,13 +63,13 @@ Input format: <frequency id>_<files id>_<responses id>_<final value>
 >> 1_1-2-3_all_999 2_all_1-2_999 end
 
 Coordinate file (.txt)
->> example_coordinate.txt
+>> example/coordinate.txt
 
 Automatic model center (using station center)? (y/n)
 >> y
 
 Output file
->> example_output.data
+>> example/output.data
 success..
 
 ####################################################################
@@ -109,5 +109,6 @@ Center of model:
 Easting: 722119.7448380927
 Northing: 8956943.628354043
 
-Output file: example_output.data
+Output file: example/output.data
 ####################################################################
+

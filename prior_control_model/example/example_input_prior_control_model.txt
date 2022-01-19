@@ -2,7 +2,7 @@
                        MT DATA PREPROCESSING                        
                         CONTROL MODEL INDEX                         
 ####################################################################
-BASE PATH        : /home/iqbal/Documents/LIPI/program/priormodel
+BASE PATH        : /home/iqbal/Documents/LIPI/program/prior_control_model
 CTRL+C or 'exit' : close the program
 ####################################################################
 
@@ -18,9 +18,10 @@ Layer range: 1 to layer:
 >> 21
 Index format ('0':free to change/'1':fixed)
 >> 0
+[0]
 
 Output file
->> example_output_prior_model.pri
+>> example/output.pri
 success..
 
 ####################################################################
@@ -34,5 +35,5 @@ Number of block z: 21
 Layer  Index format
 1-21   0
 
-Output filename: example_output_prior_control_model.pri
+Output filename: example/output.pri
 ####################################################################
