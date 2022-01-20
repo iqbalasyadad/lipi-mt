@@ -88,7 +88,6 @@ class LoadParam extends AppUI {
         this.el.model_center.lat_text.value = center.lat;
         this.el.model_center.lng_text.value = center.lng;
         this.el.model_center.ok_btn.click();
-
     }
     setBlockXY(block_xy) {
         this.setSelect(this.el.block_xy.input_select, block_xy.input_mode);

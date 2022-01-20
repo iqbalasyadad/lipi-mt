@@ -63,11 +63,11 @@ window.onload = function() {
         const mode_select = document.getElementById("model-center-mode-select");
         var lat_text = document.getElementById("model-center-lat-text");
         var lng_text = document.getElementById("model-center-lng-text");
-        if (mode_select.value==="rect-center") {
+        if (mode_select.value==="boundary-center") {
             const rectCenter = myMap.modelBoundary.getBounds().getCenter();
             lat_text.value = rectCenter.lat.toFixed(8);
             lng_text.value = rectCenter.lng.toFixed(8);
-        } else if (mode_select.value==="sta-center") {
+        } else if (mode_select.value==="station-center") {
             const staCenter = myMap.staOverlay.getBounds().getCenter();
             lat_text.value = staCenter.lat.toFixed(8);
             lng_text.value = staCenter.lng.toFixed(8);
@@ -766,7 +766,7 @@ window.onload = function() {
         if(myLoad.input.data.boundary) {
             myLoad.setBoundary(myLoad.input.data.boundary);
         }
-        if(myLoad.input.data.model_center && myLoad.input.data.model_center!="sta-center") {
+        if(myLoad.input.data.model_center && myLoad.input.data.model_center!="station-center") {
             myLoad.setModelCenter(myLoad.input.data.model_center);
         }
         if(myLoad.input.data.block_xy) {
