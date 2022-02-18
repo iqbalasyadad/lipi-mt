@@ -9,6 +9,7 @@ def main():
     
     myCLI.displayHeader()
 
+    print('Parameter File:')
     while(True):
         param_file = myCLI.getInput()
         try: 
@@ -52,7 +53,6 @@ def main():
         myModel.setZLim(param['limit_depth'][0], param['limit_depth'][1])  
 
     if param['cbar_tick'] != 'none' and param['cbar_tick'] != 'default':
-        print('input_cbar_ok')
         myModel.setCbarTicks(param['cbar_tick'])
 
     

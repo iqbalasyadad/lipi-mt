@@ -1,11 +1,11 @@
 # FILE_MODEL
-example/synth_model.01
+example/blk3d_model.04
 
 # FILE_STATION
-example/sta_coordinate.csv
+none
 
 # FILE_EARTHQUAKE
-example/synth_eq.csv
+none
 
 # MODEL_CENTER_(LAT_LNG)
 -9.44190530 125.02063751
@@ -14,7 +14,7 @@ example/synth_eq.csv
 1
 
 # SLICE_SOUTH_NORTH_(KM)
--18 -15 0 15 18
+none
 
 # SLICE_WEST_EAST_(KM)
 -20 -10 0 10 20
@@ -23,10 +23,10 @@ example/synth_eq.csv
 0 5 10 15 20
 
 # SLICE_SOUTH_NORTH_LABEL
-e d c b a
+none
 
 # SLICE_WEST_EAST_LABEL
-f g h i j
+none
 
 # LIMIT_SOUTH_NORTH_(KM)
 none
@@ -38,4 +38,4 @@ none
 none
 
 # COLORBAR_TICK
-default
+0 100 200  

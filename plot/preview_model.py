@@ -213,7 +213,7 @@ def main():
     previewCLI = PlotPreviewCLI()
     previewCLI.showHeader()
 
-    print("Input File:")
+    print("Model File:")
     while(True):
         inputFile = previewCLI.getInput()
         try:
