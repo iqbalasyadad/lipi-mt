@@ -7,9 +7,9 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 
-from module.data_file import StationCoordinate, CreateDataFile
-from module.initial_model import CreateInitialModel
-from module.prior_control_model import CreateControlModelIndex
+from mtpreprocessingmodules.data_file import StationCoordinate, CreateDataFile
+from mtpreprocessingmodules.initial_model import CreateInitialModel
+from mtpreprocessingmodules.prior_control_model import CreateControlModelIndex
 
 
 class Parameter:
@@ -65,8 +65,7 @@ def uploadCoordinates():
     myParam.coordPath = os.path.join(myParam.uploadPath, myParam.coordName)
     file.save(myParam.coordPath)
     mySta = StationCoordinate(myParam.coordPath)
-    stationCoord = mySta.getStationInput()
-    return jsonify(stationCoord)
+    return jsonify(mySta.sta_latlng)
 
 @app.route('/uploadstations', methods=['POST'])
 def uploadStations():
@@ -108,13 +107,9 @@ def dfProcess(mode):
         newFile.changeErrMapVal(errMapChange)
     os.chdir(newFile.basePath)
     coordFPath = os.path.join(myParam.uploadFolder, myParam.coordName)
-    staCoordinate = StationCoordinate(coordFPath)
-    staCoordinate.setUsedStation(newFile.getInputFiles())
-    staCoordinate.createCoordinateUTM()
-    staCenterEasting, staCenterNorthing = staCoordinate.latLngToUTM(mCenter["lat"], mCenter["lng"])
-    staCoordinate.recenterCoordinate(staCenterEasting, staCenterNorthing)
-    newFile.setCoordinate(staCoordinate.easting0, staCoordinate.northing0)
-
+    mySta = StationCoordinate(coordFPath)
+    mySta.recenter(mCenter['lat'], mCenter['lng'])
+    newFile.setCoordinate(mySta.sta_xy)
     newFile.process()
 
     if mode=="save":

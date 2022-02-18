@@ -62,11 +62,11 @@ Change Error Map Period? (y/n)
 Input format: <frequency id>_<files id>_<responses id>_<final value>
 >> 1_1-2-3_all_999 2_all_1-2_999 end
 
-Coordinate file (.txt)
->> example/coordinate.txt
+Coordinate file (.csv)
+>> example/sta_coordinate.csv
 
-Automatic model center (using station center)? (y/n)
->> y
+Input model center coordinate (latitude longitude)
+>> -9.44190530 125.02063751
 
 Output file
 >> example/output.data
@@ -93,21 +93,19 @@ Period:
 9.6154E-05 1.3889E-04 2.2727E-04 3.8462E-04 9.0909E-04 1.8868E-03 2.5000E-02 (AMT24.pt1)
 9.6154E-05 1.3889E-04 2.2727E-04 3.8462E-04 9.0909E-04 1.8868E-03 2.5000E-02 (AMT25.pt1)
 
-Coordinate header: DD
-
-Station coordinate (UTM):
-+-----------+-------------------+-------------------+
-|   Name    |      Easting      |     Northing      |
-+-----------+-------------------+-------------------+
-| AMT22.pt1 | 710511.6096888956 | 8969240.539396873 |
-| AMT23.pt1 | 733727.8799872898 | 8965434.205657586 |
-| AMT24.pt1 | 712864.9298172158 | 8944646.717311213 |
-| AMT25.pt1 | 733002.1608219086 | 8945352.546413735 |
-+-----------+-------------------+-------------------+
+Station coordinate:
++-----------+-------------+-----------+
+|   Name    | North-South | East-West |
++-----------+-------------+-----------+
+| AMT22.pt1 |  13597.17   | -11410.54 |
+| AMT23.pt1 |   9905.03   | 11787.13  |
+| AMT24.pt1 |  -11110.78  | -8925.08  |
+| AMT25.pt1 |  -10282.42  | 11184.59  |
++-----------+-------------+-----------+
 
 Center of model:
-Easting: 722119.7448380927
-Northing: 8956943.628354043
+Latitude: -9.4419053
+Longitude: 125.02063751
 
 Output file: example/output.data
 ####################################################################

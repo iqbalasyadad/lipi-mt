@@ -1,0 +1,41 @@
+# FILE_MODEL
+example/synth_model.01
+
+# FILE_STATION
+example/sta_coordinate.csv
+
+# FILE_EARTHQUAKE
+example/synth_eq.csv
+
+# MODEL_CENTER_(LAT_LNG)
+-9.44190530 125.02063751
+
+# EARTHQUAKE_RADIUS_(KM)
+1
+
+# SLICE_SOUTH_NORTH_(KM)
+-18 -15 0 15 18
+
+# SLICE_WEST_EAST_(KM)
+-20 -10 0 10 20
+
+# SLICE_DEPTH_(KM)
+0 5 10 15 20
+
+# SLICE_SOUTH_NORTH_LABEL
+e d c b a
+
+# SLICE_WEST_EAST_LABEL
+f g h i j
+
+# LIMIT_SOUTH_NORTH_(KM)
+none
+
+# LIMIT_WEST_EAST_(KM)
+none
+
+# LIMIT_DEPTH_(KM)
+none
+
+# COLORBAR_TICK
+default
