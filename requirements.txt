@@ -1,7 +1,6 @@
 Werkzeug==2.0.1
 matplotlib==3.4.2
 Flask_Cors==3.0.10
-utm==0.7.0
 Flask==2.0.1
 tqdm==4.62.1
 tabulate==0.8.9
