@@ -8,10 +8,10 @@ BASE PATH        : /home/iqbal/Documents/LIPI/program/data_file
 ####################################################################
 
 .pt1 directory
->> example/data
+>> example/pt1
 
 Input files (./*.pt1)
->> .
+>> AMT22.pt1 AMT23.pt1 AMT24.pt1 AMT25.pt1 end
 
 Number of responses (4/8)
 >> 8

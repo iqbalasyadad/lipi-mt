@@ -51,7 +51,7 @@ class CreateModel:
     def __setOutputFolder(self):
         filename_as_foldername = os.path.basename(self.input_file)
         filename_as_foldername = filename_as_foldername.replace('.', '_')
-        output_path = os.path.join(self.base_path, "{}/{}/".format("outputs", filename_as_foldername))
+        output_path = os.path.join(self.base_path, "{}/{}/".format("output", filename_as_foldername))
         if not os.path.exists(output_path):
             os.makedirs(output_path)
         self.output_folder = output_path
@@ -329,7 +329,7 @@ class CreateModel:
                     if val>arr[i] and val<=arr[i+1]:
                         result_id = i
             elif val==0:
-                    result_id = center_id
+                result_id = center_id
 
         return result_id
     
