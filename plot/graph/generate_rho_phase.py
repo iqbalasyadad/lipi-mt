@@ -1,5 +1,6 @@
 from sys import platform
 import os
+import glob
 import ntpath
 import numpy as np
 import math
@@ -16,12 +17,13 @@ class GDParameter:
         hmode = ''
         data = []
         dataDic = {
-            'FILE_PT1': [],
+            'FOLDER_PT1': '',
+            'FILE_NAME_PT1': [],
             'FILE_DATA': '',
             'FILE_ERROR': '',
             'OUTPUT_FOLDER': '',
             'OUTPUT_NAME': [],
-            'LOG_OUTPUT': []
+            'LOG10_OUTPUT': []
         }
         
         with open(file) as f:
@@ -36,13 +38,20 @@ class GDParameter:
                     hmode = splitd_line[1]
                     data.append([])
                 else:
-                    if hmode=='FILE_PT1': 
-                        line = line.split('.pt1')
-                        for cpath in line:
-                            if len(cpath.split())==0:
-                                continue
-                            else:
-                                dataDic[hmode].append(cpath.strip()+'.pt1')
+                    if hmode=='FOLDER_PT1':
+                        dataDic['FOLDER_PT1'] = line.strip()
+                        
+                    elif hmode=='FILE_NAME_PT1':
+                        if line.strip() == '.':
+                            pt1_files = [os.path.basename(x) for x in glob.glob(os.path.join(dataDic['FOLDER_PT1'],'*.pt1'))]
+                            dataDic['FILE_NAME_PT1'] = np.sort(pt1_files)
+                        else:
+                            line = line.split('.pt1')
+                            for cpath in line:
+                                if len(cpath.split())==0:
+                                    continue
+                                else:
+                                    dataDic[hmode].append(cpath.strip()+'.pt1')
                     
                     elif hmode=='FILE_DATA':
                         dataDic[hmode] = line.strip()
@@ -81,14 +90,21 @@ class CreateGD:
         self.outputPath = os.path.join(self.basepath, self.outputFolder)
         self.NoneSym = 'NaN '
         self.outNames = None
+        self.defout_reg = '.out'
+        self.defout_log = '_log10.out'
+        
     
     def __vartoerr(self, data):
         return data ** 0.5
+    
+    def setpt1folder(self, folder):
+        self.pt1_folder = folder
     
     def setpt1Files(self, pt1files):
         self.pt1_files = pt1files
     
     def readpt1(self, file):
+        file = os.path.join(self.pt1_folder, file)
         headers=[]
         data=[]
         header_num = 0
@@ -141,7 +157,7 @@ class CreateGD:
         self.pt1s_dic = {}
         for file in files:
             fname = ntpath.basename(file)
-            self.pt1s_dic[fname] = self.readpt1(os.path.join(self.basepath, file))
+            self.pt1s_dic[fname] = self.readpt1(file)
             self.pt1sfname.append(fname)
         
     def readOutput(self, file, fmode):
@@ -399,16 +415,17 @@ class CreateGD:
                             out_vals[ifreq][valId] = np.log10(out_vals[ifreq][valId])
                         except Exception as err:
                             print(err)
+
         stdoldheaders = ['freqs', 'obs_rhoxy', 'obs_rhoyx', 'obs_phasexy', 'obs_phaseyx', 
                        'obs_erhoxy', 'obs_erhoyx', 'obs_ephasexy', 'obs_ephaseyx',
                        'calc_rhoxy', 'calc_rhoyx', 'calc_phasexy', 'calc_phaseyx', 
                        'calc_erhoxy', 'calc_erhoyx', 'calc_ephasexy', 'calc_ephaseyx']
         
-        stdHeaders = ['freqs_Hz', 'obs_rhoxy_ohm-m', 'obs_rhoyx_ohm-m', 
-                       'obs_phasexy_deg', 'obs_phaseyx_deg', 
+        stdHeaders = ['freq', 'obs_rhoxy', 'obs_rhoyx', 
+                       'obs_phasexy', 'obs_phaseyx', 
                        'obs_erhoxy', 'obs_erhoyx', 
                        'obs_ephasexy', 'obs_ephaseyx',
-                       'calc_rhoxy_ohm-m', 'calc_rhoyx_ohm-m', 
+                       'calc_rhoxy', 'calc_rhoyx', 
                        'calc_phasexy', 'calc_phaseyx', 
                        'calc_erhoxy', 'calc_erhoyx', 
                        'calc_ephasexy', 'calc_ephaseyx']
@@ -440,9 +457,9 @@ class CreateGD:
         
         if self.outNames == 'DEFAULT' or self.outNames is None:
             if self.logMode:
-                self.outNames = [fname.replace('.pt1', '_log.out') for fname in self.pt1sfname]
+                self.outNames = [fname.replace('.pt1', self.defout_log) for fname in self.pt1sfname]
             else:
-                self.outNames = [fname.replace('pt1', 'out') for fname in self.pt1sfname]
+                self.outNames = [fname.replace('.pt1', self.defout_reg) for fname in self.pt1sfname]
         
         for i, fname in enumerate(self.pt1sfname):
             strOut = self.createStrOutput(fname)
@@ -467,7 +484,7 @@ class GDCLI:
     
     def showHeader(self):
         print("####################################################################")
-        print("                  GENERATE FREQUENCY, RHO, AND PHASE                ")
+        print("                         CREATE RHO AND PHASE                       ")
         print("####################################################################")
         print("{0:17s}: {1}".format("CTRL+C or \'exit\'", "close the program"))
         print("{0:17s}: {1}".format("BASE PATH", self.base_path))
@@ -496,15 +513,17 @@ def main():
             print(err)
         else:
             break
-
-    pt1files = param['FILE_PT1']
+    
+    pt1_folder = param['FOLDER_PT1']
+    pt1_files = param['FILE_NAME_PT1']
     data_file = param['FILE_DATA']
     error_file = param['FILE_ERROR']
     outnames = param['OUTPUT_NAME']
     logmode = param['LOG10_OUTPUT']
 
     myGData = CreateGD()
-    myGData.readpt1s(pt1files)
+    myGData.setpt1folder(pt1_folder)
+    myGData.readpt1s(pt1_files)
     myGData.readOutput(data_file, 'data')
     myGData.readOutput(error_file, 'err')
     myGData.setLogMode(logmode)

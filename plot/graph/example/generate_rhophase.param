@@ -1,8 +1,8 @@
-# FILE_PT1
-example/pt1/AMT22.pt1 
-example/pt1/AMT23.pt1
-example/pt1/AMT24.pt1 
-example/pt1/AMT25.pt1
+# FOLDER_PT1
+example/pt1
+
+# FILE_NAME_PT1
+.
 
 # FILE_DATA
 example/data/blk3d_synth.data
@@ -15,5 +15,3 @@ DEFAULT
 
 # LOG10_OUTPUT
 FALSE
-
-

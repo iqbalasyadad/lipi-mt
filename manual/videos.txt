@@ -1,0 +1,15 @@
+VIDEO TUTORIALS
+
+# Web app:
+    https://drive.google.com/file/d/1mzrR3CY9-yqgaxl9FTx4YpDdU4Gmxjlo/view?usp=sharing
+    
+# Plot Model: 
+    https://drive.google.com/file/d/17hVkGkwnqHCMRRGIpLzozvMYMKf0CJ8h/view?usp=sharing
+
+# Preview Model:
+    https://drive.google.com/file/d/14LTuZ0eKRzFaLGtHmMDONDdlQEDfNifo/view?usp=sharing
+
+# Generate freq, rho, phase: 
+    https://drive.google.com/file/d/1GI7gQnfePJ4nlfcDza05i6t063ZzS_J5/view?usp=sharing
+
+
