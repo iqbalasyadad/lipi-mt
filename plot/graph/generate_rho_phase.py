@@ -88,7 +88,8 @@ class CreateGD:
         self.basepath = os.getcwd()
         self.outputFolder = 'output'
         self.outputPath = os.path.join(self.basepath, self.outputFolder)
-        self.NoneSym = 'NaN '
+        self.log10Col = [0,1,2,5,6,9,10,13,14]
+        self.NoneSym = np.nan
         self.outNames = None
         self.defout_reg = '.out'
         self.defout_log = '_log10.out'
@@ -369,7 +370,7 @@ class CreateGD:
         self.output = ''
         nfreq = len(self.pt1s_dic[fname]['freqs'])
         ncol = 17
-        out_vals = [[0 for lcol in range(ncol)] for lrow in range(nfreq)]
+        out_vals = np.zeros([nfreq, ncol], dtype=float)
         matchPeriodId = self.getMatchPeriods(fname)
                 
         for ifreq, freq in enumerate(self.pt1s_dic[fname]['freqs']):
@@ -401,47 +402,15 @@ class CreateGD:
                 
             else:
                 for icol in range(9, 17):
-                    out_vals[ifreq][icol] = self.NoneSym
+                    out_vals[ifreq][icol] = np.nan
             
-            # to log val
-            logIds = [0,1,2,5,6,9,10,13,14]
-            
-            if self.logMode:
-                for valId in logIds:
-                    if type(out_vals[ifreq][valId]) == str:
-                        continue
-                    else:
-                        try:
-                            out_vals[ifreq][valId] = np.log10(out_vals[ifreq][valId])
-                        except Exception as err:
-                            print(err)
-
-        stdoldheaders = ['freqs', 'obs_rhoxy', 'obs_rhoyx', 'obs_phasexy', 'obs_phaseyx', 
-                       'obs_erhoxy', 'obs_erhoyx', 'obs_ephasexy', 'obs_ephaseyx',
-                       'calc_rhoxy', 'calc_rhoyx', 'calc_phasexy', 'calc_phaseyx', 
-                       'calc_erhoxy', 'calc_erhoyx', 'calc_ephasexy', 'calc_ephaseyx']
-        
-        stdHeaders = ['freq', 'obs_rhoxy', 'obs_rhoyx', 
-                       'obs_phasexy', 'obs_phaseyx', 
-                       'obs_erhoxy', 'obs_erhoyx', 
-                       'obs_ephasexy', 'obs_ephaseyx',
-                       'calc_rhoxy', 'calc_rhoyx', 
-                       'calc_phasexy', 'calc_phaseyx', 
-                       'calc_erhoxy', 'calc_erhoyx', 
-                       'calc_ephasexy', 'calc_ephaseyx']
-        
+        # to log val   
         if self.logMode:
-            headers = []
-            for iheader, header in enumerate(stdHeaders):
-                if iheader in logIds:
-                    headers.append('log10({})'.format(header))
-                else:
-                    headers.append(header)
-        else:
-            headers = stdHeaders
+            out_vals[:,self.log10Col] = np.log10(out_vals[:,self.log10Col])
 
-
-        out_str = tabulate(out_vals, headers, numalign="right", tablefmt='plain')
+        out_str = tabulate(out_vals, numalign="right", tablefmt='plain', floatfmt=".3f")
+        out_str = out_str.replace('nan', 'NaN')
+        
         return out_str
     
     def setLogMode(self, mode):
